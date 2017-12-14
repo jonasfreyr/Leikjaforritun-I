@@ -48,17 +48,17 @@ class game:
             self.levels.remove('')
         except:
             pass
-        print(self.levels)
+        #print(self.levels)
         self.Sscore = 0
-        print(self.dict)
+        #print(self.dict)
         for a in self.dict:
             if self.dict[a] > self.Sscore:
                 self.Sscore = self.dict[a]
                 self.Snafn = a
-        print("Sscore",self.Sscore)
-        print("Snafn",self.Snafn)
+        #print("Sscore",self.Sscore)
+        #print("Snafn",self.Snafn)
     def thing(self,x):
-        print(len(self.boxes))
+        #print(len(self.boxes))
         if self.tel % self.fjoldi == 0:
             if self.blackS == False:
                 pygame.draw.rect(self.screen, self.orange,pygame.Rect(x, -60, 60, 60))
@@ -110,7 +110,7 @@ class game:
                 self.dict[self.nafn] = self.Sscore
         except:
             self.dict[self.nafn] = self.score
-        print(self.dict)
+        #print(self.dict)
         with open("score.txt","w", encoding="UTF-8") as f:
             for a in range(4):
                 if self.diff == a+1:
