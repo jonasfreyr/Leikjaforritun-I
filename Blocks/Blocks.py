@@ -125,8 +125,12 @@ class game:
         while not self.done:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.done = True
                     quit()
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_ESCAPE and self.tap == False:
+                        print("yay")
+                        game.pause(self)
+                        self.gP = not self.gP
             pressed = pygame.key.get_pressed()
             if self.gP == False and self.tap == False:
 
@@ -188,13 +192,6 @@ class game:
                     hard()
                 elif self.fjoldi == 10:
                     shard()
-            if pressed[pygame.K_ESCAPE] and self.tap == False:
-                game.pause(self)
-                if self.gP == False:
-                    self.gP = True
-                elif self.gP == True:
-                    self.gP = False
-                time.sleep(0.15)
             pygame.display.flip()
 
 
