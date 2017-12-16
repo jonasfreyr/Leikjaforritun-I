@@ -26,7 +26,7 @@ class game:
         self.speed = 5
         self.GunSpeed = 7
 
-        self.GunWait = 100
+        self.GunWait = 50
 
         self.FPS = 120
 
@@ -50,6 +50,7 @@ class game:
             self.f4 = False
             self.f5 = False
             self.f6 = False
+            self.won = False
 
         self.size = 50
         self.shotSize = 10
@@ -165,10 +166,16 @@ class game:
             self.color = (0, 0, 0)
             self.Scolor = (255, 255, 255)
 
+    def winner(self,vann):
+        self.won = True
+        label = self.font.render(vann + " won!", 1, self.color)
+        self.screen.blit(label,(self.wW / 2 - self.fontSize * 3, self.wH / 2 - (self.fontSize / 2)))
+
     def loop(self):
         tel1 = self.GunWait
         tel2 = self.GunWait
         while True:
+            pressed = pygame.key.get_pressed()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
@@ -187,7 +194,9 @@ class game:
                         self.f6 = not self.f6
                     if event.key == pygame.K_ESCAPE:
                         self.gP = not self.gP
-            if self.gP == False:
+            if self.gP == False and self.won == False:
+                self.screen.fill(self.Scolor)
+
                 if self.f3 or self.f4 or self.f5 or self.f6:
                     self.cheats = True
 
@@ -199,7 +208,7 @@ class game:
                 if self.f4 == True:
                     self.GunWait = 15
                 elif self.f4 == False:
-                    self.GunWait = 100
+                    self.GunWait = 50
 
                 if self.f5 == True:
                     self.FPS = 30
@@ -211,7 +220,6 @@ class game:
                 elif self.f6 == False:
                     self.speed = 5
 
-                pressed = pygame.key.get_pressed()
                 if self.y > 0 + self.size:
                     if pressed[pygame.K_w]: self.y -= self.speed
                 if self.y < self.wH - self.size:
@@ -239,18 +247,27 @@ class game:
                         game.shoot(self, self.x2, self.y2, False)
                         tel2 = 0
 
-                if pressed[pygame.K_r]:
-                    self.cheats = False
-                    game.restart(self, 0, 0, self.color, self.Scolor)
-
                 tel1 += 1
                 tel2 += 1
 
-                self.screen.fill(self.Scolor)
+                game.check(self)
 
-                scoreR = self.font.render(str(self.telR), 1, self.color)
-                scoreL = self.font.render(str(self.telL), 1, self.color)
+                pygame.draw.line(self.screen,self.color,[self.wW / 2, 0],[self.wW / 2, self.wH])
 
+                pygame.draw.circle(self.screen, self.color,(self.x, self.y), self.size)
+                pygame.draw.circle(self.screen, self.color, (self.x2, self.y2), self.size)
+
+                game.shots(self)
+
+                if self.telR == 10:
+                    game.winner(self,"Right")
+                elif self.telL == 10:
+                    game.winner(self,"Left")
+
+            scoreR = self.font.render(str(self.telR), 1, self.color)
+            scoreL = self.font.render(str(self.telL), 1, self.color)
+
+            if self.won == False:
                 if self.telR < 10:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize, 0))
                 elif self.telR >= 10 and self.telR < 100:
@@ -261,15 +278,9 @@ class game:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize - 75, 0))
                 self.screen.blit(scoreL, ((self.wW / 2) + 15, 0))
 
-
-                pygame.draw.line(self.screen,self.color,[self.wW / 2, 0],[self.wW / 2, self.wH])
-
-                pygame.draw.circle(self.screen, self.color,(self.x, self.y), self.size)
-                pygame.draw.circle(self.screen, self.color, (self.x2, self.y2), self.size)
-
-                game.shots(self)
-
-                game.check(self)
+            if pressed[pygame.K_r]:
+                self.cheats = False
+                game.restart(self, 0, 0, self.color, self.Scolor)
             pygame.display.flip()
             self.clock.tick(self.FPS)
 H = game(wW, wH)
