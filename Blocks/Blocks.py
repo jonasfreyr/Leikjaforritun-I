@@ -107,7 +107,8 @@ class game:
             if self.dict[self.nafn]  > self.Sscore:
                 self.dict[self.nafn] = self.score
             else:
-                self.dict[self.nafn] = self.Sscore
+                if self.dict[self.nafn] < self.score:
+                    self.dict[self.nafn] = self.score
         except:
             self.dict[self.nafn] = self.score
         #print(self.dict)
