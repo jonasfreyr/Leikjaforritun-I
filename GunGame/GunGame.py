@@ -255,9 +255,12 @@ class game:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize, 0))
                 elif self.telR >= 10 and self.telR < 100:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize - 15, 0))
-                elif self.telR >= 100:
+                elif self.telR >= 100 and self.telR < 1000:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize - 45, 0))
+                elif self.telR >= 1000:
+                    self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize - 75, 0))
                 self.screen.blit(scoreL, ((self.wW / 2) + 15, 0))
+
 
                 pygame.draw.line(self.screen,self.color,[self.wW / 2, 0],[self.wW / 2, self.wH])
 
