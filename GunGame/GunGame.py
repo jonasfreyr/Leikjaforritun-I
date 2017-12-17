@@ -34,6 +34,8 @@ class game:
 
         self.gP = False
 
+        self.win = 10
+
         game.restart(self, telR, telL, color, Scolor)
 
     def restart(self, telR, telL, color, Scolor):
@@ -126,8 +128,6 @@ class game:
                     self.telL += 1
                 else:
                     game.restart(self, self.telR, self.telL + 1, self.color, self.Scolor)
-
-
 
     def shots(self):
         for a in range(len(self.shotsR)):
@@ -259,15 +259,9 @@ class game:
 
                 game.shots(self)
 
-                if self.telR == 10:
-                    game.winner(self,"Right")
-                elif self.telL == 10:
-                    game.winner(self,"Left")
+                scoreR = self.font.render(str(self.telR), 1, self.color)
+                scoreL = self.font.render(str(self.telL), 1, self.color)
 
-            scoreR = self.font.render(str(self.telR), 1, self.color)
-            scoreL = self.font.render(str(self.telL), 1, self.color)
-
-            if self.won == False:
                 if self.telR < 10:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize, 0))
                 elif self.telR >= 10 and self.telR < 100:
@@ -277,6 +271,11 @@ class game:
                 elif self.telR >= 1000:
                     self.screen.blit(scoreR, ((self.wW / 2) - self.fontSize - 75, 0))
                 self.screen.blit(scoreL, ((self.wW / 2) + 15, 0))
+
+                if self.telR == self.win:
+                    game.winner(self,"Left")
+                elif self.telL == self.win:
+                    game.winner(self,"Right")
 
             if pressed[pygame.K_r]:
                 self.cheats = False
