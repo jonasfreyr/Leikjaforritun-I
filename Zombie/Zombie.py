@@ -30,17 +30,11 @@ class game:
         self.gunEndx = 1
         self.gunEndy = 1
 
-        self.x = int(self.wW / 2)
-        self.y = int(self.wH / 2)
-
         self.bulletLength = 10
         self.bulletWidth = 1
         self.bulletSpeed = 7
 
-        self.shots = []
-
         #[[300, 0], 10, 20]
-        self.enemies = []
 
         self.enemySize = 10
         self.eLife = 20
@@ -51,6 +45,23 @@ class game:
 
         self.ene = True
 
+        self.fontSize = 50
+        self.font = pygame.font.SysFont("monospace", self.fontSize)
+
+        game.restart(self)
+
+    def restart(self):
+        self.gP = False
+        self.lose = False
+
+        self.enemies = []
+
+        self.shots = []
+
+        self.x = int(self.wW / 2)
+        self.y = int(self.wH / 2)
+
+        self.score = 0
     def pointer(self, tuple):
         x = tuple[0]
         y = tuple[1]
@@ -161,18 +172,20 @@ class game:
             y = random.randint(-50, 0 - self.enemySize)
 
         elif side == 1:
-            x = random.randint(0, self.wW)
-            y = random.randint(-50, 0 - self.enemySize)
+            x = random.randint(-50, 0 - self.enemySize)
+            y = random.randint(0, self.wH)
 
         elif side == 2:
             x = random.randint(0, self.wW)
-            y = random.randint(-50, 0 - self.enemySize)
+            y = random.randint(self.wH + self.enemySize, self.wH + 50)
 
         elif side == 3:
-            x = random.randint(0, self.wW)
-            y = random.randint(-50, 0 - self.enemySize)
+            x = random.randint(self.wW + self.enemySize, self.wW + 50)
+            y = random.randint(0, self.wH)
 
         e = [[x, y], self.enemySize, self.eLife]
+
+        #print("E:", e)
 
         self.enemies.append(e)
 
@@ -194,6 +207,7 @@ class game:
             y = a[0][1]
 
             size = a[1]
+            life = a[2]
 
             vector = []
             vector.append(self.x - x)
@@ -213,36 +227,95 @@ class game:
             x1 = (x1 * lengd)
             y1 = (y1 * lengd)
 
-            print("XS:", x1, "   YS:", y1)
+            #print("X1:", x1, "   Y1:", y1)
             #time.sleep(3)
 
             for b in self.enemies:
                 x2 = b[0][0]
                 y2 = b[0][1]
 
-                if x1 > 0 and y1 > 0:
-                    
-                elif x1 > 0 and y1 < 0:
-                elif x1 < 0 and y1 < 0:
-                elif x1 < 0 and y1 > 0:
+                size2 = b[1]
+ #               print("B:", b)
+                #time.sleep(3)
+                #if (x + x1) > :
+                if int(x + x1 + size) == int(x2 + (size2)) and int(y + y1 + size) == int(y2 + (size2)):
+                    y1 = 0
+                    x1 = 0
 
+            e = [[x + x1, y + y1], size, life]
 
-            e = [[x + x1, y + y1], size, self.eLife]
-            if y < self.wH + self.enemySize:
-                self.enemies.insert(tel, e)
+            self.enemies.insert(tel, e)
             self.enemies.remove(a)
             #print(self.enemies)
             #time.sleep(3)
             tel += 1
 
+    def checkP(self):
+        for a in self.enemies:
+            x = a[0][0]
+            y = a[0][1]
+
+            size = a[1]
+
+            vector1 = []
+            vector1.append(x - self.x)
+            vector1.append(y - self.y)
+
+            vector2 = []
+            vector2.append(x - self.x)
+            vector2.append(y + size - self.y)
+
+            if float(self.size) > math.sqrt(math.pow(vector1[0], 2) + math.pow(vector1[1], 2)) or float(self.size) > math.sqrt(math.pow(vector2[0], 2) + math.pow(vector2[1], 2)):
+                game.tap(self)
+
+    def checkE(self):
+        #[[x, y], self.enemySize, self.eLife]
+        # [[x1, y1], [x2, x2], (v1, v2)]
+        temps = self.shots
+        for a in temps:
+            p1 = a[0]
+
+            temp = self.enemies
+            tel = 0
+            for b in temp:
+                x = b[0][0]
+                y = b[0][1]
+
+                size = b[1]
+                life = b[2]
+
+                if p1[0] > x - size / 2 and p1[0] < x + size / 2 and p1[1] > y and p1[1] < y + size:
+                    self.shots.remove(a)
+
+                    e = [[x, y], size, life - 1]
+                    #print("E:", e)
+                    #print("B:", b)
+                    #time.sleep(3)
+                    self.enemies.remove(b)
+
+                    if life -1 != 0:
+                        self.enemies.insert(tel, e)
+
+                    else:
+                        self.score += 1
+                    break
+
+                tel += 1
+
+    def tap(self):
+        self.lose = True
+        label = self.font.render("Game Over", 1, self.color)
+        self.screen.blit(label, (self.wW / 2 - self.fontSize * 3, self.wH / 2 - (self.fontSize / 2)))
+
     def loop(self):
         tel = self.gunFirerate
         telE = self.enemySpawn
         while True:
-            self.screen.fill(self.Scolor)
+            #print("Ls:", len(self.shots))
+            #print("Le:", len(self.enemies))
 
-            print("Ls:", len(self.shots))
-            print("Le:", len(self.enemies))
+            #for a in self.enemies:
+             #   print(a[2])
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -251,21 +324,50 @@ class game:
             poss = pygame.mouse.get_pos()
             mpressed = pygame.mouse.get_pressed()
             pressed = pygame.key.get_pressed()
-            if self.y > 0 + self.size:
-                if pressed[pygame.K_w]:
-                    self.y -= self.speed
-            if self.y < self.wH - self.size:
-                if pressed[pygame.K_s]:
-                    self.y += self.speed
-            if self.x > 0 + self.size:
-                if pressed[pygame.K_a]:
-                    self.x -= self.speed
-            if self.x < self.wW - self.size:
-                if pressed[pygame.K_d]:
-                    self.x += self.speed
-            if mpressed[0] == 1 and tel >= self.gunFirerate:
-                game.shoot(self, poss)
-                tel = 0
+
+            if self.gP == False and self.lose == False:
+                self.screen.fill(self.Scolor)
+
+                if self.y > 0 + self.size:
+                    if pressed[pygame.K_w]:
+                        self.y -= self.speed
+                if self.y < self.wH - self.size:
+                    if pressed[pygame.K_s]:
+                        self.y += self.speed
+                if self.x > 0 + self.size:
+                    if pressed[pygame.K_a]:
+                        self.x -= self.speed
+                if self.x < self.wW - self.size:
+                    if pressed[pygame.K_d]:
+                        self.x += self.speed
+                if mpressed[0] == 1 and tel >= self.gunFirerate:
+                    game.shoot(self, poss)
+                    tel = 0
+
+                pygame.draw.circle(self.screen, self.color,(self.x, self.y), self.size)
+
+                game.gunRender(self,poss)
+
+                game.shots(self)
+
+                if telE >= self.enemySpawn and self.ene == True and len(self.enemies) < 100:
+                    game.Newenemy(self)
+                    telE = 0
+
+                tel += 1
+                telE += 1
+
+                game.enemy(self)
+
+                game.checkP(self)
+
+                game.checkE(self)
+
+                game.pointer(self, poss)
+
+                label = self.font.render(str(self.score), 1, self.color)
+                self.screen.blit(label, (0, 0))
+
             if poss[0] < self.screenM:
                 pygame.mouse.set_pos([self.screenM, poss[1]])
             if poss[0] > self.wW - self.screenM:
@@ -275,26 +377,13 @@ class game:
             if poss[1] > self.wH - self.screenM:
                 pygame.mouse.set_pos([poss[0], self.wH - self.screenM])
 
-            pygame.draw.circle(self.screen, self.color,(self.x, self.y), self.size)
-
-            game.pointer(self, poss)
-
-            game.gunRender(self,poss)
-
-            game.shots(self)
-
-            self.clock.tick(self.FPS)
-
-            if telE == self.enemySpawn and self.ene == True:
-                game.Newenemy(self)
-                telE = 0
-
-            game.enemy(self)
+            if pressed[pygame.K_r]:
+                game.restart(self)
 
             pygame.display.flip()
+            self.clock.tick(self.FPS)
 
-            tel += 1
-            telE += 1
+
 
 H = game()
 H.loop()
