@@ -265,7 +265,31 @@ class game:
             vector2.append(x - self.x)
             vector2.append(y + size - self.y)
 
-            if float(self.size) > math.sqrt(math.pow(vector1[0], 2) + math.pow(vector1[1], 2)) or float(self.size) > math.sqrt(math.pow(vector2[0], 2) + math.pow(vector2[1], 2)):
+            vector3 = []
+            vector3.append((x - size /2) - self.x)
+            vector3.append((y + size / 2) - self.y)
+
+            vector4 = []
+            vector4.append((x + size /2) - self.x)
+            vector4.append((y + size / 2)- self.y)
+
+            vector5 = []
+            vector5.append((x + size / 2) - self.x)
+            vector5.append((y) - self.y)
+
+            vector6 = []
+            vector6.append((x - size / 2) - self.x)
+            vector6.append((y) - self.y)
+
+            vector7 = []
+            vector7.append((x - size / 2) - self.x)
+            vector7.append((y + size) - self.y)
+
+            vector8 = []
+            vector8.append((x + size / 2) - self.x)
+            vector8.append((y + size) - self.y)
+
+            if float(self.size) > math.sqrt(math.pow(vector1[0], 2) + math.pow(vector1[1], 2)) or float(self.size) > math.sqrt(math.pow(vector2[0], 2) + math.pow(vector2[1], 2)) or float(self.size) > math.sqrt(math.pow(vector3[0], 2) + math.pow(vector3[1], 2)) or float(self.size) > math.sqrt(math.pow(vector4[0], 2) + math.pow(vector4[1], 2)) or float(self.size) > math.sqrt(math.pow(vector5[0], 2) + math.pow(vector5[1], 2)) or float(self.size) > math.sqrt(math.pow(vector6[0], 2) + math.pow(vector6[1], 2)) or float(self.size) > math.sqrt(math.pow(vector7[0], 2) + math.pow(vector7[1], 2)) or float(self.size) > math.sqrt(math.pow(vector8[0], 2) + math.pow(vector8[1], 2)):
                 game.tap(self)
 
     def checkE(self):
