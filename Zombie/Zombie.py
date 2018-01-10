@@ -389,6 +389,11 @@ class game:
         else:
             temps = self.shots
             telS = 0
+
+            #print(len(self.shots))
+            #print(len(temps))
+            #print("---")
+
             for a in temps:
                 p1 = a[0]
                 p2 = a[1]
@@ -402,6 +407,7 @@ class game:
 
                 temp = self.enemies
                 tel = 0
+
                 for b in temp:
                     x = b[0][0]
                     y = b[0][1]
@@ -421,6 +427,8 @@ class game:
 
                         #shot[4].append(ID)
 
+                        IDlist.append(ID)
+
                         s = [p1, p2, v, Slife - 1, IDlist]
 
                         self.shots.remove(a)
@@ -439,7 +447,8 @@ class game:
 
                         else:
                             self.score += 1
-                            break
+
+                        break
 
                     tel += 1
                 telS += 1
@@ -537,6 +546,7 @@ class game:
 
                 gname = self.font.render(self.gunName, 1, self.TextColor)
                 self.screen.blit(gname, (0, self.wH - self.fontSize))
+
             if self.gP is False:
                 if poss[0] < self.screenM:
                     pygame.mouse.set_pos([self.screenM, poss[1]])
