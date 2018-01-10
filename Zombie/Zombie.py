@@ -537,15 +537,15 @@ class game:
 
                 gname = self.font.render(self.gunName, 1, self.TextColor)
                 self.screen.blit(gname, (0, self.wH - self.fontSize))
-
-            if poss[0] < self.screenM:
-                pygame.mouse.set_pos([self.screenM, poss[1]])
-            if poss[0] > self.wW - self.screenM:
-                pygame.mouse.set_pos(self.wW - self.screenM, poss[1])
-            if poss[1] < self.screenM:
-                pygame.mouse.set_pos([poss[0], self.screenM])
-            if poss[1] > self.wH - self.screenM:
-                pygame.mouse.set_pos([poss[0], self.wH - self.screenM])
+            if self.gP is False:
+                if poss[0] < self.screenM:
+                    pygame.mouse.set_pos([self.screenM, poss[1]])
+                if poss[0] > self.wW - self.screenM:
+                    pygame.mouse.set_pos(self.wW - self.screenM, poss[1])
+                if poss[1] < self.screenM:
+                    pygame.mouse.set_pos([poss[0], self.screenM])
+                if poss[1] > self.wH - self.screenM:
+                    pygame.mouse.set_pos([poss[0], self.wH - self.screenM])
 
             if pressed[pygame.K_r]:
                 game.restart(self)
