@@ -74,6 +74,7 @@ class game:
         self.font = pygame.font.SysFont("monospace", self.fontSize)
 
         self.guns = []
+
         #    1       2    3    4    5       6      7    8     9    10
         #(Firerate,speed,life,dmg,Glength,Blength,name,Goff,width,color)
         MINI = gun(self.gunFirerate, self.bulletSpeed, self.bulletLife, self.damage, self.gunLength, self.bulletLength, self.gunName, self.GunOff, self.bulletWidth, self.bulletColor)
@@ -86,7 +87,14 @@ class game:
         self.guns.append(M4)
         self.guns.append(RAILGUN)
 
+        self.wallThickness = 10
+        self.walls = [(self.wW / 4, (self.wH / 4) * 3, self.wW / 4 - 10, self.wallThickness), (self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
+
         game.restart(self)
+
+    def wallRender(self):
+        for a in self.walls:
+            pygame.draw.rect(self.screen, self.color, pygame.Rect(a))
 
     def gunChange(self, num):
         byssa = self.guns[num]
@@ -322,10 +330,27 @@ class game:
  #               print("B:", b)
                 #time.sleep(3)
 
-                #if (((x + x1) - size / 2) < (x2 + size2 / 2) and (y + y1) < int(y2)) and (((x + x1) + size / 2) > (x2 - size2 / 2) and (y + size) > (y2 + size2)):
-                if int(x + x1 + size) == int(x2 + size2) and int(y + y1 + size) == int(y2 + size2):
-                    y1 = 0
+                if a != b:
+                    if ((x + x1 + size) >= (x2) and (y + size) >= (y2)) and (x + x1 <= x2 + size2 and y <= y2 + size2):
+                        x1 = 0
+
+                    if ((x + size) >= (x2) and (y + y1 + size) >= (y2)) and (x <= x2 + size2 and y + y1 <= y2 + size2):
+                        y1 = 0
+
+            #(x, y, xS, yS)
+            for b in self.walls:
+                xW = b[0]
+                yW = b[1]
+
+                sX = b[2]
+                sY = b[3]
+
+
+                if (x + x1 + size > xW and y + size > yW) and (x + x1 < xW + sX and y < yW + sY):
                     x1 = 0
+
+                if (x + size > xW and y + y1 + size > yW) and (x < xW + sX and y + y1 < yW + sY):
+                    y1 = 0
 
             e = [[x + x1, y + y1], size, life, ID]
 
@@ -539,6 +564,8 @@ class game:
                 if len(self.shots) > 0:
                     game.checkE(self)
 
+                game.wallRender(self)
+
                 game.pointer(self, poss)
 
                 label = self.font.render(str(self.score), 1, self.TextColor)
@@ -547,7 +574,7 @@ class game:
                 gname = self.font.render(self.gunName, 1, self.TextColor)
                 self.screen.blit(gname, (0, self.wH - self.fontSize))
 
-            if self.gP is False:
+            if self.gP is False and self.lose is False:
                 if poss[0] < self.screenM:
                     pygame.mouse.set_pos([self.screenM, poss[1]])
                 if poss[0] > self.wW - self.screenM:
