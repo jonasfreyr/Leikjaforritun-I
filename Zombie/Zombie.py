@@ -88,7 +88,7 @@ class game:
         self.guns.append(RAILGUN)
 
         self.wallThickness = 10
-        self.walls = [(self.wW / 4, (self.wH / 4) * 3, self.wW / 4 - 10, self.wallThickness), (self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
+        self.walls = [(self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
 
         game.restart(self)
 
@@ -485,8 +485,26 @@ class game:
 
     def pause(self):
         self.gP = not self.gP
+
         label = self.font.render("Game Paused", 1, self.TextColor)
         self.screen.blit(label, ((self.wW / 2) - 120, (self.wH / 2) - 50))
+
+    def move(self, x, y):
+        for a in self.walls:
+            xW = a[0]
+            yW = a[1]
+
+            xS = a[2]
+            yS = a[3]
+
+            if (self.x + self.size + x > xW and self.y + self.size > yW) and (self.x + x - self.size < xW + xS and self.y - self.size < yW +yS):
+                x = 0
+
+            if (self.x + self.size > xW and self.y + self.size + y > yW) and (self.x - self.size < xW + xS and self.y - self.size + y < yW + yS):
+                y = 0
+
+        self.x += x
+        self.y += y
 
     def loop(self):
         tel = self.gunFirerate
@@ -528,18 +546,22 @@ class game:
             if self.gP is False and self.lose is False:
                 self.screen.fill(self.Scolor)
 
+                x = 0
+                y = 0
                 if self.y > 0 + self.size:
                     if pressed[pygame.K_w]:
-                        self.y -= self.speed
+                        y = -self.speed
                 if self.y < self.wH - self.size:
                     if pressed[pygame.K_s]:
-                        self.y += self.speed
+                        y = +self.speed
                 if self.x > 0 + self.size:
                     if pressed[pygame.K_a]:
-                        self.x -= self.speed
+                        x = -self.speed
                 if self.x < self.wW - self.size:
                     if pressed[pygame.K_d]:
-                        self.x += self.speed
+                        x = +self.speed
+                game.move(self,x, y)
+
                 if mpressed[0] == 1 and tel >= self.gunFirerate:
                     game.shoot(self, poss)
                     tel = 0
