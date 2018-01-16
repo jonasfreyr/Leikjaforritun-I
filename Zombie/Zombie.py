@@ -36,6 +36,7 @@ class game:
         self.bulletColor = (255, 229, 22)
         self.TextColor = (255, 255, 255)
         self.pointerColor = (255, 0, 0)
+        self.blue = (0, 255, 255)
 
         self.size = 10
         self.hitboxRe = 2
@@ -78,9 +79,9 @@ class game:
         #    1       2    3    4    5       6      7    8     9    10
         #(Firerate,speed,life,dmg,Glength,Blength,name,Goff,width,color)
         MINI = gun(self.gunFirerate, self.bulletSpeed, self.bulletLife, self.damage, self.gunLength, self.bulletLength, self.gunName, self.GunOff, self.bulletWidth, self.bulletColor)
-        AWP = gun(80, 7, 20, 20, 30, 20, "AWP", 0, 2, self.bulletColor)
+        AWP = gun(80, 7, 5, 20, 30, 20, "AWP", 0, 2, self.bulletColor)
         M4 = gun(20, 7, 3, 10, 25, 12, "M4", 30, 1, self.bulletColor)
-        RAILGUN = gun(1, 200, 100, 1, 30, 1000, "RAILGUN", 0, 4, (0, 255, 255))
+        RAILGUN = gun(1, 200, 100, 1, 30, 1000, "RAILGUN", 0, 4, self.blue)
 
         self.guns.append(MINI)
         self.guns.append(AWP)
@@ -338,6 +339,9 @@ class game:
                         y1 = 0
 
             #(x, y, xS, yS)
+            #0 - toppur
+            #1 - hægri
+            #2 - vintri
             for b in self.walls:
                 xW = b[0]
                 yW = b[1]
@@ -345,12 +349,26 @@ class game:
                 sX = b[2]
                 sY = b[3]
 
-
                 if (x + x1 + size > xW and y + size > yW) and (x + x1 < xW + sX and y < yW + sY):
                     x1 = 0
+                    y1 = self.eSpeed
 
                 if (x + size > xW and y + y1 + size > yW) and (x < xW + sX and y + y1 < yW + sY):
                     y1 = 0
+
+                    if b == self.walls[1]:
+                        x1 = self.eSpeed
+
+                    elif b == self.walls[2]:
+                        x1 = -self.eSpeed
+
+                    elif b == self.walls[0]:
+
+                        if x < self.wW / 2 and y < self.wH / 2:
+                            x1 = -self.eSpeed
+
+                        elif x > self.wW / 2 and y < self.wH / 2:
+                            x1 = self.eSpeed
 
             e = [[x + x1, y + y1], size, life, ID]
 
@@ -581,7 +599,7 @@ class game:
 
                 game.enemy(self)
 
-                game.checkP(self)
+                #game.checkP(self)
 
                 if len(self.shots) > 0:
                     game.checkE(self)
