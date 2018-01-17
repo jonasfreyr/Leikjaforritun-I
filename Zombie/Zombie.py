@@ -89,7 +89,7 @@ class game:
         self.guns.append(RAILGUN)
 
         self.wallThickness = 10
-        self.walls = [(self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
+        self.walls = [(self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4 - self.wallThickness, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
 
         game.restart(self)
 
@@ -225,21 +225,59 @@ class game:
             p1 = self.shots[a][0]
             p2 = self.shots[a][1]
 
+            vX = self.shots[a][2][0]
+            vY = self.shots[a][2][1]
+            vO = [vX, vY]
+
+            life = self.shots[a][3]
+            Olife = life
+
             #print("P1:", p1, "P2:", p2)
+            #print(self.shots[a])
 
-            pygame.draw.line(self.screen, self.bulletColor,p1, p2, self.bulletWidth)
+            pygame.draw.line(self.screen, self.bulletColor, p1, p2, self.bulletWidth)
 
-            p11 = [p1[0] + self.shots[a][2][0], p1[1] + self.shots[a][2][1]]
-            p22 = [p2[0] + self.shots[a][2][0], p2[1] + self.shots[a][2][1]]
+            print(self.shots[a])
+
+            # (x, y, xS, yS)
+            # 0 - toppur
+            # 1 - hægri
+            # 2 - vintri
+            for b in self.walls:
+                xW = b[0]
+                yW = b[1]
+
+                sX = b[2]
+                sY = b[3]
+
+                if (p1[0] + vX >= xW and p1[1] > yW) and (p1[0] + vX < xW + sX and p1[1] < yW + sY):
+                    vX = -vX
+                    life = life - 1
+
+                elif (p1[0] >= xW and p1[1] + vY > yW) and (p1[0] < xW + sX and p1[1] + vY < yW + sY):
+                    vY = -vY
+                    life = life - 1
+
+            p11 = [p1[0] + vX, p1[1] + vY]
+            p22 = [p2[0] + vX, p2[1] + vY]
+
+            v = [vX, vY]
+
+            self.shots[a].remove(Olife)
+            self.shots[a].insert(3, life)
 
             self.shots[a].insert(0, p11)
             self.shots[a].remove(p1)
+
             self.shots[a].insert(1, p22)
             self.shots[a].remove(p2)
 
+            self.shots[a].insert(2, v)
+            self.shots[a].remove(vO)
+
         temp = self.shots
         for a in temp:
-            if a[0][0] < 0 or a[0][0] > self.wW or a[0][1] < 0 or a[0][1] > self.wH:
+            if a[0][0] < 0 or a[0][0] > self.wW or a[0][1] < 0 or a[0][1] > self.wH or a[3] <= 0:
                 self.shots.remove(a)
 
     def Newenemy(self):
@@ -323,21 +361,6 @@ class game:
             #print("X1:", x1, "   Y1:", y1)
             #time.sleep(3)
 
-            for b in self.enemies:
-                x2 = b[0][0]
-                y2 = b[0][1]
-
-                size2 = b[1]
- #               print("B:", b)
-                #time.sleep(3)
-
-                if a != b:
-                    if ((x + x1 + size) >= (x2) and (y + size) >= (y2)) and (x + x1 <= x2 + size2 and y <= y2 + size2):
-                        x1 = 0
-
-                    if ((x + size) >= (x2) and (y + y1 + size) >= (y2)) and (x <= x2 + size2 and y + y1 <= y2 + size2):
-                        y1 = 0
-
             #(x, y, xS, yS)
             #0 - toppur
             #1 - hægri
@@ -357,18 +380,38 @@ class game:
                     y1 = 0
 
                     if b == self.walls[1]:
-                        x1 = self.eSpeed
+                        if  y > self.wH / 2:
+                            x1 = self.eSpeed
+                        elif y < self.wH / 2:
+                            x1 = -self.eSpeed
 
                     elif b == self.walls[2]:
-                        x1 = -self.eSpeed
+                        if y > self.wH / 2:
+                            x1 = -self.eSpeed
+                        elif y < self.wH / 2:
+                            x1 = self.eSpeed
 
                     elif b == self.walls[0]:
-
                         if x < self.wW / 2 and y < self.wH / 2:
                             x1 = -self.eSpeed
 
                         elif x > self.wW / 2 and y < self.wH / 2:
                             x1 = self.eSpeed
+
+            for b in self.enemies:
+                x2 = b[0][0]
+                y2 = b[0][1]
+
+                size2 = b[1]
+                # print("B:", b)
+                # time.sleep(3)
+
+                if a != b:
+                    if ((x + x1 + size) >= (x2) and (y + size) >= (y2)) and (x + x1 <= x2 + size2 and y <= y2 + size2):
+                        x1 = 0
+
+                    if ((x + size) >= (x2) and (y + y1 + size) >= (y2)) and (x <= x2 + size2 and y + y1 <= y2 + size2):
+                        y1 = 0
 
             e = [[x + x1, y + y1], size, life, ID]
 
@@ -591,7 +634,7 @@ class game:
                 game.shots(self)
 
                 if telE >= self.enemySpawn and self.ene == True and (len(self.enemies) < 30):
-                    game.Newenemy(self)
+                    #game.Newenemy(self)
                     telE = 0
 
                 tel += 1
