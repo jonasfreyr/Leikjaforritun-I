@@ -90,6 +90,7 @@ class game:
 
         self.wallThickness = 10
         self.walls = [(self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4 - self.wallThickness, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
+        self.wallsC = self.walls
 
         game.restart(self)
 
@@ -211,7 +212,7 @@ class game:
 
         vector = [xv, yv]
 
-        s = [[self.gunEndx, self.gunEndy], [x, y], vector, self.bulletLife, []]
+        s = [[self.gunEndx, self.gunEndy], [x, y], vector, self.bulletLife, [], self.bulletColor, self.bulletWidth]
 
         self.shots.append(s)
 
@@ -222,8 +223,13 @@ class game:
 
     def shots(self):
         for a in range(len(self.shots)):
+            print(self.shots[a])
+
             p1 = self.shots[a][0]
             p2 = self.shots[a][1]
+
+            color = self.shots[a][5]
+            width = self.shots[a][6]
 
             vX = self.shots[a][2][0]
             vY = self.shots[a][2][1]
@@ -235,7 +241,7 @@ class game:
             #print("P1:", p1, "P2:", p2)
             #print(self.shots[a])
 
-            pygame.draw.line(self.screen, self.bulletColor, p1, p2, self.bulletWidth)
+            pygame.draw.line(self.screen, color, p1, p2, width)
 
             print(self.shots[a])
 
@@ -329,7 +335,6 @@ class game:
 
                 self.screen.blit(label, (x + 1, y - 2))
 
-
         temp = self.enemies
         tel = 0
         for a in temp:
@@ -358,13 +363,16 @@ class game:
             x1 = (x1 * lengd)
             y1 = (y1 * lengd)
 
+            y1O = y1
+            x1O = x1
+
             #print("X1:", x1, "   Y1:", y1)
             #time.sleep(3)
 
             #(x, y, xS, yS)
             #0 - toppur
-            #1 - hægri
-            #2 - vintri
+            #2 - hægri
+            #1 - vintri
             for b in self.walls:
                 xW = b[0]
                 yW = b[1]
@@ -373,30 +381,58 @@ class game:
                 sY = b[3]
 
                 if (x + x1 + size > xW and y + size > yW) and (x + x1 < xW + sX and y < yW + sY):
+                    #if x1 < 0 and x > self.wW / 2 or x1 > 0 and x < self.wW:
                     x1 = 0
-                    y1 = self.eSpeed
+
+                    if ((float(self.x) > self.wW / 4 and float(self.x) < ((self.wW / 4) * 3) and float(self.y) < self.wH / 4) and (x < self.wW / 4 or x > ((self.wW / 4) * 3))):
+                        y1 = -self.eSpeed
+
+                    elif (x > self.wW / 4 and x < ((self.wW / 4) * 3) and y > self.wH / 4):
+                        pass
+
+                    else:
+                        y1 = self.eSpeed
+                        life = 2
 
                 if (x + size > xW and y + y1 + size > yW) and (x < xW + sX and y + y1 < yW + sY):
                     y1 = 0
 
                     if b == self.walls[1]:
-                        if  y > self.wH / 2:
-                            x1 = self.eSpeed
+                        if y > self.wH / 2:
+                            if x1O > 0:
+                                x1 = self.eSpeed
+
+                            elif x1O < 0:
+                                x1 = -self.eSpeed
+
                         elif y < self.wH / 2:
                             x1 = -self.eSpeed
 
                     elif b == self.walls[2]:
                         if y > self.wH / 2:
-                            x1 = -self.eSpeed
+                            if x1O < 0:
+                                x1 = -self.eSpeed
+
+                            elif x1O > 0:
+                                x1 = self.eSpeed
+
                         elif y < self.wH / 2:
                             x1 = self.eSpeed
 
                     elif b == self.walls[0]:
-                        if x < self.wW / 2 and y < self.wH / 2:
-                            x1 = -self.eSpeed
+                        if y1O > 0:
+                            if x < self.wW / 2 and y < self.wH / 2:
+                                x1 = -self.eSpeed
 
-                        elif x > self.wW / 2 and y < self.wH / 2:
-                            x1 = self.eSpeed
+                            elif x > self.wW / 2 and y < self.wH / 2:
+                                x1 = self.eSpeed
+
+                        if y1O < 0:
+                            if self.x > int(self.wW / 2):
+                                x1 = self.eSpeed
+
+                            elif self.x < int(self.wW / 2):
+                                x1 = -self.eSpeed
 
             for b in self.enemies:
                 x2 = b[0][0]
@@ -422,6 +458,7 @@ class game:
             tel += 1
 
     def checkP(self):
+        sizeP = self.size - self.hitboxRe
         for a in self.enemies:
             x = a[0][0]
             y = a[0][1]
@@ -460,9 +497,18 @@ class game:
             vector8.append((x + size) - self.x)
             vector8.append((y + size) - self.y)
 
-            sizeP = self.size - self.hitboxRe
-
             if float(sizeP) > math.sqrt(math.pow(vector1[0], 2) + math.pow(vector1[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector2[0], 2) + math.pow(vector2[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector3[0], 2) + math.pow(vector3[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector4[0], 2) + math.pow(vector4[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector5[0], 2) + math.pow(vector5[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector6[0], 2) + math.pow(vector6[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector7[0], 2) + math.pow(vector7[1], 2)) or float(sizeP) > math.sqrt(math.pow(vector8[0], 2) + math.pow(vector8[1], 2)):
+                game.tap(self)
+
+        for a in self.shots:
+            x = a[0][0]
+            y = a[0][1]
+
+            vector = []
+            vector.append(x - self.x)
+            vector.append(y - self.y)
+
+            if float(sizeP) > math.sqrt(math.pow(vector[0], 2) + math.pow(vector[1], 2)):
                 game.tap(self)
 
     def checkE(self):
@@ -488,6 +534,10 @@ class game:
 
                 Slife = a[3]
                 IDlist = a[4]
+
+                color = a[5]
+
+                width = a[6]
 
                 #print(a)
 
@@ -515,7 +565,7 @@ class game:
 
                         IDlist.append(ID)
 
-                        s = [p1, p2, v, Slife - 1, IDlist]
+                        s = [p1, p2, v, Slife - 1, IDlist, color, width]
 
                         self.shots.remove(a)
 
@@ -586,6 +636,7 @@ class game:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_p and self.lose == False:
                         game.pause(self)
+
                     if event.key == pygame.K_1:
                         game.gunChange(self, 0)
                     elif event.key == pygame.K_2:
@@ -599,6 +650,13 @@ class game:
 
                     if event.key == pygame.K_F1:
                         self.enemyText = not self.enemyText
+
+                    if event.key == pygame.K_F2:
+                        if len(self.walls) > 0:
+                            self.walls = []
+
+                        else:
+                            self.walls = self.wallsC
 
             poss = pygame.mouse.get_pos()
             mpressed = pygame.mouse.get_pressed()
@@ -634,20 +692,26 @@ class game:
                 game.shots(self)
 
                 if telE >= self.enemySpawn and self.ene == True and (len(self.enemies) < 30):
-                    #game.Newenemy(self)
+                    game.Newenemy(self)
                     telE = 0
 
                 tel += 1
                 telE += 1
 
-                game.enemy(self)
+                if len(self.enemies) > 0:
+                    game.enemy(self)
 
-                #game.checkP(self)
+                if len(self.shots) > 0 or len(self.enemies) > 0:
+                    #game.checkP(self)
+                    pass
 
                 if len(self.shots) > 0:
                     game.checkE(self)
+                    pass
 
-                game.wallRender(self)
+                if len(self.walls) > 0:
+                    game.wallRender(self)
+                    pass
 
                 game.pointer(self, poss)
 
