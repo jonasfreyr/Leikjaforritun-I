@@ -339,7 +339,6 @@ class game:
 
             tel += 1
 
-
 while True:
     h = game()
     h.loop()
