@@ -334,7 +334,7 @@ class game:
                 if p[0] >= self.x and p[1] >= self.y and p[0] <= self.x + self.size and p[1] <= self.y + self.size:
                     game.NewPoint(self)
                     self.score += 1
-                    game.timerChange(self, 10)
+                    game.timerChange(self, 5)
 
                 game.scoreRender(self)
 
