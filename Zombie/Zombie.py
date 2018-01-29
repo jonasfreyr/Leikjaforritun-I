@@ -653,8 +653,8 @@ class game:
             if t2 < 0:
                 t2 = 59
                 t1 = t1 - 1
-                if t1 <= 0:
-                    game.gameOver(self)
+                if t1 < 0:
+                    t1 = 0
 
         elif t3 >= 60:
             t3 = t3 - 60

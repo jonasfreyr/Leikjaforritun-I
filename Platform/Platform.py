@@ -175,9 +175,25 @@ class game:
         self.screen.blit(label, (0, 0))
 
     def timerRender(self):
-        time = str(self.time[0]) + ":" + str(self.time[1]) + ":" + str(self.time[2]) + ":" + str(self.time[3])
+        hour = str(self.time[1])
+        minit = str(self.time[2])
+        sec = str(self.time[3])
+
+        if len(hour) == 1:
+            hour = "0" + hour
+
+        if len(minit) == 1:
+            minit = "0" + minit
+
+        if len(sec) == 1:
+            sec = "0" + sec
+
+        time = hour + ":" + minit + ":" + sec
         label = self.font.render(str(time), 1, self.TextColor)
-        self.screen.blit(label, (self.wW / 2, 0))
+
+        width = label.get_width()
+
+        self.screen.blit(label, (self.wW / 2 - width / 2, 0))
 
     def timerChange(self, x):
         time = self.time
