@@ -322,7 +322,7 @@ class game:
             life = self.enemies[a][2]
 
             # pygame.draw.line(self.screen, self.color,[x, y], [x, y + self.enemySize], size)
-            #pygame.draw.circle(self.screen, self.color, [x, y], size)
+            # pygame.draw.circle(self.screen, self.color, [x, y], size)
 
             pygame.draw.rect(self.screen, self.color, pygame.Rect(x, y, size, size))
 
@@ -388,8 +388,8 @@ class game:
                     if ((float(self.x) > self.wW / 4 and float(self.x) < ((self.wW / 4) * 3) and float(self.y) < self.wH / 4) and (x < self.wW / 4 or x > ((self.wW / 4) * 3))):
                         y1 = -self.eSpeed
 
-                    elif (x > self.wW / 4 and x < ((self.wW / 4) * 3) and y > self.wH / 4):
-                        pass
+                    #elif (x > self.wW / 4 and x < ((self.wW / 4) * 3) and y > self.wH / 4):
+                     #   pass
 
                     else:
                         y1 = self.eSpeed
