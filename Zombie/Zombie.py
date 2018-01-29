@@ -71,7 +71,6 @@ class game:
         self.ene = True
 
         self.fontSize = 50
-
         self.font = pygame.font.SysFont("monospace", self.fontSize)
 
         self.guns = []
@@ -126,6 +125,8 @@ class game:
         self.score = 0
 
         self.enemyID = 1
+
+        self.time = (0, 0, 0)
 
     def pointer(self, tuple):
         x = tuple[0]
@@ -392,7 +393,6 @@ class game:
 
                     else:
                         y1 = self.eSpeed
-                        life = 2
 
                 if (x + size > xW and y + y1 + size > yW) and (x < xW + sX and y + y1 < yW + sY):
                     y1 = 0
@@ -617,9 +617,58 @@ class game:
         self.x += x
         self.y += y
 
+    def timerRender(self):
+
+        hour = str(self.time[0])
+        minit = str(self.time[1])
+        sec = str(self.time[2])
+
+        if len(hour) == 1:
+            hour = "0" + hour
+
+        if len(minit) == 1:
+            minit = "0" + minit
+
+        if len(sec) == 1:
+            sec = "0" + sec
+
+        time = hour + ":" + minit + ":" + sec
+        label = self.font.render(str(time), 1, self.TextColor)
+
+        width = label.get_width()
+
+        self.screen.blit(label, (self.wW / 2 - width / 2, 0))
+
+    def timerChange(self, x):
+        time = self.time
+
+        t1 = time[0]
+        t2 = time[1]
+
+        t3 = time[2] + x
+
+        if t3 < 0:
+            t3 = 59
+            t2 = t2 - 1
+            if t2 < 0:
+                t2 = 59
+                t1 = t1 - 1
+                if t1 <= 0:
+                    game.gameOver(self)
+
+        elif t3 >= 60:
+            t3 = t3 - 60
+            t2 = t2 + 1
+            if t2 >= 60:
+                t2 = t2 - 60
+                t1 = t1 + 1
+
+        self.time = (t1, t2, t3)
+
     def loop(self):
         tel = self.gunFirerate
         telE = self.enemySpawn
+        telT = 0
         while True:
             #print("Ls:", len(self.shots))
             #print("Le:", len(self.enemies))
@@ -720,6 +769,14 @@ class game:
 
                 gname = self.font.render(self.gunName, 1, self.TextColor)
                 self.screen.blit(gname, (0, self.wH - self.fontSize))
+
+                game.timerRender(self)
+
+                if telT == self.FPS:
+                    telT = 0
+                    game.timerChange(self, 1)
+
+                telT += 1
 
             if self.gP is False and self.lose is False:
                 if poss[0] < self.screenM:
