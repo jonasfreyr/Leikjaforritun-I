@@ -202,7 +202,6 @@ class game:
         t1 = time[1]
         t2 = time[2]
 
-
         t3 = time[3] + x
 
         if t3 < 0:
