@@ -157,7 +157,7 @@ class game:
                 yS1 = yS
                 yS = 0
 
-            if (poss[0] >= xW + xS1 and poss[1] >= yW + yS1 and poss[0] <= xW + xS and poss[1] <= yW + yS):
+            if poss[0] >= xW + xS1 and poss[1] >= yW + yS1 and poss[0] <= xW + xS and poss[1] <= yW + yS:
                 if a != self.walls[0]:
                     self.walls.remove(a)
 
