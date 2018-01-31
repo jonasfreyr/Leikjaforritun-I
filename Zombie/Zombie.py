@@ -37,6 +37,7 @@ class game:
         self.TextColor = (255, 255, 255)
         self.pointerColor = (255, 0, 0)
         self.blue = (0, 255, 255)
+        self.gunFlareColor = (255, 100, 0)
 
         self.size = 10
         self.hitboxRe = 2
@@ -51,6 +52,7 @@ class game:
         self.damage = 2
         self.GunOff = 60
         self.gunName = "MINIGUN"
+        self.gunFlareSize = self.gunWidth + 1
 
         self.bulletLife = 1
         self.bulletLength = 10
@@ -62,7 +64,7 @@ class game:
         self.enemySize = 20
         self.eLife = 20
         self.eSpeed = 2
-        self.enemySpawn = 60
+        self.enemySpawn = 30
         self.enemyID = 1
         self.enemyText = False
 
@@ -217,15 +219,19 @@ class game:
 
         self.shots.append(s)
 
-        #game.gunFlare(self, tuple)
+        game.gunFlare(self, tuple, vector)
 
-    #def gunFlare(self, tuple):
+    def gunFlare(self, tuple, vector):
+        x = tuple[0]
+        y = tuple[1]
 
+        x1 = vector[0]
+        y1 = vector[1]
+
+        print("y<ay")
 
     def shots(self):
         for a in range(len(self.shots)):
-            print(self.shots[a])
-
             p1 = self.shots[a][0]
             p2 = self.shots[a][1]
 
@@ -244,7 +250,7 @@ class game:
 
             pygame.draw.line(self.screen, color, p1, p2, width)
 
-            print(self.shots[a])
+            #print(self.shots[a])
 
             # (x, y, xS, yS)
             # 0 - toppur
@@ -553,16 +559,6 @@ class game:
                     ID = b[3]
 
                     if p1[0] > x and p1[0] < x + size and p1[1] > y and p1[1] < y + size and ID not in IDlist:
-                        #shot = a
-
-                        #print(Slife)
-                        #print(a)
-
-                        #shot.remove(Slife)
-                        #shot.insert(3, Slife - 1)
-
-                        #shot[4].append(ID)
-
                         IDlist.append(ID)
 
                         s = [p1, p2, v, Slife - 1, IDlist, color, width]
@@ -618,7 +614,6 @@ class game:
         self.y += y
 
     def timerRender(self):
-
         hour = str(self.time[0])
         minit = str(self.time[1])
         sec = str(self.time[2])
@@ -728,7 +723,7 @@ class game:
                 if self.x < self.wW - self.size:
                     if pressed[pygame.K_d]:
                         x = +self.speed
-                game.move(self,x, y)
+                game.move(self, x, y)
 
                 if mpressed[0] == 1 and tel >= self.gunFirerate:
                     game.shoot(self, poss)
@@ -751,7 +746,7 @@ class game:
                     game.enemy(self)
 
                 if len(self.shots) > 0 or len(self.enemies) > 0:
-                    #game.checkP(self)
+                    game.checkP(self)
                     pass
 
                 if len(self.shots) > 0:
