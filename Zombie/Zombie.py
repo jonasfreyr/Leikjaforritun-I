@@ -52,7 +52,7 @@ class game:
         self.damage = 2
         self.GunOff = 60
         self.gunName = "MINIGUN"
-        self.gunFlareSize = self.gunWidth + 1
+        self.gunFlareSize = self.gunWidth + 4
 
         self.bulletLife = 1
         self.bulletLength = 10
@@ -219,16 +219,21 @@ class game:
 
         self.shots.append(s)
 
-        game.gunFlare(self, tuple, vector)
+        if self.gunName != "RAILGUN":
+            game.gunFlare(self, vector)
 
-    def gunFlare(self, tuple, vector):
-        x = tuple[0]
-        y = tuple[1]
-
+    def gunFlare(self, vector):
         x1 = vector[0]
         y1 = vector[1]
 
-        print("y<ay")
+        lengd = math.sqrt(math.pow(vector[0], 2) + math.pow(vector[1], 2))
+
+        lengd = self.gunFlareSize * 2 / lengd
+
+        xv = x1 * lengd
+        yv = y1 * lengd
+
+        pygame.draw.line(self.screen, self.gunFlareColor,(self.gunEndx, self.gunEndy), (self.gunEndx + xv, self.gunEndy + yv), self.gunFlareSize)
 
     def shots(self):
         for a in range(len(self.shots)):
@@ -380,6 +385,16 @@ class game:
             #0 - toppur
             #2 - hægri
             #1 - vintri
+            #[(self.wW / 4, self.wH / 4, self.wW / 2, self.wallThickness), (self.wW / 4 - self.wallThickness, self.wH / 4, self.wallThickness, self.wH / 2), ((self.wW / 4) * 3, self.wH / 4, self.wallThickness, self.wH / 2)]
+            if x > self.wW / 4 and y > self.wW / 4 and x < self.wW / 4 * 3 and self.y < self.wH / 4 and self.x > self.wW / 4 and self.x < self.wW / 4 * 3:
+                if x < self.wW / 2:
+                    x1 = -self.eSpeed
+                    y1 = 0
+
+                elif x > self.wW / 2:
+                    x1 = self.eSpeed
+                    y1 = 0
+
             for b in self.walls:
                 xW = b[0]
                 yW = b[1]
@@ -388,14 +403,10 @@ class game:
                 sY = b[3]
 
                 if (x + x1 + size > xW and y + size > yW) and (x + x1 < xW + sX and y < yW + sY):
-                    #if x1 < 0 and x > self.wW / 2 or x1 > 0 and x < self.wW:
                     x1 = 0
 
                     if ((float(self.x) > self.wW / 4 and float(self.x) < ((self.wW / 4) * 3) and float(self.y) < self.wH / 4) and (x < self.wW / 4 or x > ((self.wW / 4) * 3))):
                         y1 = -self.eSpeed
-
-                    #elif (x > self.wW / 4 and x < ((self.wW / 4) * 3) and y > self.wH / 4):
-                     #   pass
 
                     else:
                         y1 = self.eSpeed
@@ -725,6 +736,8 @@ class game:
                         x = +self.speed
                 game.move(self, x, y)
 
+                game.shots(self)
+
                 if mpressed[0] == 1 and tel >= self.gunFirerate:
                     game.shoot(self, poss)
                     tel = 0
@@ -732,8 +745,6 @@ class game:
                 pygame.draw.circle(self.screen, self.color,(self.x, self.y), self.size)
 
                 game.gunRender(self,poss)
-
-                game.shots(self)
 
                 if telE >= self.enemySpawn and self.ene == True and (len(self.enemies) < 30):
                     game.Newenemy(self)
@@ -746,7 +757,7 @@ class game:
                     game.enemy(self)
 
                 if len(self.shots) > 0 or len(self.enemies) > 0:
-                    game.checkP(self)
+                    #game.checkP(self)
                     pass
 
                 if len(self.shots) > 0:
