@@ -12,9 +12,7 @@ class game:
         self.wH = root.winfo_screenheight()
 
         self.clock = pygame.time.Clock()
-
         self.FPS = 120
-        self.clock = pygame.time.Clock()
 
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
@@ -46,7 +44,7 @@ class game:
 
         self.score = 0
 
-        self.time = (0, 0, 0, 5)
+        self.time = (0, 0, 0, 10)
 
         self.TextColor = (255, 255, 255)
         self.fontSize = int(self.size) * 4
@@ -68,7 +66,6 @@ class game:
             if xS < 0:
                 xS1 = xS
                 xS = 0
-
 
             if yS < 0:
                 yS1 = yS
@@ -163,7 +160,7 @@ class game:
 
     def NewPoint(self):
         x = random.randint(0, self.wW - self.size)
-        y = random.randint(0, self.walls[0][1] - self.size)
+        y = random.randint(0, int(self.walls[0][1]) - self.size)
 
         self.point = (x, y, self.size, self.size)
 
