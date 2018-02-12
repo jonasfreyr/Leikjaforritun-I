@@ -1,18 +1,7 @@
 import pygame
 
 pygame.init()
-
-class Pic(pygame.sprite.Sprite):
-    def __init__(self, image_file, location, size):
-        pygame.sprite.Sprite.__init__(self)  #call Sprite initializer
-        self.image = pygame.image.load(image_file)
-        self.image = pygame.transform.scale(self.image, size)
-        self.rect = self.image.get_rect()
-        self.rect.left, self.rect.top = location
-
-
-def rotate(img, angle):
-    return pygame.transform.rotate(img, angle)
+vec = pygame.math.Vector2
 
 class game:
     def __init__(self):
@@ -29,22 +18,63 @@ class game:
         self.x = 200
         self.y = 400
 
+        self.vel = vec(0, 0)
+
         self.speed = 3
+        self.rotSpeed = 2
 
         self.size = [16, 35]
 
-        self.ship = Pic("Pictures/spaceship.png" , [self.x, self.y], self.size)
-        self.backround = Pic("Pictures/nebula_blue.png", [0, 0], [self.wW, self.wH])
+        self.ship = pygame.image.load("Pictures/spaceship.png")
+        self.ship = pygame.transform.scale(self.ship, self.size)
+        self.ship = pygame.transform.rotate(self.ship, 90)
+        self.shipO = self.ship
+        self.rect = self.ship.get_rect()
+
+        self.backround = pygame.image.load("Pictures/nebula_blue.png")
+        self.backround = pygame.transform.scale(self.backround, [self.wW, self.wH])
+        self.Brect = self.backround.get_rect()
+
+        self.angle = 0
+
+        self.missiles = []
+        self.missileSpeed = 2
 
     def move(self):
-        self.ship = Pic("Pictures/spaceship.png", [self.x, self.y], self.size)
+        self.x = self.x + self.vel.x
+        self.y = self.y + self.vel.y
+        print(self.vel.x)
+        print(self.vel.y)
+        self.rect.center = (self.x, self.y)
 
-    def update(self):
-        self.image = pygame.transform.rotate(self.original_image, self.angle)
-        self.angle += 1 % 360  # Value will reapeat after 359. This prevents angle to overflow.
-        x, y = self.rect.center  # Save its current center.
-        self.rect = self.image.get_rect()  # Replace old rect with new rect.
-        self.rect.center = (x, y)  # Put the new rect's center at old center.
+    def rotate(self, angle):
+        self.angle += angle % 360
+        self.ship = pygame.transform.rotate(self.shipO, self.angle)
+          # Value will reapeat after 359. This prevents angle to overflow.
+        self.x, self.y = self.rect.center  # Save its current center.
+        self.rect = self.ship.get_rect()  # Replace old rect with new rect.
+        self.rect.center = (self.x, self.y)  # Put the new rect's center at old center.
+
+    def get_keys(self):
+        pressed = pygame.key.get_pressed()
+        self.vel = vec(0, 0)
+        if pressed[pygame.K_d]:
+            game.rotate(self, -self.rotSpeed)
+
+        elif pressed[pygame.K_a]:
+            game.rotate(self, self.rotSpeed)
+
+        elif pressed[pygame.K_s]:
+            self.vel = vec(self.speed / 2, 0).rotate(-self.angle)
+
+        elif pressed[pygame.K_w]:
+            self.vel = vec(-self.speed, 0).rotate(-self.angle)
+
+        if pressed[pygame.K_SPACE]:
+            game.shoot(self)
+
+    def shoot(self):
+        self.missiles.append(self.rect.top, vec(self.missileSpeed, 0).rotate(-self.angle))
 
     def loop(self):
         while True:
@@ -53,21 +83,10 @@ class game:
                     quit()
 
             self.screen.fill(self.color)
-            self.screen.blit(self.backround.image, self.backround.rect)
-            self.screen.blit(self.ship.image, self.ship.rect)
+            self.screen.blit(self.backround, self.Brect)
+            self.screen.blit(self.ship, self.rect)
 
-            pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_d]:
-                self.ship = rotate(self.ship, -90)
-
-            if pressed[pygame.K_d]:
-               self.ship = rotate(self.ship, 90)
-
-            if pressed[pygame.K_s]:
-                self.y += self.speed
-
-            if pressed[pygame.K_w]:
-                self.y -= self.speed
+            game.get_keys(self)
 
             game.move(self)
 
