@@ -1,8 +1,8 @@
+
 import pygame
 
 pygame.init()
 vec = pygame.math.Vector2
-
 class game:
     def __init__(self):
         self.wW = 800
@@ -35,16 +35,24 @@ class game:
         self.backround = pygame.transform.scale(self.backround, [self.wW, self.wH])
         self.Brect = self.backround.get_rect()
 
+        self.missileSize = [20, 20]
+        self.missile = pygame.image.load("Pictures/missile.png")
+        self.missile = pygame.transform.scale(self.missile, self.missileSize)
+        self.missile = pygame.transform.rotate(self.missile, 180)
+        self.Mrect = self.missile.get_rect()
+
         self.angle = 0
 
         self.missiles = []
-        self.missileSpeed = 2
+        self.missileSpeed = 5
+
+        self.num = 1
 
     def move(self):
         self.x = self.x + self.vel.x
         self.y = self.y + self.vel.y
-        print(self.vel.x)
-        print(self.vel.y)
+        #print(self.vel.x)
+        #print(self.vel.y)
         self.rect.center = (self.x, self.y)
 
     def rotate(self, angle):
@@ -58,23 +66,52 @@ class game:
     def get_keys(self):
         pressed = pygame.key.get_pressed()
         self.vel = vec(0, 0)
-        if pressed[pygame.K_d]:
+        if pressed[pygame.K_d] or pressed[pygame.K_RIGHT]:
             game.rotate(self, -self.rotSpeed)
 
-        elif pressed[pygame.K_a]:
+        elif pressed[pygame.K_a] or pressed[pygame.K_LEFT]:
             game.rotate(self, self.rotSpeed)
 
-        elif pressed[pygame.K_s]:
+        elif pressed[pygame.K_s] or pressed[pygame.K_DOWN]:
             self.vel = vec(self.speed / 2, 0).rotate(-self.angle)
 
-        elif pressed[pygame.K_w]:
+        elif pressed[pygame.K_w] or pressed[pygame.K_UP]:
             self.vel = vec(-self.speed, 0).rotate(-self.angle)
 
-        if pressed[pygame.K_SPACE]:
-            game.shoot(self)
-
     def shoot(self):
-        self.missiles.append(self.rect.top, vec(self.missileSpeed, 0).rotate(-self.angle))
+        a = self.rect.center
+        vector = vec(-self.missileSpeed, 0).rotate(-self.angle)
+        self.missiles.append([vector, a, self.num, self.angle])
+
+        self.num += 1
+
+    def moveMissiles(self):
+        for a in range(len(self.missiles)):
+            c = self.missiles[a][1]
+            v = self.missiles[a][0]
+            #print(v)
+            c = [c[0] + v[0], c[1] + v[1]]
+            #print(c)
+            b = self.missiles[a]
+
+            self.missiles.insert(a, [v, c, self.missiles[a][2], self.missiles[a][3]])
+            self.missiles.remove(b)
+
+        temp = self.missiles
+        for a in temp:
+            c = a[1]
+            if c[0] < 0 or c[0] > self.wW or c[1] < 0 or c[1] > self.wH:
+                self.missiles.remove(a)
+
+    def renderMissiles(self):
+        for a in self.missiles:
+            c = self.Mrect
+            c.center = a[1]
+            an = a[3]
+            r = pygame.transform.rotate(self.missile, an)
+            #self.ship = pygame.transform.rotate(self.shipO, self.angle)
+            self.screen.blit(r, c)
+            #pygame.draw.rect(self.screen, (255, 255 ,255), pygame.Rect(a[1].center[0],a[1].center[1], 10, 10))
 
     def loop(self):
         while True:
@@ -82,13 +119,19 @@ class game:
                 if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                     quit()
 
+                if event.type == pygame.KEYUP and event. key == pygame.K_SPACE:
+                    game.shoot(self)
+
             self.screen.fill(self.color)
             self.screen.blit(self.backround, self.Brect)
+            game.renderMissiles(self)
             self.screen.blit(self.ship, self.rect)
 
             game.get_keys(self)
 
             game.move(self)
+
+            game.moveMissiles(self)
 
             pygame.display.update()
             self.clock.tick(self.FPS)
