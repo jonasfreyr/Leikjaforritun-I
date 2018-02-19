@@ -67,8 +67,7 @@ class game:
 
     def rotate(self, angle):
         self.angle += angle % 360
-        self.ship = pygame.transform.rotate(self.shipO, self.angle)
-          # Value will reapeat after 359. This prevents angle to overflow.
+        self.ship = pygame.transform.rotate(self.shipO, self.angle) # Value will reapeat after 359. This prevents angle to overflow.
         self.x, self.y = self.rect.center  # Save its current center.
         self.rect = self.ship.get_rect()  # Replace old rect with new rect.
         self.rect.center = (self.x, self.y)  # Put the new rect's center at old center.
