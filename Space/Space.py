@@ -1,8 +1,9 @@
 
-import pygame
+import pygame, random
 
 pygame.init()
 vec = pygame.math.Vector2
+
 class game:
     def __init__(self):
         self.wW = 800
@@ -45,6 +46,8 @@ class game:
         self.astroid = pygame.transform.scale(self.astroid, [100, 100])
         self.Arect = self.astroid.get_rect()
         self.Arect.center = (self.wW / 2, self.wH / 2)
+        self.astroids = []
+        self.aSpawnrate = 0.2
 
         self.angle = 0
 
@@ -93,6 +96,7 @@ class game:
                 game.shoot(self)
 
         return tel
+
     def shoot(self):
         a = self.rect.center
         vector = vec(-self.missileSpeed, 0).rotate(-self.angle)
@@ -128,9 +132,77 @@ class game:
             self.screen.blit(r, c)
             #pygame.draw.rect(self.screen, (255, 255 ,255), pygame.Rect(a[1].center[0],a[1].center[1], 10, 10))
 
+    def newAstroid(self):
+        side = random.randint(0, 3)
+        speed = random.randint(0, 2)
+        size = random.randint(20, 100)
+
+
+        if side == 0:
+            x = random.randint(0, self.wW)
+            y = random.randint(-200, 0 - size)
+
+            angle = random.randint(200, 340)
+
+        elif side == 1:
+            x = random.randint(-200, 0 - size)
+            y = random.randint(0, self.wH)
+
+            angle = random.randint(-60, 60)
+
+        elif side == 2:
+            x = random.randint(0, self.wW)
+            y = random.randint(self.wH + size, self.wH + 200)
+
+            angle = random.randint(20, 200)
+
+        elif side == 3:
+            x = random.randint(self.wW + size, self.wW + 200)
+            y = random.randint(0, self.wH)
+
+            angle = random.randint(140, 240)
+
+        vector = vec(speed, 0).rotate(-angle)
+        rect = self.Arect
+        rect.center = [x, y]
+        self.astroids.append([vector, angle, rect.center])
+
+    def renderAstroid(self):
+        for a in self.astroids:
+            c = self.Arect
+
+            c.center = a[2]
+
+            self.screen.blit(self.astroid, c)
+
+    def moveAstroid(self):
+        for a in range(len(self.astroids)):
+            c = self.astroids[a][2]
+            v = self.astroids[a][0]
+            ang = self.astroids[a][1]
+
+            c = [c[0] + v.x, c[1] + v.y]
+
+            print(c)
+            print("--------")
+            b = self.astroids[a]
+            self.astroids.insert(a, [v, ang, c])
+            self.astroids.remove(b)
+
+    def checkP(self):
+        for a in self.astroids:
+            c = self.Arect
+
+            c.center = a[2]
+
+            print(self.rect)
+            #if ((self.x - size) >= (x2) and (y + size) >= (y2)) and (x + x1 <= x2 + size2 and y <= y2 + size2):
+
     def loop(self):
         tel = 0
+        telA = 0
         while True:
+            print(self.astroids)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                     quit()
@@ -140,11 +212,12 @@ class game:
                         self.gp = not self.gp
 
             tel += 1
+            telA += 1
             self.screen.fill(self.color)
             self.screen.blit(self.backround, self.Brect)
             game.renderMissiles(self)
             self.screen.blit(self.ship, self.rect)
-            self.screen.blit(self.astroid, self.Arect)
+            game.renderAstroid(self)
 
             if self.lose != True and self.gp != True:
                 tel = game.get_keys(self, tel)
@@ -152,6 +225,14 @@ class game:
                 game.move(self)
 
                 game.moveMissiles(self)
+
+                game.moveAstroid(self)
+
+                game.checkP(self)
+
+                if telA >= self.FPS * self.aSpawnrate and len(self.astroids) < 100:
+                    game.newAstroid(self)
+                    telA = 0
 
             pygame.display.update()
             self.clock.tick(self.FPS)
