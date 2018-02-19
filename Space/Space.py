@@ -41,12 +41,22 @@ class game:
         self.missile = pygame.transform.rotate(self.missile, 180)
         self.Mrect = self.missile.get_rect()
 
+        self.astroid = pygame.image.load("Pictures/asteroid.png")
+        self.astroid = pygame.transform.scale(self.astroid, [100, 100])
+        self.Arect = self.astroid.get_rect()
+        self.Arect.center = (self.wW / 2, self.wH / 2)
+
         self.angle = 0
 
         self.missiles = []
         self.missileSpeed = 5
 
         self.num = 1
+
+        self.gp = False
+        self.lose = False
+
+        self.fireRate = 1
 
     def move(self):
         self.x = self.x + self.vel.x
@@ -63,7 +73,7 @@ class game:
         self.rect = self.ship.get_rect()  # Replace old rect with new rect.
         self.rect.center = (self.x, self.y)  # Put the new rect's center at old center.
 
-    def get_keys(self):
+    def get_keys(self, tel):
         pressed = pygame.key.get_pressed()
         self.vel = vec(0, 0)
         if pressed[pygame.K_d] or pressed[pygame.K_RIGHT]:
@@ -78,6 +88,12 @@ class game:
         elif pressed[pygame.K_w] or pressed[pygame.K_UP]:
             self.vel = vec(-self.speed, 0).rotate(-self.angle)
 
+        if pressed[pygame.K_SPACE]:
+            if tel >= self.FPS * self.fireRate:
+                tel = 0
+                game.shoot(self)
+
+        return tel
     def shoot(self):
         a = self.rect.center
         vector = vec(-self.missileSpeed, 0).rotate(-self.angle)
@@ -114,24 +130,29 @@ class game:
             #pygame.draw.rect(self.screen, (255, 255 ,255), pygame.Rect(a[1].center[0],a[1].center[1], 10, 10))
 
     def loop(self):
+        tel = 0
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                     quit()
 
-                if event.type == pygame.KEYUP and event. key == pygame.K_SPACE:
-                    game.shoot(self)
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_p:
+                        self.gp = not self.gp
 
+            tel += 1
             self.screen.fill(self.color)
             self.screen.blit(self.backround, self.Brect)
             game.renderMissiles(self)
             self.screen.blit(self.ship, self.rect)
+            self.screen.blit(self.astroid, self.Arect)
 
-            game.get_keys(self)
+            if self.lose != True and self.gp != True:
+                tel = game.get_keys(self, tel)
 
-            game.move(self)
+                game.move(self)
 
-            game.moveMissiles(self)
+                game.moveMissiles(self)
 
             pygame.display.update()
             self.clock.tick(self.FPS)
