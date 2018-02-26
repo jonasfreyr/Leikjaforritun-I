@@ -15,7 +15,7 @@ class game:
 
         self.clock = pygame.time.Clock()
         self.FPS = 120
-
+ 
         self.x = 200
         self.y = 400
 
