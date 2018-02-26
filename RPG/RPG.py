@@ -33,6 +33,7 @@ class Game:
 
                 elif tile.lower() == 'p':
                     self.player = Player(self, col, row)
+            self.camera = Camera(self.map.width, self.map.height)
 
         self.loop()
 
@@ -58,6 +59,7 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        self.camera.update(self.player)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -69,7 +71,8 @@ class Game:
     def draw(self):
         self.screen.fill(BGROUND)
         self.draw_grid()
-        self.all_sprites.draw(self.screen)
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
         pg.display.flip()
 
     def go_screen(self):
