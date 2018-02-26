@@ -59,7 +59,7 @@ class game:
         self.gp = False
         self.lose = False
 
-        self.fireRate = 1
+        self.fireRate = 0
 
     def move(self):
         self.x = self.x + self.vel.x
@@ -137,7 +137,6 @@ class game:
         speed = random.randint(0, 2)
         size = random.randint(20, 100)
 
-
         if side == 0:
             x = random.randint(0, self.wW)
             y = random.randint(-200, 0 - size)
@@ -165,7 +164,7 @@ class game:
         vector = vec(speed, 0).rotate(-angle)
         rect = self.Arect
         rect.center = [x, y]
-        self.astroids.append([vector, angle, rect.center])
+        self.astroids.append([vector, angle, rect.center, size])
 
     def renderAstroid(self):
         for a in self.astroids:
@@ -173,20 +172,25 @@ class game:
 
             c.center = a[2]
 
-            self.screen.blit(self.astroid, c)
+            size = a[3]
+
+            ast = pygame.transform.scale(self.astroid, [size, size])
+
+            self.screen.blit(ast, c)
 
     def moveAstroid(self):
         for a in range(len(self.astroids)):
             c = self.astroids[a][2]
             v = self.astroids[a][0]
             ang = self.astroids[a][1]
+            s = self.astroids[a][3]
 
             c = [c[0] + v.x, c[1] + v.y]
 
-            print(c)
-            print("--------")
+            #print(c)
+            #print("--------")
             b = self.astroids[a]
-            self.astroids.insert(a, [v, ang, c])
+            self.astroids.insert(a, [v, ang, c, s])
             self.astroids.remove(b)
 
     def checkP(self):
@@ -195,14 +199,16 @@ class game:
 
             c.center = a[2]
 
-            print(self.rect)
+            #print(self.rect)
             #if ((self.x - size) >= (x2) and (y + size) >= (y2)) and (x + x1 <= x2 + size2 and y <= y2 + size2):
 
     def loop(self):
         tel = 0
         telA = 0
+        brake = False
         while True:
-            print(self.astroids)
+            #print(self.astroids)
+            print(self.missiles)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                     quit()
@@ -210,6 +216,9 @@ class game:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_p:
                         self.gp = not self.gp
+
+                    if event.key == pygame.K_r:
+                        brake = True
 
             tel += 1
             telA += 1
@@ -234,8 +243,11 @@ class game:
                     game.newAstroid(self)
                     telA = 0
 
+            if brake == True:
+                break
+
             pygame.display.update()
             self.clock.tick(self.FPS)
-
-h = game()
-h.loop()
+while True:
+    h = game()
+    h.loop()
