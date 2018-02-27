@@ -14,7 +14,7 @@ PLCOLOR = WHITE
 #Game settings
 WIDTH = 1024
 HEIGHT = 768
-FPS = 120
+FPS = 300
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
@@ -22,6 +22,8 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 #Player Settings
 PLAYER_SPEED = 800
+PLAYER_IMG = "manBlue_gun.png"
+
 
 #Arrow Settings
 ARROW_HEIGHT = 10

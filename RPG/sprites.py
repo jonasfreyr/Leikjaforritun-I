@@ -9,8 +9,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(PLCOLOR)
+        self.image = game.player_img
         self.rect = self.image.get_rect()
 
         self.vel = vec(0, 0)
