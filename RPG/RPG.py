@@ -84,4 +84,4 @@ class Game:
 H = Game()
 while True:
     H.new()
-    H.go_screen()
+H.go_screen()
