@@ -85,6 +85,7 @@ class Game:
         pass
 
 H = Game()
+H.start_screen()
 while True:
     H.new()
-H.go_screen()
+    H.go_screen()

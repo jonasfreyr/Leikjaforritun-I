@@ -9,7 +9,6 @@ class Map:
                 line = line.strip()
                 self.data.append(line)
 
-
         self.tilewidth = len(self.data[0])
         self.tileheight = len(self.data)
         self.width = self.tilewidth * TILESIZE
