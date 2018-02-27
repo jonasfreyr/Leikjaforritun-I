@@ -22,7 +22,11 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 #Player Settings
 PLAYER_SPEED = 800
-PLAYER_IMG = "manBlue_gun.png"
+PLAYER_MELEE = "melee.png"
+PLAYER_FLASHLIGHT = "flashlight.png"
+PLAYER_PISTOL = "pistol.png"
+PLAYER_SHOTGUN = "shotgun.png"
+PLAYER_RIFLE = "rifle.png"
 
 #Arrow Settings
 ARROW_HEIGHT = 10
