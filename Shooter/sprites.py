@@ -1,6 +1,7 @@
 import pygame as pg
 from settings import *
 from tilemap import collide_hit_rect
+import random
 vec = pg.math.Vector2
 
 
@@ -45,6 +46,10 @@ class Player(pg.sprite.Sprite):
 
         self.rot = 0
 
+        self.last_shot = 0
+
+        self.health = PLAYER_HEALTH
+
     def get_keys(self):
         self.vel = vec(0, 0)
 
@@ -73,6 +78,15 @@ class Player(pg.sprite.Sprite):
 
         if (keys[pg.K_d] or keys[pg.K_RIGHT]) and (keys[pg.K_w] or keys[pg.K_UP]):
             self.rot = 45
+
+        if keys[pg.K_SPACE]:
+            now = pg.time.get_ticks()
+            if now - self.last_shot > BULLET_RATE:
+                self.last_shot = now
+                dir = vec(1, 0).rotate(-self.rot)
+                pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
+                Bullet(self.game, pos, dir)
+                self.vel = vec(-KICKBACK).rotate(-self.rot)
 
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
@@ -104,6 +118,10 @@ class Enemy(pg.sprite.Sprite):
         self.acc = vec(8, 0)
         self.rot = 0
 
+        self.health = ENEMY_HEALTH
+
+        self.last_shot = 0
+
     def update(self):
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
 
@@ -113,7 +131,7 @@ class Enemy(pg.sprite.Sprite):
         self.rect.center = self.pos
 
         self.acc = vec(ENEMY_SPEED, 0).rotate(-self.rot)
-        self.acc += self.vel * -1
+        self.acc += self.vel * -1.5
         self.vel += self.acc * self.game.dt
         self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
         self.hit_rect.centerx = self.pos.x
@@ -122,6 +140,56 @@ class Enemy(pg.sprite.Sprite):
         collide_with_walls(self, self.game.walls, "y")
 
         self.rect.center = self.hit_rect.center
+
+        now = pg.time.get_ticks()
+        if now - self.last_shot > ENEMY_BULLET_RATE:
+            self.last_shot = now
+            dir = vec(1, 0).rotate(-self.rot)
+            pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
+            Bullet(self.game, pos, dir)
+            #self.vel = vec(-KICKBACK).rotate(-self.rot)
+
+        if self.health <= 0:
+            self.kill()
+
+    def draw_health(self):
+        if self.health > 60:
+            col = GREEN
+
+        elif self.health > 30:
+            col = YELLOW
+
+        else:
+            col = RED
+
+        width = int(self.rect.width * self.health / ENEMY_HEALTH)
+        self.health_bar = pg.Rect(0, 0, width, 7)
+        if self.health < ENEMY_HEALTH:
+            pg.draw.rect(self.image, col, self.health_bar)
+
+class Bullet(pg.sprite.Sprite):
+    def __init__(self, game, pos, dir):
+        self.groups = game.all_sprites, game.bullets
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+
+        self.image = game.bullet_img
+
+        self.rect = self.image.get_rect()
+        self.pos = vec(pos)
+        self.rect.center = pos
+
+        spread = random.uniform(-GUN_SPREAD, GUN_SPREAD)
+        self.vel = dir.rotate(spread) * BULLET_SPEED
+
+        self.spawn_time = pg.time.get_ticks()
+
+        print(self.spawn_time)
+    def update(self):
+        self.pos += self.vel * self.game.dt
+        self.rect.center = self.pos
+        if (pg.time.get_ticks() - self.spawn_time > BULLET_LIFETIME) or (pg.sprite.spritecollideany(self, self.game.walls)):
+            self.kill()
 
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):

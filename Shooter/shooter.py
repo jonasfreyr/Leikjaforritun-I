@@ -32,12 +32,15 @@ class Game:
         self.enemy_img = pg.image.load(path.join(img_folder, ENEMY_IMG)).convert_alpha()
         self.enemy_img = pg.transform.scale(self.enemy_img, [TILESIZE, TILESIZE])
 
+        self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
+        self.bullet_img = pg.transform.scale(self.bullet_img, BULLET_SIZE)
+
     def new(self):
         self.load_data()
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
-
+        self.bullets = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
@@ -78,6 +81,22 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
+        hits = pg.sprite.spritecollide(self.player, self.bullets, False, collide_hit_rect)
+        for hit in hits:
+            self.player.health -= BULLET_DMG
+
+            if self.player.health <= 0:
+                self.running = False
+
+        if hits:
+            self.player.vel = vec(0, 0)
+
+        for a in self.enemies:
+            hits = pg.sprite.spritecollide(a, self.bullets, True, collide_hit_rect)
+            for hit in hits:
+                a.health -= BULLET_DMG
+                a.vel = vec(0, 0)
+
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
@@ -89,8 +108,11 @@ class Game:
         self.screen.fill(BGROUND)
         #self.draw_grid()
         for sprite in self.all_sprites:
+            if isinstance(sprite, Enemy):
+                sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
+        pg.draw.rect(self.screen, WHITE, self.player.hit_rect, 2)
         self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
 
         pg.display.flip()
