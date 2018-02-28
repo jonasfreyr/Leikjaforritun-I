@@ -4,6 +4,25 @@ from sprites import *
 from os import path
 from tilemap import *
 
+def draw_player_health(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+
+    fill = pct * BAR_LENGHT
+    outline_rect = pg.Rect(x, y, BAR_LENGHT, BAR_HEIGHT)
+    fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
+    if pct > 0.6:
+        col = GREEN
+
+    elif pct > 0.3:
+        col = YELLOW
+
+    else:
+        col = RED
+
+    pg.draw.rect(surf, col, fill_rect)
+    pg.draw.rect(surf, WHITE, outline_rect, 2)
+
 class Game:
     def __init__(self):
         pg.init()
@@ -81,9 +100,11 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
-        hits = pg.sprite.spritecollide(self.player, self.bullets, False, collide_hit_rect)
+        hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
             self.player.health -= BULLET_DMG
+
+            print(self.player.health)
 
             if self.player.health <= 0:
                 self.running = False
@@ -114,6 +135,8 @@ class Game:
 
         pg.draw.rect(self.screen, WHITE, self.player.hit_rect, 2)
         self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
+
+        draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
 
         pg.display.flip()
 
