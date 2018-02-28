@@ -7,7 +7,7 @@ from tilemap import *
 class Game:
     def __init__(self):
         pg.init()
-        pg.display.set_caption("RPG")
+        pg.display.set_caption("Shooter")
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.clock = pg.time.Clock()
         self.gp = False
@@ -20,14 +20,23 @@ class Game:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
         map_folder = path.join(game_folder, 'maps')
+
         self.map = Map(path.join(map_folder, 'map2.txt'))
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_RIFLE)).convert_alpha()
+
+        self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
         self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
+
+        self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
+        self.wall_img = pg.transform.scale(self.wall_img, [TILESIZE, TILESIZE])
+
+        self.enemy_img = pg.image.load(path.join(img_folder, ENEMY_IMG)).convert_alpha()
+        self.enemy_img = pg.transform.scale(self.enemy_img, [TILESIZE, TILESIZE])
 
     def new(self):
         self.load_data()
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.enemies = pg.sprite.Group()
 
 
         for row, tiles in enumerate(self.map.data):
@@ -35,8 +44,12 @@ class Game:
                 if tile == '1':
                     Wall(self, col, row)
 
-                elif tile.lower() == 'p':
+                elif tile == 'P':
                     self.player = Player(self, col, row)
+
+                elif tile == "E":
+                    Enemy(self, col, row)
+
             self.camera = Camera(self.map.width, self.map.height)
 
         self.loop()
@@ -74,9 +87,12 @@ class Game:
 
     def draw(self):
         self.screen.fill(BGROUND)
-        self.draw_grid()
+        #self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+
+        self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
+
         pg.display.flip()
 
     def go_screen(self):
