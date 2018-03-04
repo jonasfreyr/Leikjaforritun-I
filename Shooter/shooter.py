@@ -29,8 +29,9 @@ class Game:
         pg.display.set_caption("Shooter")
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.clock = pg.time.Clock()
+
         self.gp = False
-        pg.key.set_repeat(500, 100)
+        self.draw_hit_boxes = False
 
     def quit(self):
         quit()
@@ -96,6 +97,12 @@ class Game:
                 if event.key == pg.K_p:
                     self.gp = not self.gp
 
+                if event.key == pg.K_r:
+                    self.running = False
+
+                if event.key == pg.K_F1:
+                    self.draw_hit_boxes = not self.draw_hit_boxes
+
     def update(self):
         self.all_sprites.update()
         self.camera.update(self.player)
@@ -103,8 +110,6 @@ class Game:
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
             self.player.health -= BULLET_DMG
-
-            print(self.player.health)
 
             if self.player.health <= 0:
                 self.running = False
@@ -133,7 +138,11 @@ class Game:
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
-        pg.draw.rect(self.screen, WHITE, self.player.hit_rect, 2)
+        if self.draw_hit_boxes is True:
+            self.player.draw_hit_box()
+            for a in self.enemies:
+                a.draw_hit_box()
+
         self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
 
         draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)

@@ -39,7 +39,7 @@ PLAYER_RIFLE = "rifle.png"
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 100
 
-BARREL_OFFSET = vec(25, 16)
+BARREL_OFFSET = vec(28, 16)
 
 #Enemy Setting
 ENEMY_IMG = "pistol_enemy.png"

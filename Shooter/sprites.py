@@ -2,7 +2,6 @@ import pygame as pg
 from settings import *
 from tilemap import collide_hit_rect
 import random
-vec = pg.math.Vector2
 
 
 def collide_with_walls(sprite, group, dir):
@@ -50,6 +49,10 @@ class Player(pg.sprite.Sprite):
 
         self.health = PLAYER_HEALTH
 
+    def draw_hit_box(self):
+        hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
+        pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
+
     def get_keys(self):
         self.vel = vec(0, 0)
 
@@ -84,8 +87,10 @@ class Player(pg.sprite.Sprite):
             if now - self.last_shot > BULLET_RATE:
                 self.last_shot = now
                 dir = vec(1, 0).rotate(-self.rot)
+
                 pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
-                Bullet(self.game, pos, dir)
+
+                Bullet(self.game, pos, dir, self.rot)
                 self.vel = vec(-KICKBACK).rotate(-self.rot)
 
         if self.vel.x != 0 and self.vel.y != 0:
@@ -93,12 +98,18 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
+
         self.pos += self.vel * self.game.dt
+
         self.image = pg.transform.rotate(self.game.player_img, self.rot)
+        self.rect = self.image.get_rect()
+
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.walls, 'x')
+
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
+
         self.rect.center = self.hit_rect.center
 
 class Enemy(pg.sprite.Sprite):
@@ -122,6 +133,10 @@ class Enemy(pg.sprite.Sprite):
 
         self.last_shot = 0
 
+    def draw_hit_box(self):
+        hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
+        pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
+
     def update(self):
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
 
@@ -132,10 +147,13 @@ class Enemy(pg.sprite.Sprite):
 
         self.acc = vec(ENEMY_SPEED, 0).rotate(-self.rot)
         self.acc += self.vel * -1.5
+
         self.vel += self.acc * self.game.dt
         self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.walls, "x")
+
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, "y")
 
@@ -146,7 +164,7 @@ class Enemy(pg.sprite.Sprite):
             self.last_shot = now
             dir = vec(1, 0).rotate(-self.rot)
             pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
-            Bullet(self.game, pos, dir)
+            Bullet(self.game, pos, dir, self.rot)
             #self.vel = vec(-KICKBACK).rotate(-self.rot)
 
         if self.health <= 0:
@@ -168,12 +186,15 @@ class Enemy(pg.sprite.Sprite):
             pg.draw.rect(self.image, col, self.health_bar)
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, game, pos, dir):
+    def __init__(self, game, pos, dir, angle):
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
+        self.rot = angle
+
         self.image = game.bullet_img
+        self.image = pg.transform.rotate(self.image, self.rot)
 
         self.rect = self.image.get_rect()
         self.pos = vec(pos)
