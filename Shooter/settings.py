@@ -39,7 +39,7 @@ PLAYER_RIFLE = "rifle.png"
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 100
 
-BARREL_OFFSET = vec(28, 16)
+BARREL_OFFSET = vec(40, 16)
 
 #Enemy Setting
 ENEMY_IMG = "pistol_enemy.png"
@@ -47,6 +47,7 @@ ENEMY_SPEED = 800
 ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
 ENEMY_HEALTH = 100
 ENEMY_BULLET_RATE = 2000
+AVOID_RADIUS = 50
 
 #Gun Settings
 BULLET_IMG = 'bullet.png'
@@ -61,3 +62,14 @@ BULLET_DMG = 10
 #Hud Settings
 BAR_LENGHT = 100
 BAR_HEIGHT = 20
+
+#Effects
+MUZZLE_FLASH = 'muzzleFlash.png'
+FLASH_DURATION = 40
+
+#Layers
+WALL_LAYER = 1
+PLAYER_LAYER = 2
+ENEMY_LAYER = 2
+BULLET_LAYER = 3
+EFFECTS_LAYER = 4

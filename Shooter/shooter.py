@@ -41,7 +41,9 @@ class Game:
         img_folder = path.join(game_folder, 'img')
         map_folder = path.join(game_folder, 'maps')
 
-        self.map = Map(path.join(map_folder, 'map2.txt'))
+        self.map = TiledMap(path.join(map_folder, 'map1.tmx'))
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
         self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
@@ -55,13 +57,15 @@ class Game:
         self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
         self.bullet_img = pg.transform.scale(self.bullet_img, BULLET_SIZE)
 
+        self.gun_flash = pg.image.load(path.join(img_folder, MUZZLE_FLASH)).convert_alpha()
+
     def new(self):
         self.load_data()
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
-
+        '''
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
                 if tile == '1':
@@ -72,8 +76,18 @@ class Game:
 
                 elif tile == "E":
                     Enemy(self, col, row)
+        '''
+        for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == "Player":
+                self.player = Player(self, tile_object.x, tile_object.y)
 
-            self.camera = Camera(self.map.width, self.map.height)
+            if tile_object.name == "Wall":
+                Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+
+            if tile_object.name == "Enemy":
+                Enemy(self, tile_object.x, tile_object.y)
+
+        self.camera = Camera(self.map.width, self.map.height)
 
         self.loop()
 
@@ -109,7 +123,7 @@ class Game:
 
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
-            self.player.health -= BULLET_DMG
+            #self.player.health -= BULLET_DMG
 
             if self.player.health <= 0:
                 self.running = False
@@ -131,8 +145,11 @@ class Game:
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
     def draw(self):
-        self.screen.fill(BGROUND)
+        #self.screen.fill(BGROUND)
         #self.draw_grid()
+
+        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+
         for sprite in self.all_sprites:
             if isinstance(sprite, Enemy):
                 sprite.draw_health()
@@ -140,8 +157,16 @@ class Game:
 
         if self.draw_hit_boxes is True:
             self.player.draw_hit_box()
+
             for a in self.enemies:
                 a.draw_hit_box()
+
+            for wall in self.walls:
+                pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(wall.rect), 1)
+
+
+
+
 
         self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
 

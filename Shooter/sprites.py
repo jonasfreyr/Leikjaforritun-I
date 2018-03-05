@@ -31,17 +31,20 @@ def collide_with_walls(sprite, group, dir):
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        self._layer = PLAYER_LAYER
+
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
         self.image = game.player_img
         self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
         self.hit_rect.center = self.rect.center
 
         self.vel = vec(0, 0)
-        self.pos = vec(x, y) * TILESIZE
+        self.pos = vec(x, y)
 
         self.rot = 0
 
@@ -91,6 +94,8 @@ class Player(pg.sprite.Sprite):
                 pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
 
                 Bullet(self.game, pos, dir, self.rot)
+
+                MuzzleFlash(self.game, pos, self.rot, self.vel)
                 self.vel = vec(-KICKBACK).rotate(-self.rot)
 
         if self.vel.x != 0 and self.vel.y != 0:
@@ -114,19 +119,22 @@ class Player(pg.sprite.Sprite):
 
 class Enemy(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        self._layer = ENEMY_LAYER
+
         self.groups = game.all_sprites, game.enemies
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
         self.image = game.enemy_img
         self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
         self.hit_rect = ENEMY_HIT_RECT.copy()
         self.hit_rect.center = self.rect.center
 
-        self.pos = vec(x, y) * TILESIZE
+        self.pos = vec(x, y)
         self.rect.center = self.pos
         self.vel = vec(ENEMY_SPEED, 0)
-        self.acc = vec(8, 0)
+        self.acc = vec(0, 0)
         self.rot = 0
 
         self.health = ENEMY_HEALTH
@@ -137,6 +145,13 @@ class Enemy(pg.sprite.Sprite):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
         pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
 
+    def avoid_mobs(self):
+        for enemy in self.game.enemies:
+            if enemy != self:
+                dist = self.pos - enemy.pos
+                if 0 < dist.length() < AVOID_RADIUS:
+                    self.acc += dist.normalize()
+
     def update(self):
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
 
@@ -145,7 +160,12 @@ class Enemy(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-        self.acc = vec(ENEMY_SPEED, 0).rotate(-self.rot)
+        self.acc = vec(1, 0).rotate(-self.rot)
+        self.avoid_mobs()
+
+        if self.acc.length != 0:
+            self.acc.scale_to_length(ENEMY_SPEED)
+
         self.acc += self.vel * -1.5
 
         self.vel += self.acc * self.game.dt
@@ -165,6 +185,7 @@ class Enemy(pg.sprite.Sprite):
             dir = vec(1, 0).rotate(-self.rot)
             pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
             Bullet(self.game, pos, dir, self.rot)
+            MuzzleFlash(self.game, pos, self.rot, self.vel)
             #self.vel = vec(-KICKBACK).rotate(-self.rot)
 
         if self.health <= 0:
@@ -187,6 +208,8 @@ class Enemy(pg.sprite.Sprite):
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self, game, pos, dir, angle):
+        self._layer = BULLET_LAYER
+
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -213,6 +236,8 @@ class Bullet(pg.sprite.Sprite):
 
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        self._layer = WALL_LAYER
+
         self.groups = game.all_sprites, game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -225,3 +250,45 @@ class Wall(pg.sprite.Sprite):
 
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
+
+class Obstacle(pg.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self._layer = WALL_LAYER
+
+        self.groups = game.walls
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+
+        self.rect = pg.Rect(x, y, w, h)
+
+        self.x = x
+        self.y = y
+
+        self.rect.x = x
+        self.rect.y = y
+
+class MuzzleFlash(pg.sprite.Sprite):
+    def __init__(self, game, pos, rot, vel):
+        self._layer = EFFECTS_LAYER
+
+        self.groups = game.all_sprites
+        self.game = game
+        pg.sprite.Sprite.__init__(self, self.groups)
+        size = random.randint(20, 50)
+
+        self.image = pg.transform.scale(game.gun_flash, (size * 2, size))
+        self.image = pg.transform.rotate(self.image, rot)
+        self.rect = self.image.get_rect()
+
+        self.pos = pos
+        self.rect.center = pos
+
+        self.vel = vel
+
+        self.spawn_time = pg.time.get_ticks()
+
+    def update(self):
+        if pg.time.get_ticks() - self.spawn_time > FLASH_DURATION:
+            self.kill()
+
+        self.rect.center += self.vel * self.game.dt
