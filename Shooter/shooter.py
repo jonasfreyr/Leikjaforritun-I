@@ -78,7 +78,8 @@ class Game:
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_RIFLE)).convert_alpha()
+
+        self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
         self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
 
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
@@ -207,6 +208,11 @@ class Game:
             elif hit.type == "Ammo_box":
                 hit.kill()
                 self.effects_sounds['ammo_pickup'].play()
+
+            elif hit.type in WEAPONS:
+                hit.kill()
+                self.effects_sounds['gun_pickup'].play()
+                self.player.weapon = hit.type
 
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:

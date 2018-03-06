@@ -40,7 +40,7 @@ PLAYER_SHOTGUN = "shotgun.png"
 PLAYER_RIFLE = "rifle.png"
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 100
-
+PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
 BARREL_OFFSET = vec(40, 16)
 
 #Enemy Setting
@@ -112,8 +112,12 @@ BULLET_LAYER = 3
 EFFECTS_LAYER = 4
 
 #Items
-ITEM_IMAGES = {'Health': 'health_pack.png', "Ammo_box": "Ammo-Box-Green.png"}
-ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45]}
+ITEM_IMAGES = {'Health': 'health_pack.png',
+               "Ammo_box": "Ammo-Box-Green.png",
+               'shotgun': 'shotgun_item.png',
+               'rifle': 'rifle_item.png'
+               }
+ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20]}
 HEALTH_PACK_AMOUNT = 50
 BOB_RANGE = 10
 BOB_SPEED = 0.1

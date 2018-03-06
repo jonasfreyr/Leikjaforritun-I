@@ -52,7 +52,7 @@ class Player(pg.sprite.Sprite):
 
         self.health = PLAYER_HEALTH
 
-        self.weapon = "rifle"
+        self.weapon = "pistol"
 
     def add_health(self, amount):
         self.health += amount
@@ -270,7 +270,7 @@ class Bullet(pg.sprite.Sprite):
         self.rect.center = pos
 
         #spread = random.uniform(-GUN_SPREAD, GUN_SPREAD)
-        self.vel = dir * WEAPONS[game.player.weapon]['bullet_speed']
+        self.vel = dir * WEAPONS[game.player.weapon]['bullet_speed'] * random.uniform(0.9, 1.1)
 
         self.spawn_time = pg.time.get_ticks()
 
