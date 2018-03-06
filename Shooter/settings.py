@@ -18,7 +18,7 @@ PLCOLOR = WHITE
 #Game settings
 WIDTH = 1024
 HEIGHT = 768
-FPS = 300
+FPS = 200
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
@@ -28,6 +28,8 @@ FONTSIZE = int(TILESIZE / 2)
 FONT = pg.font.SysFont("monospace", FONTSIZE)
 
 WALL_IMG = 'wall1.png'
+
+BLOOD_SPLAT = "splat_red.png"
 
 #Player Settings
 PLAYER_SPEED = 800
@@ -48,16 +50,50 @@ ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
 ENEMY_HEALTH = 100
 ENEMY_BULLET_RATE = 2000
 AVOID_RADIUS = 50
+DETECT_RADIUS = 400
 
-#Gun Settings
+#Weapon Settings
 BULLET_IMG = 'bullet.png'
-BULLET_SPEED = 2000
-BULLET_LIFETIME = 5000
-BULLET_RATE = 150
+
+WEAPONS = {}
+WEAPONS['pistol'] = {'bullet_speed': 2000,
+                     'bullet_lifetime': 450,
+                     'rate': 500,
+                     'kickback': 200,
+                     'spread': 2,
+                     'damage': 10,
+                     'bullet_size': 'lg',
+                     'ammo_clip': 12,
+                     'ammo_max': 24,
+                     'bullet_count': 1
+                     }
+
+WEAPONS['shotgun'] = {'bullet_speed': 2000,
+                     'bullet_lifetime': 400,
+                     'rate':1200,
+                     'kickback': 800,
+                     'spread': 20,
+                     'damage': 5,
+                     'bullet_size': 'sm',
+                     'ammo_clip': 8,
+                     'ammo_max': 16,
+                     'bullet_count': 12
+                     }
+
+WEAPONS['rifle'] = {'bullet_speed': 2000,
+                     'bullet_lifetime': 600,
+                     'rate': 150,
+                     'kickback': 500,
+                     'spread': 5,
+                     'damage': 15,
+                     'bullet_size': 'lg',
+                     'ammo_clip': 30,
+                     'ammo_max': 60,
+                     'bullet_count': 1
+                     }
+
+
 BULLET_SIZE = [10, 10]
-KICKBACK = 200
-GUN_SPREAD = 2
-BULLET_DMG = 10
 
 #Hud Settings
 BAR_LENGHT = 100
@@ -69,7 +105,32 @@ FLASH_DURATION = 40
 
 #Layers
 WALL_LAYER = 1
+ITEMS_LAYER = 1
 PLAYER_LAYER = 2
 ENEMY_LAYER = 2
 BULLET_LAYER = 3
 EFFECTS_LAYER = 4
+
+#Items
+ITEM_IMAGES = {'Health': 'health_pack.png', "Ammo_box": "Ammo-Box-Green.png"}
+ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45]}
+HEALTH_PACK_AMOUNT = 50
+BOB_RANGE = 10
+BOB_SPEED = 0.1
+
+#Sounds
+BG_MUSIC = 'Interloper.mp3'
+
+PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
+
+ENEMY_HIT_SOUNDS = ['splat-15.wav']
+
+WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
+                 'shotgun': ['shotgun.wav'],
+                 'rifle': ['rifle.wav']
+                 }
+
+EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
+                  'health_up': 'health_pack.wav',
+                  'gun_pickup': 'gun_pickup.wav',
+                  'ammo_pickup': 'small_caliber_shot_gun_cock.wav'}
