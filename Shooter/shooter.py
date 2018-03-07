@@ -65,33 +65,42 @@ class Game:
     def load_data(self):
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
-        map_folder = path.join(game_folder, 'maps')
+        self.map_folder = path.join(game_folder, 'maps')
         snd_folder = path.join(game_folder, 'snd')
         music_folder = path.join(game_folder, 'music')
 
         self.title_font = path.join(img_folder, 'airstrike.ttf')
+        self.hud_font = path.join(img_folder, 'conthrax-sb.ttf')
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
-        self.map = TiledMap(path.join(map_folder, 'map1.tmx'))
-        self.map_img = self.map.make_map()
-        self.map_rect = self.map_img.get_rect()
+        #self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
+        #self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
 
+        self.player_images = {}
+        for a in PLAYER_IMAGES:
+            p = pg.image.load(path.join(img_folder, PLAYER_IMAGES[a])).convert_alpha()
 
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
-        self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
+            p = pg.transform.scale(p, IMAGES_SIZES[a])
 
-        self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
-        self.wall_img = pg.transform.scale(self.wall_img, [TILESIZE, TILESIZE])
+            self.player_images[a] = p
 
         self.enemy_img = pg.image.load(path.join(img_folder, ENEMY_IMG)).convert_alpha()
         self.enemy_img = pg.transform.scale(self.enemy_img, [TILESIZE, TILESIZE])
 
+        self.enemy_images = {}
+        for a in ENEMY_IMAGES:
+            p = pg.image.load(path.join(img_folder, ENEMY_IMAGES[a])).convert_alpha()
+
+            p = pg.transform.scale(p, IMAGES_SIZES[a])
+
+            self.enemy_images[a] = p
+
         self.bullet_images = {}
         self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
         self.bullet_images['lg'] = pg.transform.scale(self.bullet_img, BULLET_SIZE)
-        self.bullet_images['sm'] = pg.transform.scale(self.bullet_img, (5, 5))
+        self.bullet_images['sm'] = pg.transform.scale(self.bullet_img, (8, 8))
 
         self.gun_flash = pg.image.load(path.join(img_folder, MUZZLE_FLASH)).convert_alpha()
 
@@ -101,6 +110,12 @@ class Game:
         self.item_images = {}
         for item in ITEM_IMAGES:
             self.item_images[item] = pg.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
+
+        self.fog = pg.Surface((WIDTH, HEIGHT))
+        self.fog.fill(NIGHT_COLOR)
+        self.light_mask = pg.image.load(path.join(img_folder, LIGHT_MASK)).convert_alpha()
+        self.light_mask = pg.transform.scale(self.light_mask, LIGHT_RADIUS)
+        self.light_rect = self.light_mask.get_rect()
 
         pg.mixer.music.load(path.join(music_folder, BG_MUSIC))
         self.effects_sounds = {}
@@ -133,18 +148,11 @@ class Game:
         self.enemies = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
         self.items = pg.sprite.Group()
-        '''
-        for row, tiles in enumerate(self.map.data):
-            for col, tile in enumerate(tiles):
-                if tile == '1':
-                    Wall(self, col, row)
 
-                elif tile == 'P':
-                    self.player = Player(self, col, row)
+        self.map = TiledMap(path.join(self.map_folder, 'map1.tmx'))
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
-                elif tile == "E":
-                    Enemy(self, col, row)
-        '''
         for tile_object in self.map.tmxdata.objects:
             obj_center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
             if tile_object.name == "Player":
@@ -154,7 +162,7 @@ class Game:
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 
             if tile_object.name == "Enemy":
-                Enemy(self, obj_center.x, obj_center.y, 'shotgun')
+                Enemy(self, obj_center.x, obj_center.y, tile_object.type)
 
             if tile_object.name in ITEM_IMAGES:
                 Item(self, obj_center, tile_object.name)
@@ -162,8 +170,9 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
 
         self.gp = False
+        self.night = False
 
-        self.effects_sounds['level_start'].play()
+        #self.effects_sounds['level_start'].play()
 
         self.loop()
 
@@ -228,8 +237,17 @@ class Game:
         for a in self.enemies:
             hits = pg.sprite.spritecollide(a, self.bullets, True, collide_hit_rect)
             for hit in hits:
-                a.health -= WEAPONS[self.player.weapon]['damage']
+                a.health -= WEAPONS[hit.weapon]['damage']
                 a.vel = vec(0, 0)
+
+    def render_fog(self):
+        self.fog.fill(NIGHT_COLOR)
+
+        self.light_rect.center = self.camera.apply(self.player).center
+
+        self.fog.blit(self.light_mask, self.light_rect)
+
+        self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -258,13 +276,14 @@ class Game:
             for wall in self.walls:
                 pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(wall.rect), 1)
 
-
-
-
+        if self.night:
+            self.render_fog()
 
         self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
 
         draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
+
+        self.draw_text('Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 
         if self.gp:
             self.screen.blit(self.dim_screen, (0, 0))
@@ -273,7 +292,31 @@ class Game:
         pg.display.flip()
 
     def go_screen(self):
-        pass
+        self.screen.fill(BLACK)
+
+        self.draw_text("GAME OVER", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
+
+        self.draw_text("Retry? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="center")
+
+        pg.display.flip()
+
+        return self.wait_for_key()
+
+    def wait_for_key(self):
+        while True:
+            self.clock.tick(FPS)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.quit()
+
+                if event.type == pg.KEYUP:
+                    if event.key == pg.K_y:
+                        return False
+
+                    elif event.key == pg.K_n:
+                        return True
+
 
     def start_screen(self):
         pass
@@ -282,4 +325,6 @@ H = Game()
 H.start_screen()
 while True:
     H.new()
-    H.go_screen()
+    end = H.go_screen()
+    if end is True:
+        break

@@ -11,6 +11,7 @@ BLUE = (0, 0, 255)
 DARKGREY = (40, 40, 40)
 LIGHTGREY = (100, 100, 100)
 YELLOW = (255, 255, 0)
+NIGHT_COLOR = (10, 10, 10)
 
 BGROUND = DARKGREY
 PLCOLOR = WHITE
@@ -43,7 +44,11 @@ PLAYER_HEALTH = 100
 PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
 BARREL_OFFSET = vec(40, 16)
 
+#Images Sizes
+IMAGES_SIZES = {'pistol': [TILESIZE, TILESIZE], 'shotgun': [TILESIZE + 10, TILESIZE - 5], 'rifle': [TILESIZE + 10, TILESIZE - 5]}
+
 #Enemy Setting
+ENEMY_IMAGES = {'pistol': "pistol_enemy.png", 'shotgun': "shotgun_enemy.png", 'rifle': "rifle_enemy.png"}
 ENEMY_IMG = "pistol_enemy.png"
 ENEMY_SPEED = 800
 ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
@@ -78,7 +83,7 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'ammo_clip': 8,
                      'ammo_max': 16,
                      'bullet_count': 12
-                     }
+                    }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'bullet_lifetime': 600,
@@ -90,7 +95,7 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'ammo_clip': 30,
                      'ammo_max': 60,
                      'bullet_count': 1
-                     }
+                    }
 
 
 BULLET_SIZE = [10, 10]
@@ -102,6 +107,9 @@ BAR_HEIGHT = 20
 #Effects
 MUZZLE_FLASH = 'muzzleFlash.png'
 FLASH_DURATION = 40
+
+LIGHT_MASK = 'light_350_med.png'
+LIGHT_RADIUS = (500, 500)
 
 #Layers
 WALL_LAYER = 1

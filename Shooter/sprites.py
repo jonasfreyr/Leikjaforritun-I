@@ -1,7 +1,7 @@
 import pygame as pg
 from settings import *
 from tilemap import collide_hit_rect
-import random
+import random, math
 import pytweening as tween
 
 def collide_with_walls(sprite, group, dir):
@@ -37,7 +37,10 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.image = game.player_img
+        self.weapon = "rifle"
+
+        self.image = game.player_images[self.weapon]
+
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
@@ -51,8 +54,6 @@ class Player(pg.sprite.Sprite):
         self.last_shot = 0
 
         self.health = PLAYER_HEALTH
-
-        self.weapon = "pistol"
 
     def add_health(self, amount):
         self.health += amount
@@ -126,7 +127,7 @@ class Player(pg.sprite.Sprite):
 
         self.pos += self.vel * self.game.dt
 
-        self.image = pg.transform.rotate(self.game.player_img, self.rot)
+        self.image = pg.transform.rotate(self.game.player_images[self.weapon], self.rot)
         self.rect = self.image.get_rect()
 
         self.hit_rect.centerx = self.pos.x
@@ -145,7 +146,7 @@ class Enemy(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.image = game.enemy_img.copy()
+        self.image = game.enemy_images[weapon].copy()
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = ENEMY_HIT_RECT.copy()
@@ -165,6 +166,8 @@ class Enemy(pg.sprite.Sprite):
 
         self.weapon = weapon
 
+        self.moving = False
+
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
         pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
@@ -176,37 +179,44 @@ class Enemy(pg.sprite.Sprite):
                 if 0 < dist.length() < AVOID_RADIUS:
                     self.acc += dist.normalize()
 
+    def line_collide(self,):
+        pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
+
+        return True
+
     def update(self):
         target_dist = self.target.pos - self.pos
         if target_dist.length_squared() < DETECT_RADIUS ** 2:
-            self.rot = target_dist.angle_to(vec(1, 0))
+            if self.line_collide() is False:
+                self.rot = target_dist.angle_to(vec(1, 0))
 
-            self.image = pg.transform.rotate(self.game.enemy_img, self.rot)
+                self.image = pg.transform.rotate(self.game.enemy_images[self.weapon], self.rot)
 
-            self.rect = self.image.get_rect()
-            self.rect.center = self.pos
+                self.rect = self.image.get_rect()
+                self.rect.center = self.pos
 
-            self.acc = vec(1, 0).rotate(-self.rot)
-            self.avoid_mobs()
+                if self.moving:
+                    self.acc = vec(1, 0).rotate(-self.rot)
+                    self.avoid_mobs()
 
-            if self.acc.length != 0:
-                self.acc.scale_to_length(ENEMY_SPEED)
+                    if self.acc.length != 0:
+                        self.acc.scale_to_length(ENEMY_SPEED)
 
-            self.acc += self.vel * -1.5
+                    self.acc += self.vel * -1.5
 
-            self.vel += self.acc * self.game.dt
-            self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+                    self.vel += self.acc * self.game.dt
+                    self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
 
-            self.hit_rect.centerx = self.pos.x
-            collide_with_walls(self, self.game.walls, "x")
+                    self.hit_rect.centerx = self.pos.x
+                    collide_with_walls(self, self.game.walls, "x")
 
-            self.hit_rect.centery = self.pos.y
-            collide_with_walls(self, self.game.walls, "y")
+                    self.hit_rect.centery = self.pos.y
+                    collide_with_walls(self, self.game.walls, "y")
 
-            self.rect.center = self.hit_rect.center
+                    self.rect.center = self.hit_rect.center
 
 
-            self.shoot()
+                self.shoot()
 
 
         if self.health <= 0:
