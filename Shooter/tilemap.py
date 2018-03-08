@@ -20,7 +20,6 @@ class Map:
 
 class TiledMap:
     def __init__(self, filename):
-        print(filename)
         tm = pytmx.load_pygame(filename, pixlealpha=True)
 
         self.width = tm.width * tm.tilewidth

@@ -39,6 +39,7 @@ PLAYER_SHOTGUN = "shotgun.png"
 PLAYER_RIFLE = "rifle.png"
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 100
+PLAYER_ARMOR = 50
 PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
 BARREL_OFFSET = vec(40, 16)
 
@@ -72,7 +73,7 @@ WEAPONS['pistol'] = {'bullet_speed': 2000,
                      }
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
-                     'bullet_lifetime': 400,
+                     'bullet_lifetime': 300,
                      'rate':1200,
                      'kickback': 800,
                      'spread': 20,
@@ -123,9 +124,10 @@ EFFECTS_LAYER = 4
 ITEM_IMAGES = {'Health': 'health_pack.png',
                "Ammo_box": "Ammo-Box-Green.png",
                'shotgun': 'shotgun_item.png',
-               'rifle': 'rifle_item.png'
+               'rifle': 'rifle_item.png',
+               'armor': 'armor-vest.png'
                }
-ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20]}
+ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20], 'armor': [24, 24]}
 HEALTH_PACK_AMOUNT = 50
 BOB_RANGE = 10
 BOB_SPEED = 0.1
@@ -145,4 +147,6 @@ WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav',
-                  'ammo_pickup': 'small_caliber_shot_gun_cock.wav'}
+                  'ammo_pickup': 'small_caliber_shot_gun_cock.wav',
+                  'armor_pickup': 'zipper.wav'
+                  }

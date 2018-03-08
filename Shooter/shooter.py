@@ -3,26 +3,8 @@ from settings import *
 from sprites import *
 from os import path
 from tilemap import *
+from hud import *
 import random
-
-def draw_player_health(surf, x, y, pct):
-    if pct < 0:
-        pct = 0
-
-    fill = pct * BAR_LENGHT
-    outline_rect = pg.Rect(x, y, BAR_LENGHT, BAR_HEIGHT)
-    fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
-    if pct > 0.6:
-        col = GREEN
-
-    elif pct > 0.3:
-        col = YELLOW
-
-    else:
-        col = RED
-
-    pg.draw.rect(surf, col, fill_rect)
-    pg.draw.rect(surf, WHITE, outline_rect, 2)
 
 class Game:
     def __init__(self):
@@ -120,6 +102,7 @@ class Game:
         pg.mixer.music.load(path.join(music_folder, BG_MUSIC))
         self.effects_sounds = {}
         for type in EFFECTS_SOUNDS:
+            print(EFFECTS_SOUNDS[type])
             self.effects_sounds[type] = pg.mixer.Sound(path.join(snd_folder, EFFECTS_SOUNDS[type]))
 
         self.weapon_sounds = {}
@@ -178,7 +161,7 @@ class Game:
 
     def loop(self):
         self.running = True
-        #ddpg.mixer.music.play(loops=-1)
+        #pg.mixer.music.play(loops=-1)
         while self.running:
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
@@ -218,6 +201,11 @@ class Game:
                 hit.kill()
                 self.effects_sounds['ammo_pickup'].play()
 
+            elif hit.type == "armor" and self.player.armor < PLAYER_ARMOR:
+                hit.kill()
+                self.effects_sounds['armor_pickup'].play()
+                self.player.armor = PLAYER_ARMOR
+
             elif hit.type in WEAPONS:
                 hit.kill()
                 self.effects_sounds['gun_pickup'].play()
@@ -225,7 +213,14 @@ class Game:
 
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
-            #wself.player.health -= WEAPONS[hit.weapon]['damage']
+            if self.player.armor <= 0:
+                self.player.health -= WEAPONS[hit.weapon]['damage']
+
+            else:
+                self.player.armor -= WEAPONS[hit.weapon]['damage']
+
+            if self.player.armor <= 0:
+                self.player.armor = 0
 
             if self.player.health <= 0:
                 self.running = False
@@ -273,6 +268,8 @@ class Game:
         self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
 
         draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
+
+        draw_armor_health(self.screen, 10 + BAR_LENGHT + 5, HEIGHT - BAR_HEIGHT - 10, self.player.armor / PLAYER_ARMOR)
 
         self.draw_text('Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 

@@ -54,6 +54,7 @@ class Player(pg.sprite.Sprite):
         self.last_shot = 0
 
         self.health = PLAYER_HEALTH
+        self.armor = 0
 
     def add_health(self, amount):
         self.health += amount
@@ -271,12 +272,13 @@ class Enemy(pg.sprite.Sprite):
         print('---')
         print(pos, "-", self.last_known)
         print('---')
-        if pos == self.last_known:
+        if ((pos[0] - 5 < self.last_known[0]) and (pos[1] - 5 < self.last_known[1])) and ((pos[0] + 5 > self.last_known[0]) and (pos[1] + 5 > self.last_known[1])):
         #if ((pos[0] -10 < self.last_known))
             self.moving = False
 
         if self.moving:
-            #target_dist = self.last_known - self.pos
+            target_dist = self.last_known - self.pos
+            self.rot = target_dist.angle_to(vec(1, 0))
 
             self.acc = vec(1, 0).rotate(-self.rot)
             self.avoid_mobs()
