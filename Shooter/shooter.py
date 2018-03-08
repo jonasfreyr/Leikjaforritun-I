@@ -102,8 +102,12 @@ class Game:
         pg.mixer.music.load(path.join(music_folder, BG_MUSIC))
         self.effects_sounds = {}
         for type in EFFECTS_SOUNDS:
-            print(EFFECTS_SOUNDS[type])
-            self.effects_sounds[type] = pg.mixer.Sound(path.join(snd_folder, EFFECTS_SOUNDS[type]))
+            s = pg.mixer.Sound(path.join(snd_folder, EFFECTS_SOUNDS[type]))
+
+            if type == 'armor_pickup':
+                s.set_volume(0.1)
+
+            self.effects_sounds[type] = s
 
         self.weapon_sounds = {}
         for weapon in WEAPON_SOUNDS:
@@ -181,7 +185,8 @@ class Game:
                     self.gp = not self.gp
 
                 if event.key == pg.K_r:
-                    self.running = False
+                    if self.player.ammo < WEAPONS[self.player.weapon]['ammo_clip'] and self.player.maxammo > 0:
+                        self.player.reload()
 
                 if event.key == pg.K_F1:
                     self.draw_hit_boxes = not self.draw_hit_boxes
@@ -210,6 +215,9 @@ class Game:
                 hit.kill()
                 self.effects_sounds['gun_pickup'].play()
                 self.player.weapon = hit.type
+
+                self.player.ammo = WEAPONS[self.player.weapon]['ammo_clip']
+                self.player.maxammo = WEAPONS[self.player.weapon]['ammo_max']
 
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
@@ -270,6 +278,12 @@ class Game:
         draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
 
         draw_armor_health(self.screen, 10 + BAR_LENGHT + 5, HEIGHT - BAR_HEIGHT - 10, self.player.armor / PLAYER_ARMOR)
+
+        self.draw_text(str(self.player.ammo), self.hud_font, 30, WHITE, WIDTH - 80, HEIGHT - 10,  align="se")
+
+        self.draw_text("/", self.hud_font, 30, WHITE, WIDTH - 65, HEIGHT - 10,  align="se")
+
+        self.draw_text(str(self.player.maxammo), self.hud_font, 30, WHITE, WIDTH - 10, HEIGHT - 10,  align="se")
 
         self.draw_text('Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 

@@ -54,7 +54,7 @@ ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
 ENEMY_HEALTH = 100
 ENEMY_BULLET_RATE = 2000
 AVOID_RADIUS = 50
-DETECT_RADIUS = 400
+DETECT_RADIUS = 450
 
 #Weapon Settings
 BULLET_IMG = 'bullet.png'
@@ -69,7 +69,8 @@ WEAPONS['pistol'] = {'bullet_speed': 2000,
                      'bullet_size': 'lg',
                      'ammo_clip': 12,
                      'ammo_max': 24,
-                     'bullet_count': 1
+                     'bullet_count': 1,
+                     'detect_radius': 400
                      }
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
@@ -81,7 +82,8 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'bullet_size': 'sm',
                      'ammo_clip': 8,
                      'ammo_max': 16,
-                     'bullet_count': 20
+                     'bullet_count': 20,
+                     'detect_radius': 350
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
@@ -93,7 +95,8 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'bullet_size': 'lg',
                      'ammo_clip': 30,
                      'ammo_max': 60,
-                     'bullet_count': 1
+                     'bullet_count': 1,
+                     'detect_radius': 500
                     }
 
 
@@ -148,5 +151,6 @@ EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav',
                   'ammo_pickup': 'small_caliber_shot_gun_cock.wav',
-                  'armor_pickup': 'zipper.wav'
+                  'armor_pickup': 'zipper.wav',
+                  'reload': 'reload.wav'
                   }

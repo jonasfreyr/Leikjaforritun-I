@@ -56,10 +56,24 @@ class Player(pg.sprite.Sprite):
         self.health = PLAYER_HEALTH
         self.armor = 0
 
+        self.ammo = WEAPONS[self.weapon]['ammo_clip']
+        self.maxammo = WEAPONS[self.weapon]['ammo_max']
+
     def add_health(self, amount):
         self.health += amount
         if self.health > PLAYER_HEALTH:
             self.health = PLAYER_HEALTH
+
+    def reload(self):
+        self.game.effects_sounds['reload'].play()
+        a = WEAPONS[self.weapon]['ammo_clip'] - self.ammo
+        self.ammo = WEAPONS[self.weapon]['ammo_clip']
+
+        if self.maxammo - a < 0:
+            self.ammo = self.maxammo
+            self.maxammo = 0
+        else:
+            self.maxammo -= a
 
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
@@ -95,7 +109,8 @@ class Player(pg.sprite.Sprite):
             self.rot = 45
 
         if keys[pg.K_SPACE]:
-            self.shoot()
+            if self.ammo != 0:
+                self.shoot()
 
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
@@ -103,6 +118,8 @@ class Player(pg.sprite.Sprite):
     def shoot(self):
         now = pg.time.get_ticks()
         if now - self.last_shot > WEAPONS[self.weapon]['rate']:
+            self.ammo -= 1
+
             self.last_shot = now
 
             dir = vec(1, 0).rotate(-self.rot)
@@ -244,7 +261,7 @@ class Enemy(pg.sprite.Sprite):
 
     def update(self):
         target_dist = self.target.pos - self.pos
-        if target_dist.length_squared() < DETECT_RADIUS ** 2:
+        if target_dist.length_squared() < WEAPONS[self.weapon]['detect_radius'] ** 2:
             if self.line_collide() is False:
                 self.moving = False
 
@@ -269,11 +286,8 @@ class Enemy(pg.sprite.Sprite):
             self.image = pg.transform.rotate(self.game.enemy_images[self.weapon], self.rot)
 
         pos = [int(self.pos.x), int(self.pos.y)]
-        print('---')
-        print(pos, "-", self.last_known)
-        print('---')
+
         if ((pos[0] - 5 < self.last_known[0]) and (pos[1] - 5 < self.last_known[1])) and ((pos[0] + 5 > self.last_known[0]) and (pos[1] + 5 > self.last_known[1])):
-        #if ((pos[0] -10 < self.last_known))
             self.moving = False
 
         if self.moving:
