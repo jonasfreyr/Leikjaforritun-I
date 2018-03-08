@@ -222,7 +222,7 @@
   <object id="101" name="Wall" x="1088" y="512" width="128" height="64"/>
   <object id="102" name="Wall" x="1168" y="592" width="32" height="32"/>
   <object id="103" name="Ammo_box" x="1296" y="592" width="32" height="32"/>
-  <object id="104" name="rifle" x="3024" y="784" width="32" height="32"/>
+  <object id="104" name="rifle" x="3008" y="784" width="32" height="32"/>
   <object id="105" name="shotgun" x="2176" y="1536" width="32" height="32"/>
   <object id="121" name="Enemy" type="shotgun" x="1152" y="704" width="64" height="64"/>
   <object id="123" name="Enemy" type="rifle" x="1920" y="896" width="64" height="64"/>

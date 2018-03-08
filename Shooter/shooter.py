@@ -205,6 +205,8 @@ class Game:
             elif hit.type == "Ammo_box":
                 hit.kill()
                 self.effects_sounds['ammo_pickup'].play()
+                self.player.maxammo = WEAPONS[self.player.weapon]['ammo_max']
+                self.player.ammo = WEAPONS[self.player.weapon]['ammo_clip']
 
             elif hit.type == "armor" and self.player.armor < PLAYER_ARMOR:
                 hit.kill()
