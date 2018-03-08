@@ -37,7 +37,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.weapon = "rifle"
+        self.weapon = "pistol"
 
         self.image = game.player_images[self.weapon]
 
@@ -163,6 +163,7 @@ class Enemy(pg.sprite.Sprite):
         self.last_shot = 0
 
         self.target = game.player
+        self.last_known = [int(self.pos.x), int(self.pos.y)]
 
         self.weapon = weapon
 
@@ -179,15 +180,77 @@ class Enemy(pg.sprite.Sprite):
                 if 0 < dist.length() < AVOID_RADIUS:
                     self.acc += dist.normalize()
 
-    def line_collide(self,):
-        pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
+    def lineLine(self, x1, y1, x2, y2, x3, y3, x4, y4):
 
-        return True
+        uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1))
+
+        uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1))
+
+        if (uA >= 0 and uA <= 1 and uB >= 0 and uB <= 1):
+            return True
+
+        else:
+            return False
+
+    def line_collide(self,):
+        target_dist = self.target.pos - self.pos
+        rot = target_dist.angle_to(vec(1, 0))
+        pos = self.pos + BARREL_OFFSET.rotate(-rot)
+
+        for a in self.game.walls:
+            r = a.rect.copy()
+            topleft = r.topleft
+            topright = r.topright
+
+            bottomleft = r.bottomleft
+            bottomright = r.bottomright
+
+            left = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, topleft[0], topleft[1], topleft[0], bottomleft[1])
+
+            right = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, topright[0], topright[1], topright[0], bottomright[1])
+
+            top = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, topleft[0], topleft[1], topright[0], topright[1])
+
+            bottom = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, bottomleft[0], bottomleft[1], bottomright[0], bottomright[1])
+
+            if left or right or top or bottom:
+                return True
+
+        for a in self.game.enemies:
+            r = a.hit_rect.copy()
+            topleft = r.topleft
+            topright = r.topright
+
+            bottomleft = r.bottomleft
+            bottomright = r.bottomright
+
+            left = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, topleft[0], topleft[1], topleft[0],
+                                 bottomleft[1])
+
+            right = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, topright[0], topright[1],
+                                  topright[0], bottomright[1])
+
+            top = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, topleft[0], topleft[1], topright[0],
+                                topright[1])
+
+            bottom = self.lineLine(pos.x, pos.y, self.target.pos.x, self.target.pos.y, bottomleft[0], bottomleft[1],
+                                   bottomright[0], bottomright[1])
+
+            if left or right or top or bottom:
+                return True
+
+        return False
 
     def update(self):
         target_dist = self.target.pos - self.pos
         if target_dist.length_squared() < DETECT_RADIUS ** 2:
             if self.line_collide() is False:
+                self.moving = False
+
+                self.vel = vec(0, 0)
+
+                self.last_known = [int(self.target.pos.x), int(self.target.pos.y)]
+
                 self.rot = target_dist.angle_to(vec(1, 0))
 
                 self.image = pg.transform.rotate(self.game.enemy_images[self.weapon], self.rot)
@@ -195,28 +258,47 @@ class Enemy(pg.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = self.pos
 
-                if self.moving:
-                    self.acc = vec(1, 0).rotate(-self.rot)
-                    self.avoid_mobs()
-
-                    if self.acc.length != 0:
-                        self.acc.scale_to_length(ENEMY_SPEED)
-
-                    self.acc += self.vel * -1.5
-
-                    self.vel += self.acc * self.game.dt
-                    self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
-
-                    self.hit_rect.centerx = self.pos.x
-                    collide_with_walls(self, self.game.walls, "x")
-
-                    self.hit_rect.centery = self.pos.y
-                    collide_with_walls(self, self.game.walls, "y")
-
-                    self.rect.center = self.hit_rect.center
-
-
                 self.shoot()
+
+            else:
+                self.moving = True
+                self.image = pg.transform.rotate(self.game.enemy_images[self.weapon], self.rot)
+        else:
+            self.moving = True
+            self.image = pg.transform.rotate(self.game.enemy_images[self.weapon], self.rot)
+
+        pos = [int(self.pos.x), int(self.pos.y)]
+        print('---')
+        print(pos, "-", self.last_known)
+        print('---')
+        if pos == self.last_known:
+        #if ((pos[0] -10 < self.last_known))
+            self.moving = False
+
+        if self.moving:
+            #target_dist = self.last_known - self.pos
+
+            self.acc = vec(1, 0).rotate(-self.rot)
+            self.avoid_mobs()
+
+            try:
+                self.acc.scale_to_length(ENEMY_SPEED)
+
+            except:
+                pass
+
+            self.acc += self.vel * -1.5
+
+            self.vel += self.acc * self.game.dt
+            self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+
+            self.hit_rect.centerx = self.pos.x
+            collide_with_walls(self, self.game.walls, "x")
+
+            self.hit_rect.centery = self.pos.y
+            collide_with_walls(self, self.game.walls, "y")
+
+            self.rect.center = self.hit_rect.center
 
 
         if self.health <= 0:
@@ -291,23 +373,6 @@ class Bullet(pg.sprite.Sprite):
         self.rect.center = self.pos
         if (pg.time.get_ticks() - self.spawn_time > WEAPONS[self.weapon]['bullet_lifetime']) or (pg.sprite.spritecollideany(self, self.game.walls)):
             self.kill()
-
-class Wall(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
-        self._layer = WALL_LAYER
-
-        self.groups = game.all_sprites, game.walls
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-
-        self.image = game.wall_img
-        self.rect = self.image.get_rect()
-
-        self.x = x
-        self.y = y
-
-        self.rect.x = x * TILESIZE
-        self.rect.y = y * TILESIZE
 
 class Obstacle(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):

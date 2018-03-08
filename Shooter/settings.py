@@ -30,8 +30,6 @@ FONT = pg.font.SysFont("monospace", FONTSIZE)
 
 WALL_IMG = 'wall1.png'
 
-BLOOD_SPLAT = "splat_red.png"
-
 #Player Settings
 PLAYER_SPEED = 800
 PLAYER_MELEE = "melee.png"
@@ -82,7 +80,7 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'bullet_size': 'sm',
                      'ammo_clip': 8,
                      'ammo_max': 16,
-                     'bullet_count': 12
+                     'bullet_count': 20
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
@@ -111,6 +109,8 @@ FLASH_DURATION = 40
 LIGHT_MASK = 'light_350_med.png'
 LIGHT_RADIUS = (500, 500)
 
+BLOOD_SPLAT = "blood.png"
+
 #Layers
 WALL_LAYER = 1
 ITEMS_LAYER = 1
@@ -135,7 +135,7 @@ BG_MUSIC = 'Interloper.mp3'
 
 PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 
-ENEMY_HIT_SOUNDS = ['splat-15.wav']
+ENEMY_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 
 WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
                  'shotgun': ['shotgun.wav'],

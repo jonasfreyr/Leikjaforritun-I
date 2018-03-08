@@ -178,7 +178,7 @@ class Game:
 
     def loop(self):
         self.running = True
-        pg.mixer.music.play(loops=-1)
+        #ddpg.mixer.music.play(loops=-1)
         while self.running:
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
@@ -225,7 +225,7 @@ class Game:
 
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
-            self.player.health -= WEAPONS[hit.weapon]['damage']
+            #wself.player.health -= WEAPONS[hit.weapon]['damage']
 
             if self.player.health <= 0:
                 self.running = False
@@ -267,15 +267,6 @@ class Game:
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
-        if self.draw_hit_boxes is True:
-            self.player.draw_hit_box()
-
-            for a in self.enemies:
-                a.draw_hit_box()
-
-            for wall in self.walls:
-                pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(wall.rect), 1)
-
         if self.night:
             self.render_fog()
 
@@ -288,6 +279,15 @@ class Game:
         if self.gp:
             self.screen.blit(self.dim_screen, (0, 0))
             self.draw_text("Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+
+        if self.draw_hit_boxes is True:
+            self.player.draw_hit_box()
+
+            for a in self.enemies:
+                a.draw_hit_box()
+
+            for wall in self.walls:
+                pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(wall.rect), 1)
 
         pg.display.flip()
 
@@ -307,7 +307,7 @@ class Game:
             self.clock.tick(FPS)
 
             for event in pg.event.get():
-                if event.type == pg.QUIT:
+                if event.type == pg.QUIT or (event.type == pg.KEYUP and event.key == pg.K_ESCAPE):
                     self.quit()
 
                 if event.type == pg.KEYUP:
