@@ -16,31 +16,6 @@ class Game:
 
         self.draw_hit_boxes = False
 
-    def draw_text(self, text, font_name, size, color, x, y, align="nw"):
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        if align == "nw":
-            text_rect.topleft = (x, y)
-        if align == "ne":
-            text_rect.topright = (x, y)
-        if align == "sw":
-            text_rect.bottomleft = (x, y)
-        if align == "se":
-            text_rect.bottomright = (x, y)
-        if align == "n":
-            text_rect.midtop = (x, y)
-        if align == "s":
-            text_rect.midbottom = (x, y)
-        if align == "e":
-            text_rect.midright = (x, y)
-        if align == "w":
-            text_rect.midleft = (x, y)
-        if align == "center":
-            text_rect.center = (x, y)
-
-        self.screen.blit(text_surface, text_rect)
-
     def quit(self):
         quit()
 
@@ -261,6 +236,23 @@ class Game:
         for y in range(0, HEIGHT, TILESIZE):
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
+    def draw_hud(self):
+        self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
+
+        draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
+
+        draw_armor_health(self.screen, 10 + BAR_LENGHT + 5, HEIGHT - BAR_HEIGHT - 10, self.player.armor / PLAYER_ARMOR)
+
+        draw_text(self.screen, str(self.player.ammo), self.hud_font, 30, WHITE, WIDTH - 80, HEIGHT - 10, align="se")
+
+        draw_text(self.screen, "/", self.hud_font, 30, WHITE, WIDTH - 65, HEIGHT - 10, align="se")
+
+        draw_text(self.screen, str(self.player.maxammo), self.hud_font, 30, WHITE, WIDTH - 10, HEIGHT - 10, align="se")
+
+        draw_text(self.screen, 'Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
+
+        draw_text(self.screen, WEAPON_NAMES[self.player.weapon], self.hud_font, 30, WHITE, WIDTH - 130, HEIGHT - 10, align="se")
+
     def draw(self):
         #self.screen.fill(BGROUND)
         #self.draw_grid()
@@ -275,23 +267,11 @@ class Game:
         if self.night:
             self.render_fog()
 
-        self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
-
-        draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
-
-        draw_armor_health(self.screen, 10 + BAR_LENGHT + 5, HEIGHT - BAR_HEIGHT - 10, self.player.armor / PLAYER_ARMOR)
-
-        self.draw_text(str(self.player.ammo), self.hud_font, 30, WHITE, WIDTH - 80, HEIGHT - 10,  align="se")
-
-        self.draw_text("/", self.hud_font, 30, WHITE, WIDTH - 65, HEIGHT - 10,  align="se")
-
-        self.draw_text(str(self.player.maxammo), self.hud_font, 30, WHITE, WIDTH - 10, HEIGHT - 10,  align="se")
-
-        self.draw_text('Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
+        self.draw_hud()
 
         if self.gp:
             self.screen.blit(self.dim_screen, (0, 0))
-            self.draw_text("Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+            draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
 
         if self.draw_hit_boxes is True:
             self.player.draw_hit_box()
@@ -307,9 +287,9 @@ class Game:
     def go_screen(self):
         self.screen.fill(BLACK)
 
-        self.draw_text("GAME OVER", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
+        draw_text(self.screen, "YOU DIED", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="s")
 
-        self.draw_text("Retry? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="center")
+        draw_text(self.screen, "Retry? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="s")
 
         pg.display.flip()
 

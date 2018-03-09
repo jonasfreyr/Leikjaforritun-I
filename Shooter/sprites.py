@@ -37,7 +37,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.weapon = "pistol"
+        self.weapon = "rifle"
 
         self.image = game.player_images[self.weapon]
 
@@ -67,13 +67,14 @@ class Player(pg.sprite.Sprite):
     def reload(self):
         self.game.effects_sounds['reload'].play()
         a = WEAPONS[self.weapon]['ammo_clip'] - self.ammo
-        self.ammo = WEAPONS[self.weapon]['ammo_clip']
 
         if self.maxammo - a < 0:
-            self.ammo = self.maxammo
+            a = self.maxammo
             self.maxammo = 0
         else:
             self.maxammo -= a
+
+        self.ammo += a
 
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)

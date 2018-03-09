@@ -106,6 +106,14 @@ BULLET_SIZE = [10, 10]
 BAR_LENGHT = 100
 BAR_HEIGHT = 20
 
+WEAPON_NAMES = {
+    'rifle': 'AK-47 ',
+    'pistol': 'USP',
+    'shotgun': 'Mossberg 590'
+
+
+}
+
 #Effects
 MUZZLE_FLASH = 'muzzleFlash.png'
 FLASH_DURATION = 40
