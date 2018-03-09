@@ -53,6 +53,10 @@ class Camera:
     def apply_rect(self, rect):
         return rect.move(self.camera.topleft)
 
+    def apply_mouse_rect(self, rect):
+        tops = [-self.camera.topleft[0], -self.camera.topleft[1]]
+        return rect.move(tops)
+
     def update(self, target):
         x = -target.rect.centerx + int(WIDTH / 2)
         y = -target.rect.centery + int(HEIGHT / 2)

@@ -59,6 +59,9 @@ class Player(pg.sprite.Sprite):
         self.ammo = WEAPONS[self.weapon]['ammo_clip']
         self.maxammo = WEAPONS[self.weapon]['ammo_max']
 
+        self.cursor = self.game.crosshair_img
+        self.cursor_rect = self.cursor.get_rect()
+
     def add_health(self, amount):
         self.health += amount
         if self.health > PLAYER_HEALTH:
@@ -66,20 +69,66 @@ class Player(pg.sprite.Sprite):
 
     def reload(self):
         self.game.effects_sounds['reload'].play()
-        a = WEAPONS[self.weapon]['ammo_clip'] - self.ammo
 
-        if self.maxammo - a < 0:
-            a = self.maxammo
-            self.maxammo = 0
+        if WEAPON_TYPES[self.weapon] != 'shotgun':
+            a = WEAPONS[self.weapon]['ammo_clip'] - self.ammo
+
+            if self.maxammo - a < 0:
+                a = self.maxammo
+                self.maxammo = 0
+            else:
+                self.maxammo -= a
+
+            self.ammo += a
+
         else:
-            self.maxammo -= a
-
-        self.ammo += a
+            self.ammo += 1
+            self.maxammo -= 1
 
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
         pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
 
+    def get_mouse(self):
+        posM = pg.mouse.get_pos()
+
+        self.cursor_rect.center = posM
+
+        self.cursor_rect = self.game.camera.apply_mouse_rect(self.cursor_rect)
+
+        posP = self.pos + BARREL_OFFSET.rotate(-self.rot)
+
+        v = posP - self.cursor_rect.center
+
+        self.rot = v.angle_to(vec(-1, 0))
+
+    def get_keys(self):
+        self.vel = vec(0, 0)
+
+        mouse = pg.mouse.get_pressed()
+
+        keys = pg.key.get_pressed()
+        if keys[pg.K_a] or keys[pg.K_LEFT]:
+            self.vel.x -= PLAYER_SPEED
+
+        if keys[pg.K_d] or keys[pg.K_RIGHT]:
+            self.vel.x = PLAYER_SPEED
+
+        if keys[pg.K_s] or keys[pg.K_DOWN]:
+            self.vel.y = PLAYER_SPEED
+
+        if keys[pg.K_w] or keys[pg.K_UP]:
+            self.vel.y -= PLAYER_SPEED
+
+        self.get_mouse()
+
+        if mouse[0] == 1:
+            if self.ammo != 0:
+                self.shoot()
+
+        if self.vel.x != 0 and self.vel.y != 0:
+            self.vel *= 0.7071
+    '''
     def get_keys(self):
         self.vel = vec(0, 0)
 
@@ -115,7 +164,7 @@ class Player(pg.sprite.Sprite):
 
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
-
+    '''
     def shoot(self):
         now = pg.time.get_ticks()
         if now - self.last_shot > WEAPONS[self.weapon]['rate']:
@@ -262,7 +311,7 @@ class Enemy(pg.sprite.Sprite):
 
     def update(self):
         target_dist = self.target.pos - self.pos
-        if target_dist.length_squared() < WEAPONS[self.weapon]['detect_radius'] ** 2:
+        if target_dist.length_squared() < (WEAPONS[self.weapon]['detect_radius'] - NIGHT_RADIUS) ** 2:
             if self.line_collide() is False:
                 self.moving = False
 

@@ -1,6 +1,11 @@
 import pygame as pg
+import tkinter as tk
 vec = pg.math.Vector2
 pg.init()
+root = tk.Tk()
+
+WIDTH = root.winfo_screenwidth()
+HEIGHT = root.winfo_screenheight()
 
 #Colors
 BLACK = (0, 0, 0)
@@ -30,6 +35,12 @@ FONT = pg.font.SysFont("monospace", FONTSIZE)
 
 WALL_IMG = 'wall1.png'
 
+CROSSHAIR_IMG = 'crosshair.png'
+CROSSHAIR_SIZE = [100, 100]
+
+NIGHT_MODE = True
+NIGHT_RADIUS = 100
+
 #Player Settings
 PLAYER_SPEED = 800
 PLAYER_MELEE = "melee.png"
@@ -54,10 +65,16 @@ ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
 ENEMY_HEALTH = 100
 ENEMY_BULLET_RATE = 2000
 AVOID_RADIUS = 50
-DETECT_RADIUS = 450
 
 #Weapon Settings
 BULLET_IMG = 'bullet.png'
+
+WEAPON_TYPES = {
+    'shotgun': 'shotgun',
+    'pistol': 'pistol',
+    'rifle': 'rifle'
+
+}
 
 WEAPONS = {}
 WEAPONS['pistol'] = {'bullet_speed': 2000,

@@ -11,8 +11,12 @@ class Game:
         pg.mixer.pre_init(44100, -16, 1, 2048)
         pg.init()
         pg.display.set_caption("Shooter")
+        #self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.clock = pg.time.Clock()
+
+        pg.mouse.set_visible(False)
 
         self.draw_hit_boxes = False
 
@@ -34,6 +38,9 @@ class Game:
 
         #self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
         #self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
+
+        self.crosshair_img = pg.image.load(path.join(img_folder, CROSSHAIR_IMG)).convert_alpha()
+        self.crosshair_img = pg.transform.scale(self.crosshair_img, CROSSHAIR_SIZE)
 
         self.player_images = {}
         for a in PLAYER_IMAGES:
@@ -132,7 +139,7 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
 
         self.gp = False
-        self.night = False
+        self.night = NIGHT_MODE
 
         #self.effects_sounds['level_start'].play()
 
@@ -252,6 +259,8 @@ class Game:
         draw_text(self.screen, 'Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 
         draw_text(self.screen, WEAPON_NAMES[self.player.weapon], self.hud_font, 30, WHITE, WIDTH - 130, HEIGHT - 10, align="se")
+
+        self.screen.blit(self.player.cursor, self.camera.apply_rect(self.player.cursor_rect))
 
     def draw(self):
         #self.screen.fill(BGROUND)
