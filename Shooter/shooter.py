@@ -118,7 +118,7 @@ class Game:
         self.bullets = pg.sprite.Group()
         self.items = pg.sprite.Group()
 
-        self.map = TiledMap(path.join(self.map_folder, 'map1.tmx'))
+        self.map = TiledMap(path.join(self.map_folder, MAP))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
@@ -166,7 +166,7 @@ class Game:
                 if event.key == pg.K_p:
                     self.gp = not self.gp
 
-                if event.key == pg.K_r:
+                if event.key == pg.K_r and self.gp is not True:
                     if self.player.ammo < WEAPONS[self.player.weapon]['ammo_clip'] and self.player.maxammo > 0:
                         self.player.reload()
 
@@ -206,7 +206,8 @@ class Game:
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
             if self.player.armor <= 0:
-                self.player.health -= WEAPONS[hit.weapon]['damage']
+                #self.player.health -= WEAPONS[hit.weapon]['damage']
+                pass
 
             else:
                 self.player.armor -= WEAPONS[hit.weapon]['damage']

@@ -26,6 +26,8 @@ WIDTH = 1024
 HEIGHT = 768
 FPS = 200
 
+MAP = 'map2.tmx'
+
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
@@ -38,7 +40,7 @@ WALL_IMG = 'wall1.png'
 CROSSHAIR_IMG = 'crosshair.png'
 CROSSHAIR_SIZE = [100, 100]
 
-NIGHT_MODE = True
+NIGHT_MODE = False
 NIGHT_RADIUS = 100
 
 #Player Settings
@@ -127,7 +129,6 @@ WEAPON_NAMES = {
     'rifle': 'AK-47 ',
     'pistol': 'USP',
     'shotgun': 'Mossberg 590'
-
 
 }
 

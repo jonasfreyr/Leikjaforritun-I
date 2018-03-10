@@ -1,7 +1,14 @@
+To Do list fyrir Shooter
+(X) - Búið
+(W) - Þarf að laga smá
+(U) - Ekki búinn að gera
+
 Better Enemy rotations
-Mouse Aim X(Þarf að laga smá)
-Windows
-New Maps
-Start Screen
-Throwables?
-Pathfinding?
+Mouse Aim (W)
+Windows (U)
+New Maps (W)
+Start Screen (U)
+Bullet Penetration (U)
+Perfromance Improvement (U)
+Throwables? (U)
+Pathfinding? (U)
