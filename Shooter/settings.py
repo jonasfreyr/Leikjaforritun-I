@@ -26,7 +26,7 @@ WIDTH = 1024
 HEIGHT = 768
 FPS = 200
 
-MAP = 'map2.tmx'
+MAP = 'map1.tmx'
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
@@ -34,8 +34,6 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 FONTSIZE = int(TILESIZE / 2)
 FONT = pg.font.SysFont("monospace", FONTSIZE)
-
-WALL_IMG = 'wall1.png'
 
 CROSSHAIR_IMG = 'crosshair.png'
 CROSSHAIR_SIZE = [100, 100]
@@ -67,6 +65,7 @@ ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
 ENEMY_HEALTH = 100
 ENEMY_BULLET_RATE = 2000
 AVOID_RADIUS = 50
+ENEMY_ROTATION_SPEED = 5
 
 #Weapon Settings
 BULLET_IMG = 'bullet.png'
@@ -80,7 +79,7 @@ WEAPON_TYPES = {
 
 WEAPONS = {}
 WEAPONS['pistol'] = {'bullet_speed': 2000,
-                     'bullet_lifetime': 450,
+                     'bullet_lifetime': 260,
                      'rate': 500,
                      'kickback': 200,
                      'spread': 2,
@@ -102,11 +101,11 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'ammo_clip': 8,
                      'ammo_max': 16,
                      'bullet_count': 20,
-                     'detect_radius': 350
+                     'detect_radius': 400
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
-                     'bullet_lifetime': 600,
+                     'bullet_lifetime': 500,
                      'rate': 150,
                      'kickback': 500,
                      'spread': 5,

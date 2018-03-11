@@ -112,10 +112,10 @@ class Player(pg.sprite.Sprite):
             self.vel.x -= PLAYER_SPEED
 
         if keys[pg.K_d] or keys[pg.K_RIGHT]:
-            self.vel.x = PLAYER_SPEED
+            self.vel.x += PLAYER_SPEED
 
         if keys[pg.K_s] or keys[pg.K_DOWN]:
-            self.vel.y = PLAYER_SPEED
+            self.vel.y += PLAYER_SPEED
 
         if keys[pg.K_w] or keys[pg.K_UP]:
             self.vel.y -= PLAYER_SPEED
@@ -309,6 +309,24 @@ class Enemy(pg.sprite.Sprite):
 
         return False
 
+    def rot_towards_target(self, target_dist):
+        rotT = target_dist.angle_to(vec(1, 0))
+
+        angle = math.atan2(-target_dist.x, -target_dist.y)/math.pi * 180.0
+
+        diff = (angle - self.rot - 90) % 360
+
+        if 175 < int(diff) < 183:
+            rot = rotT
+
+        elif diff > 180:
+            rot = self.rot + ENEMY_ROTATION_SPEED
+
+        else:
+            rot = self.rot - ENEMY_ROTATION_SPEED
+
+        return rot
+
     def update(self):
         target_dist = self.target.pos - self.pos
         if target_dist.length_squared() < (WEAPONS[self.weapon]['detect_radius'] - NIGHT_RADIUS) ** 2:
@@ -319,14 +337,20 @@ class Enemy(pg.sprite.Sprite):
 
                 self.last_known = [int(self.target.pos.x), int(self.target.pos.y)]
 
-                self.rot = target_dist.angle_to(vec(1, 0))
+                pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
+                target_distA = self.target.pos - pos
+
+                self.rot = self.rot_towards_target(target_distA)
 
                 self.image = pg.transform.rotate(self.game.enemy_images[self.weapon], self.rot)
 
                 self.rect = self.image.get_rect()
                 self.rect.center = self.pos
 
-                self.shoot()
+                rot = target_dist.angle_to(vec(1, 0))
+
+                if self.rot - 20 < rot < self.rot + 20:
+                    self.shoot()
 
             else:
                 self.moving = True
@@ -342,7 +366,8 @@ class Enemy(pg.sprite.Sprite):
 
         if self.moving:
             target_dist = self.last_known - self.pos
-            self.rot = target_dist.angle_to(vec(1, 0))
+            self.rot = self.rot_towards_target(target_dist)
+            #self.rot = target_dist.angle_to(vec(1, 0))
 
             self.acc = vec(1, 0).rotate(-self.rot)
             self.avoid_mobs()
