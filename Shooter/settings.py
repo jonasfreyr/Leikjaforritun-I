@@ -114,7 +114,7 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'ammo_clip': 30,
                      'ammo_max': 60,
                      'bullet_count': 1,
-                     'detect_radius': 500
+                     'detect_radius': 600
                     }
 
 

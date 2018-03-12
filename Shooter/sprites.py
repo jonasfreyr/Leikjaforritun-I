@@ -37,7 +37,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.weapon = "rifle"
+        self.weapon = "pistol"
 
         self.image = game.player_images[self.weapon]
 
@@ -128,43 +128,7 @@ class Player(pg.sprite.Sprite):
 
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
-    '''
-    def get_keys(self):
-        self.vel = vec(0, 0)
 
-        keys = pg.key.get_pressed()
-        if keys[pg.K_a] or keys[pg.K_LEFT]:
-            self.vel.x -= PLAYER_SPEED
-            self.rot = 180
-        if keys[pg.K_d] or keys[pg.K_RIGHT]:
-            self.vel.x = PLAYER_SPEED
-            self.rot = 0
-        if keys[pg.K_s] or keys[pg.K_DOWN]:
-            self.vel.y = PLAYER_SPEED
-            self.rot = 270
-        if keys[pg.K_w] or keys[pg.K_UP]:
-            self.vel.y -= PLAYER_SPEED
-            self.rot = 90
-
-        if (keys[pg.K_a] or keys[pg.K_LEFT]) and (keys[pg.K_s] or keys[pg.K_DOWN]):
-            self.rot = 225
-
-        if (keys[pg.K_a] or keys[pg.K_LEFT]) and (keys[pg.K_w] or keys[pg.K_UP]):
-            self.rot = 135
-
-        if (keys[pg.K_d] or keys[pg.K_RIGHT]) and (keys[pg.K_s] or keys[pg.K_DOWN]):
-            self.rot = 315
-
-        if (keys[pg.K_d] or keys[pg.K_RIGHT]) and (keys[pg.K_w] or keys[pg.K_UP]):
-            self.rot = 45
-
-        if keys[pg.K_SPACE]:
-            if self.ammo != 0:
-                self.shoot()
-
-        if self.vel.x != 0 and self.vel.y != 0:
-            self.vel *= 0.7071
-    '''
     def shoot(self):
         now = pg.time.get_ticks()
         if now - self.last_shot > WEAPONS[self.weapon]['rate']:
