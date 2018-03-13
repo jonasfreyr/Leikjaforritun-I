@@ -172,6 +172,8 @@ WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
                  'rifle': ['rifle.wav']
                  }
 
+OUT_OF_AMMO = 'Dry-Fire-Gun.wav'
+
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav',

@@ -4,11 +4,12 @@ To Do list fyrir Shooter
 (U) - Ekki búinn að gera
 
 Better Enemy rotations (X)
-Mouse Aim (W)
+Mouse Aim (X)
 Windows (U)
 New Maps (W)
 Start Screen (U)
 Bullet Penetration (U)
+Hostage (U)
 Perfromance Improvement? (U)
 Throwables? (U)
 Pathfinding? (U)

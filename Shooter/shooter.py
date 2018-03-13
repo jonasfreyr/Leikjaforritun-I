@@ -110,6 +110,9 @@ class Game:
         for snd in ENEMY_HIT_SOUNDS:
             self.enemy_hit_sounds.append(pg.mixer.Sound(path.join(snd_folder, snd)))
 
+        self.out_ammo = pg.mixer.Sound(path.join(snd_folder, OUT_OF_AMMO))
+        self.out_ammo.set_volume(0.08)
+
     def new(self):
         self.load_data()
         self.all_sprites = pg.sprite.LayeredUpdates()

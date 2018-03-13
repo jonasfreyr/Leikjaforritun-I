@@ -96,11 +96,9 @@ class Player(pg.sprite.Sprite):
 
         self.cursor_rect = self.game.camera.apply_mouse_rect(self.cursor_rect)
 
-        posP = self.pos + BARREL_OFFSET.rotate(-self.rot)
+        v = self.pos - self.cursor_rect.center
 
-        v = posP - self.cursor_rect.center
-
-        self.rot = v.angle_to(vec(-1, 0))
+        self.rot = v.angle_to(vec(-1, 0)) + 4
 
     def get_keys(self):
         self.vel = vec(0, 0)
@@ -125,6 +123,9 @@ class Player(pg.sprite.Sprite):
         if mouse[0] == 1:
             if self.ammo != 0:
                 self.shoot()
+
+            else:
+                self.game.out_ammo.play()
 
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
