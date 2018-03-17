@@ -176,6 +176,18 @@ class Player(pg.sprite.Sprite):
 
         self.rect.center = self.hit_rect.center
 
+class Turret(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self._layer = PLAYER_LAYER
+
+        self.groups = game.all_sprites
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+
+    def draw_hit_box(self):
+        hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
+        pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
+
 class Enemy(pg.sprite.Sprite):
     def __init__(self, game, x, y, weapon, last_known=None):
         self._layer = ENEMY_LAYER

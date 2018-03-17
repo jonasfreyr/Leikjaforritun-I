@@ -218,7 +218,7 @@ class Game:
                 self.effects_sounds['health_up'].play()
                 self.player.add_health(HEALTH_PACK_AMOUNT)
 
-            elif hit.type == "Ammo_box":
+            elif hit.type == "Ammo_box" and self.player.maxammo < WEAPONS[self.player.weapon]['ammo_max']:
                 hit.kill()
                 self.effects_sounds['ammo_pickup'].play()
                 self.player.maxammo = WEAPONS[self.player.weapon]['ammo_max']
