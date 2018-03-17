@@ -26,7 +26,7 @@ WIDTH = 1024
 HEIGHT = 768
 FPS = 200
 
-MAP = 'map1.tmx'
+MAP = 'map3.tmx'
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
@@ -51,14 +51,14 @@ PLAYER_RIFLE = "rifle.png"
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 100
 PLAYER_ARMOR = 50
-PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
+PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png", "M1": 'rifleL.png'}
 BARREL_OFFSET = vec(40, 16)
 
 #Images Sizes
-IMAGES_SIZES = {'pistol': [TILESIZE, TILESIZE], 'shotgun': [TILESIZE + 10, TILESIZE - 5], 'rifle': [TILESIZE + 10, TILESIZE - 5]}
+IMAGES_SIZES = {'pistol': [TILESIZE, TILESIZE], 'shotgun': [TILESIZE + 10, TILESIZE - 5], 'rifle': [TILESIZE + 10, TILESIZE - 5], 'M1': [TILESIZE + 10, TILESIZE - 5]}
 
 #Enemy Setting
-ENEMY_IMAGES = {'pistol': "pistol_enemy.png", 'shotgun': "shotgun_enemy.png", 'rifle': "rifle_enemy.png"}
+ENEMY_IMAGES = {'pistol': "pistol_enemy.png", 'shotgun': "shotgun_enemy.png", 'rifle': "rifle_enemy.png", "M1": "rifleL_enemy.png"}
 ENEMY_IMG = "pistol_enemy.png"
 ENEMY_SPEED = 800
 ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
@@ -66,6 +66,7 @@ ENEMY_HEALTH = 100
 ENEMY_BULLET_RATE = 2000
 AVOID_RADIUS = 50
 ENEMY_ROTATION_SPEED = 5
+ENEMY_SPAWNRATE = 2000
 
 #Weapon Settings
 BULLET_IMG = 'bullet.png'
@@ -73,9 +74,14 @@ BULLET_IMG = 'bullet.png'
 WEAPON_TYPES = {
     'shotgun': 'shotgun',
     'pistol': 'pistol',
-    'rifle': 'rifle'
+    'rifle': 'rifle',
+    'M1': 'rifle'
 
 }
+
+WEAPON = []
+for a in WEAPON_TYPES:
+    WEAPON.append(a)
 
 WEAPONS = {}
 WEAPONS['pistol'] = {'bullet_speed': 2000,
@@ -117,6 +123,19 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'detect_radius': 600
                     }
 
+WEAPONS['M1'] = {'bullet_speed': 3000,
+                     'bullet_lifetime': 800,
+                     'rate': 1200,
+                     'kickback': 500,
+                     'spread': 2,
+                     'damage': 40,
+                     'bullet_size': 'lg',
+                     'ammo_clip': 5,
+                     'ammo_max': 15,
+                     'bullet_count': 1,
+                     'detect_radius': 800
+                    }
+
 
 BULLET_SIZE = [10, 10]
 
@@ -127,7 +146,8 @@ BAR_HEIGHT = 20
 WEAPON_NAMES = {
     'rifle': 'AK-47 ',
     'pistol': 'USP',
-    'shotgun': 'Mossberg 590'
+    'shotgun': 'Mossberg 590',
+    'M1': 'M1 Garand'
 
 }
 
@@ -169,7 +189,8 @@ ENEMY_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 
 WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
                  'shotgun': ['shotgun.wav'],
-                 'rifle': ['rifle.wav']
+                 'rifle': ['rifle.wav'],
+                 'M1': ['M1 Garand.wav']
                  }
 
 OUT_OF_AMMO = 'Dry-Fire-Gun.wav'

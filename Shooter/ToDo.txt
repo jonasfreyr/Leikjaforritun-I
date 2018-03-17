@@ -5,7 +5,7 @@ To Do list fyrir Shooter
 
 Better Enemy rotations (X)
 Mouse Aim (X)
-Windows (U)
+Windows (X)
 New Maps (W)
 Start Screen (U)
 Bullet Penetration (U)

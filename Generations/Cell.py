@@ -30,7 +30,7 @@ class Cell(pg.sprite.Sprite):
         self.force_poison = forcePoison
 
     def food(self):
-        closest = vec(999, 999)
+        closest = vec(9999, 9999)
         for dot in self.game.food:
             target_dist = dot.pos - self.pos
 
@@ -80,7 +80,7 @@ class Cell(pg.sprite.Sprite):
 
         self.acc = vec(1, 0).rotate(-rot)
 
-        return steer * 0.5
+        return steer * self.force_poison
 
     def update(self):
         self.acc += self.food()

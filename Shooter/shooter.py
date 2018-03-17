@@ -118,23 +118,52 @@ class Game:
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
+        self.ally = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
         self.items = pg.sprite.Group()
+        self.windows = pg.sprite.Group()
 
         self.map = TiledMap(path.join(self.map_folder, MAP))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
+
+        self.last_known = []
+        self.spawn = None
+        for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == "last_known":
+                self.last_known.append(pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height))
+
+            if tile_object.name == "spawn":
+                self.spawn = pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 
         for tile_object in self.map.tmxdata.objects:
             obj_center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
             if tile_object.name == "Player":
                 self.player = Player(self, obj_center.x, obj_center.y)
 
-            if tile_object.name == "Wall":
-                Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+            if tile_object.name == "Wall" or tile_object.name == "Window":
+                Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tile_object.name)
 
             if tile_object.name == "Enemy":
-                Enemy(self, obj_center.x, obj_center.y, tile_object.type)
+                if self.last_known == []:
+                    Enemy(self, obj_center.x, obj_center.y, tile_object.type)
+
+                else:
+                    closest = vec(9999, 9999)
+                    for a in self.last_known:
+                        p = vec(a.center)
+                        Ep = vec(obj_center.x, obj_center.y)
+
+                        target_dist = p - Ep
+
+                        if target_dist.length() < closest.length():
+                            closest = target_dist
+                            last_known = a
+
+                    Enemy(self, obj_center.x, obj_center.y, tile_object.type, [random.randint(last_known.x, last_known.x + last_known.width), random.randint(last_known.y, last_known.y + last_known.height)])
+
+            if tile_object.name == "Ally":
+                Ally(self, obj_center.x, obj_center.y, tile_object.type)
 
             if tile_object.name in ITEM_IMAGES:
                 Item(self, obj_center, tile_object.name)
@@ -143,6 +172,7 @@ class Game:
 
         self.gp = False
         self.night = NIGHT_MODE
+        self.last_spawn = 0
 
         #self.effects_sounds['level_start'].play()
 
@@ -178,6 +208,7 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        print(len(self.ally))
         self.camera.update(self.player)
 
         hits = pg.sprite.spritecollide(self.player, self.items, False)
@@ -231,6 +262,38 @@ class Game:
                 a.health -= WEAPONS[hit.weapon]['damage']
                 a.vel = vec(0, 0)
 
+        for a in self.ally:
+            hits = pg.sprite.spritecollide(a, self.bullets, True, collide_hit_rect)
+            for hit in hits:
+                a.health -= WEAPONS[hit.weapon]['damage']
+                a.vel = vec(0, 0)
+
+        now = pg.time.get_ticks()
+        if self.spawn is not None and now - self.last_spawn > ENEMY_SPAWNRATE:
+            self.last_spawn = now
+
+            x = random.randint(self.spawn.x, self.spawn.x + self.spawn.width)
+            y = random.randint(self.spawn.y, self.spawn.y + self.spawn.height)
+
+            if self.last_known == []:
+                Enemy(self, x, y, random.choice(WEAPON))
+
+            else:
+                closest = vec(9999, 9999)
+                for a in self.last_known:
+                    p = vec(a.center)
+                    Ep = vec(x, y)
+
+                    target_dist = p - Ep
+
+                    if target_dist.length() < closest.length():
+                        closest = target_dist
+                        last_known = a
+
+                Enemy(self, x, y, random.choice(WEAPON),
+                      [random.randint(last_known.x, last_known.x + last_known.width),
+                       random.randint(last_known.y, last_known.y + last_known.height)])
+
     def render_fog(self):
         self.fog.fill(NIGHT_COLOR)
 
@@ -273,7 +336,7 @@ class Game:
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 
         for sprite in self.all_sprites:
-            if isinstance(sprite, Enemy):
+            if isinstance(sprite, Enemy) or isinstance(sprite, Ally):
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
@@ -292,8 +355,14 @@ class Game:
             for a in self.enemies:
                 a.draw_hit_box()
 
+            for a in self.ally:
+                a.draw_hit_box()
+
             for wall in self.walls:
                 pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(wall.rect), 1)
+
+            for window in self.windows:
+                pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(window.rect), 1)
 
         pg.display.flip()
 
@@ -322,7 +391,6 @@ class Game:
 
                     elif event.key == pg.K_n:
                         return True
-
 
     def start_screen(self):
         pass
