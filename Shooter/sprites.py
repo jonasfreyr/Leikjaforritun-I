@@ -4,6 +4,7 @@ from tilemap import collide_hit_rect
 import random, math
 import pytweening as tween
 
+
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
@@ -29,6 +30,7 @@ def collide_with_walls(sprite, group, dir):
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
 
+
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self._layer = PLAYER_LAYER
@@ -37,7 +39,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.weapon = "M1"
+        self.weapon = "rifle"
 
         self.image = game.player_images[self.weapon]
 
@@ -106,16 +108,16 @@ class Player(pg.sprite.Sprite):
         mouse = pg.mouse.get_pressed()
 
         keys = pg.key.get_pressed()
-        if keys[pg.K_a] or keys[pg.K_LEFT]:
+        if keys[pg.K_a]:
             self.vel.x -= PLAYER_SPEED
 
-        if keys[pg.K_d] or keys[pg.K_RIGHT]:
+        if keys[pg.K_d]:
             self.vel.x += PLAYER_SPEED
 
-        if keys[pg.K_s] or keys[pg.K_DOWN]:
+        if keys[pg.K_s]:
             self.vel.y += PLAYER_SPEED
 
-        if keys[pg.K_w] or keys[pg.K_UP]:
+        if keys[pg.K_w]:
             self.vel.y -= PLAYER_SPEED
 
         self.get_mouse()
@@ -176,6 +178,7 @@ class Player(pg.sprite.Sprite):
 
         self.rect.center = self.hit_rect.center
 
+
 class Turret(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self._layer = PLAYER_LAYER
@@ -187,6 +190,7 @@ class Turret(pg.sprite.Sprite):
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
         pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
+
 
 class Enemy(pg.sprite.Sprite):
     def __init__(self, game, x, y, weapon, last_known=None):
@@ -214,7 +218,7 @@ class Enemy(pg.sprite.Sprite):
 
         self.target = game.player
 
-        if last_known == None:
+        if last_known is None:
             self.moving = False
             self.last_known = [int(self.pos.x), int(self.pos.y)]
 
@@ -435,6 +439,7 @@ class Enemy(pg.sprite.Sprite):
         if self.health < ENEMY_HEALTH:
             pg.draw.rect(self.image, col, self.health_bar)
 
+
 class Ally(pg.sprite.Sprite):
     def __init__(self, game, x, y, weapon, last_known=None):
         self._layer = ENEMY_LAYER
@@ -461,7 +466,7 @@ class Ally(pg.sprite.Sprite):
 
         self.target = game.enemies
 
-        if last_known == None:
+        if last_known is None:
             self.moving = False
             self.last_known = [int(self.pos.x), int(self.pos.y)]
 
@@ -470,8 +475,7 @@ class Ally(pg.sprite.Sprite):
             self.last_known = last_known
 
         self.weapon = weapon
-
-
+        self.selected = False
 
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
@@ -681,6 +685,7 @@ class Ally(pg.sprite.Sprite):
         if self.health < ENEMY_HEALTH:
             pg.draw.rect(self.image, col, self.health_bar)
 
+
 class Bullet(pg.sprite.Sprite):
     def __init__(self, game, pos, dir, angle, weapon):
         self._layer = BULLET_LAYER
@@ -711,6 +716,7 @@ class Bullet(pg.sprite.Sprite):
         if (pg.time.get_ticks() - self.spawn_time > WEAPONS[self.weapon]['bullet_lifetime']) or (pg.sprite.spritecollideany(self, self.game.walls)):
             self.kill()
 
+
 class Obstacle(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h, type):
         self._layer = WALL_LAYER
@@ -731,6 +737,7 @@ class Obstacle(pg.sprite.Sprite):
 
         self.rect.x = x
         self.rect.y = y
+
 
 class MuzzleFlash(pg.sprite.Sprite):
     def __init__(self, game, pos, rot, vel):
@@ -757,6 +764,7 @@ class MuzzleFlash(pg.sprite.Sprite):
             self.kill()
 
         self.rect.center += self.vel * self.game.dt
+
 
 class Item(pg.sprite.Sprite):
     def __init__(self, game, pos, type):

@@ -26,6 +26,7 @@ def draw_text(screen, text, font_name, size, color, x, y, align="nw"):
 
     screen.blit(text_surface, text_rect)
 
+
 def draw_player_health(surf, x, y, pct):
     if pct < 0:
         pct = 0
@@ -44,6 +45,7 @@ def draw_player_health(surf, x, y, pct):
 
     pg.draw.rect(surf, col, fill_rect)
     pg.draw.rect(surf, WHITE, outline_rect, 2)
+
 
 def draw_armor_health(surf, x, y, pct):
     if pct < 0:

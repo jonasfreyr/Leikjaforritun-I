@@ -6,6 +6,7 @@ from tilemap import *
 from hud import *
 import random
 
+
 class Game:
     def __init__(self):
         pg.mixer.pre_init(44100, -16, 1, 2048)
@@ -173,6 +174,7 @@ class Game:
         self.gp = False
         self.night = NIGHT_MODE
         self.last_spawn = 0
+        self.view = None
 
         #self.effects_sounds['level_start'].play()
 
@@ -206,10 +208,66 @@ class Game:
                 if event.key == pg.K_F1:
                     self.draw_hit_boxes = not self.draw_hit_boxes
 
+                if event.key == pg.K_RIGHT or event.key == pg.K_LEFT or event.key == pg.K_UP:
+                    for a in self.ally:
+                        a.selected = False
+
+                    if event.key == pg.K_RIGHT:
+                        if self.view is None:
+                            for a in self.ally:
+                                a.selected = True
+                                self.view = 1
+                                break
+
+                        else:
+                            if self.view >= len(self.ally):
+                                self.view = None
+
+                            else:
+                                tel = 0
+                                self.view += 1
+                                for a in self.ally:
+                                    if tel == self.view:
+                                        print('2')
+                                        a.selected = True
+
+                                    tel += 1
+
+                    elif event.key == pg.K_LEFT:
+                        if self.view is None:
+                            self.view = len(self.ally)
+                            tel = 1
+                            for a in self.ally:
+                                if tel == len(self.ally):
+                                    a.selected = True
+
+                                tel += 1
+
+                        else:
+                            if self.view == 1:
+                                self.view = None
+
+                            else:
+                                tel = 0
+                                self.view -= 1
+                                for a in self.ally:
+                                    if tel == self.view:
+                                        print('2')
+                                        a.selected = True
+
+                                    tel += 1
+                    else:
+                        self.view = None
+
     def update(self):
         self.all_sprites.update()
-        print(len(self.ally))
-        self.camera.update(self.player)
+        #print(len(self.ally))
+        target = self.player
+        for a in self.ally:
+            if a.selected is True:
+                target = a
+
+        self.camera.update(target)
 
         hits = pg.sprite.spritecollide(self.player, self.items, False)
         for hit in hits:
@@ -338,6 +396,10 @@ class Game:
         for sprite in self.all_sprites:
             if isinstance(sprite, Enemy) or isinstance(sprite, Ally):
                 sprite.draw_health()
+                if isinstance(sprite, Ally):
+                    if sprite.selected is True:
+                        pg.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect), 1)
+
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
         if self.night:
