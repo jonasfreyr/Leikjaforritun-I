@@ -3,7 +3,7 @@ from settings import *
 from tilemap import collide_hit_rect
 import random, math
 import pytweening as tween
-
+from hud import *
 
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
@@ -120,6 +120,9 @@ class Player(pg.sprite.Sprite):
         if keys[pg.K_w]:
             self.vel.y -= PLAYER_SPEED
 
+        if keys[pg.K_TAB]:
+            self.game.tab = True
+
         self.get_mouse()
 
         if mouse[0] == 1:
@@ -227,8 +230,6 @@ class Enemy(pg.sprite.Sprite):
             self.last_known = last_known
 
         self.weapon = weapon
-
-
 
     def draw_hit_box(self):
         hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
@@ -400,6 +401,7 @@ class Enemy(pg.sprite.Sprite):
             random.choice(self.game.enemy_hit_sounds).play()
             self.kill()
             self.game.map_img.blit(self.game.blood, self.pos - vec(TILESIZE / 2, TILESIZE / 2))
+            self.game.kills += 1
 
     def shoot(self):
         now = pg.time.get_ticks()
@@ -641,11 +643,11 @@ class Ally(pg.sprite.Sprite):
 
             self.rect.center = self.hit_rect.center
 
-
         if self.health <= 0:
             random.choice(self.game.enemy_hit_sounds).play()
             self.kill()
             self.game.map_img.blit(self.game.blood, self.pos - vec(TILESIZE / 2, TILESIZE / 2))
+            self.game.deaths += 1
 
     def shoot(self):
         now = pg.time.get_ticks()

@@ -4,10 +4,10 @@ vec = pg.math.Vector2
 pg.init()
 root = tk.Tk()
 
-WIDTH = root.winfo_screenwidth()
-HEIGHT = root.winfo_screenheight()
+# WIDTH = root.winfo_screenwidth()
+# HEIGHT = root.winfo_screenheight()
 
-#Colors
+# Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -21,7 +21,7 @@ NIGHT_COLOR = (10, 10, 10)
 BGROUND = DARKGREY
 PLCOLOR = WHITE
 
-#Game settings
+# Game settings
 WIDTH = 1024
 HEIGHT = 768
 FPS = 200
@@ -41,7 +41,7 @@ CROSSHAIR_SIZE = [100, 100]
 NIGHT_MODE = False
 NIGHT_RADIUS = 100
 
-#Player Settings
+# Player Settings
 PLAYER_SPEED = 800
 PLAYER_MELEE = "melee.png"
 PLAYER_FLASHLIGHT = "flashlight.png"
@@ -54,10 +54,10 @@ PLAYER_ARMOR = 50
 PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png", "M1": 'rifleL.png'}
 BARREL_OFFSET = vec(40, 16)
 
-#Images Sizes
+# Images Sizes
 IMAGES_SIZES = {'pistol': [TILESIZE, TILESIZE], 'shotgun': [TILESIZE + 10, TILESIZE - 5], 'rifle': [TILESIZE + 10, TILESIZE - 5], 'M1': [TILESIZE + 10, TILESIZE - 5]}
 
-#Enemy Setting
+# Enemy Setting
 ENEMY_IMAGES = {'pistol': "pistol_enemy.png", 'shotgun': "shotgun_enemy.png", 'rifle': "rifle_enemy.png", "M1": "rifleL_enemy.png"}
 ENEMY_IMG = "pistol_enemy.png"
 ENEMY_SPEED = 800
@@ -68,7 +68,7 @@ AVOID_RADIUS = 50
 ENEMY_ROTATION_SPEED = 5
 ENEMY_SPAWNRATE = 2000
 
-#Weapon Settings
+# Weapon Settings
 BULLET_IMG = 'bullet.png'
 
 WEAPON_TYPES = {
@@ -139,7 +139,7 @@ WEAPONS['M1'] = {'bullet_speed': 3000,
 
 BULLET_SIZE = [10, 10]
 
-#Hud Settings
+# Hud Settings
 BAR_LENGHT = 100
 BAR_HEIGHT = 20
 
@@ -151,7 +151,7 @@ WEAPON_NAMES = {
 
 }
 
-#Effects
+# Effects
 MUZZLE_FLASH = 'muzzleFlash.png'
 FLASH_DURATION = 40
 
@@ -160,7 +160,7 @@ LIGHT_RADIUS = (500, 500)
 
 BLOOD_SPLAT = "blood.png"
 
-#Layers
+# Layers
 WALL_LAYER = 1
 ITEMS_LAYER = 1
 PLAYER_LAYER = 2
@@ -168,19 +168,20 @@ ENEMY_LAYER = 2
 BULLET_LAYER = 3
 EFFECTS_LAYER = 4
 
-#Items
+# Items
 ITEM_IMAGES = {'Health': 'health_pack.png',
                "Ammo_box": "Ammo-Box-Green.png",
                'shotgun': 'shotgun_item.png',
                'rifle': 'rifle_item.png',
-               'armor': 'armor-vest.png'
+               'armor': 'armor-vest.png',
+               'M1': 'M1_item.png'
                }
-ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20], 'armor': [24, 24]}
+ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20], 'armor': [24, 24], 'M1': [64, 20]}
 HEALTH_PACK_AMOUNT = 50
 BOB_RANGE = 10
 BOB_SPEED = 0.1
 
-#Sounds
+# Sounds
 BG_MUSIC = 'Interloper.mp3'
 
 PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']

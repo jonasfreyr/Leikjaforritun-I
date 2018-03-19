@@ -175,6 +175,9 @@ class Game:
         self.night = NIGHT_MODE
         self.last_spawn = 0
         self.view = None
+        self.kills = 0
+        self.deaths = 0
+        self.tab = False
 
         #self.effects_sounds['level_start'].play()
 
@@ -348,7 +351,7 @@ class Game:
                         closest = target_dist
                         last_known = a
 
-                Enemy(self, x, y, random.choice(WEAPON),
+                Enemy(self, x, y, 'shotgun',
                       [random.randint(last_known.x, last_known.x + last_known.width),
                        random.randint(last_known.y, last_known.y + last_known.height)])
 
@@ -381,8 +384,6 @@ class Game:
 
         draw_text(self.screen, str(self.player.maxammo), self.hud_font, 30, WHITE, WIDTH - 10, HEIGHT - 10, align="se")
 
-        draw_text(self.screen, 'Enemies: {}'.format(len(self.enemies)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
-
         draw_text(self.screen, WEAPON_NAMES[self.player.weapon], self.hud_font, 30, WHITE, WIDTH - 130, HEIGHT - 10, align="se")
 
         self.screen.blit(self.player.cursor, self.camera.apply_rect(self.player.cursor_rect))
@@ -410,6 +411,12 @@ class Game:
         if self.gp:
             self.screen.blit(self.dim_screen, (0, 0))
             draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+
+        if self.tab:
+            tab(self.screen, self.dim_screen, self.hud_font, self.kills, self.deaths,
+                len(self.enemies), len(self.ally))
+
+        self.tab = False
 
         if self.draw_hit_boxes is True:
             self.player.draw_hit_box()

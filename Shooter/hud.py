@@ -60,3 +60,14 @@ def draw_armor_health(surf, x, y, pct):
     pg.draw.rect(surf, col, fill_rect)
     pg.draw.rect(surf, WHITE, outline_rect, 2)
 
+# draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+def tab(surf, dim, hud_font,Ekills, Akills, E, A):
+    surf.blit(dim, (0, 0))
+
+    draw_text(surf, 'Enemies: {}'.format(E), hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2, align="center")
+
+    draw_text(surf, 'Enemies Killed: {}'.format(Ekills), hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2 + 30, align="center")
+
+    draw_text(surf, 'Ally: {}'.format(A), hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2 + 60, align="center")
+
+    draw_text(surf, 'Ally Killed: {}'.format(Akills), hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2 + 90, align="center")
