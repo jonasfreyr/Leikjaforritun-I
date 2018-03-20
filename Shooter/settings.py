@@ -1,11 +1,9 @@
 import pygame as pg
 import tkinter as tk
+
 vec = pg.math.Vector2
 pg.init()
 root = tk.Tk()
-
-# WIDTH = root.winfo_screenwidth()
-# HEIGHT = root.winfo_screenheight()
 
 # Colors
 BLACK = (0, 0, 0)
@@ -18,28 +16,27 @@ LIGHTGREY = (100, 100, 100)
 YELLOW = (255, 255, 0)
 NIGHT_COLOR = (10, 10, 10)
 
-BGROUND = DARKGREY
-PLCOLOR = WHITE
-
 # Game settings
-WIDTH = 1024
-HEIGHT = 768
-FPS = 200
 
-MAP = 'map3.tmx'
+WIDTH = int(1920 / 1.5)
+HEIGHT = int(1080 / 1.5)
+
+FPS = 120
+
+MAPS = ['map1.tmx', 'map2.tmx', 'map3.tmx']
+MAP = 'map1.tmx'
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
-
-FONTSIZE = int(TILESIZE / 2)
-FONT = pg.font.SysFont("monospace", FONTSIZE)
 
 CROSSHAIR_IMG = 'crosshair.png'
 CROSSHAIR_SIZE = [100, 100]
 
 NIGHT_MODE = False
 NIGHT_RADIUS = 100
+
+BACKGROUND = "background.png"
 
 # Player Settings
 PLAYER_SPEED = 800

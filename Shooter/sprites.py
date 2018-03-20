@@ -5,6 +5,7 @@ import random, math
 import pytweening as tween
 from hud import *
 
+
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
@@ -39,7 +40,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.weapon = "rifle"
+        self.weapon = "M1"
 
         self.image = game.player_images[self.weapon]
 
@@ -100,7 +101,7 @@ class Player(pg.sprite.Sprite):
 
         v = self.pos - self.cursor_rect.center
 
-        self.rot = v.angle_to(vec(-1, 0)) + 4
+        self.rot = v.angle_to(vec(-1, 0))
 
     def get_keys(self):
         self.vel = vec(0, 0)

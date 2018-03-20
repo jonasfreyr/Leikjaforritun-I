@@ -26,6 +26,7 @@ def draw_text(screen, text, font_name, size, color, x, y, align="nw"):
 
     screen.blit(text_surface, text_rect)
 
+    return text_rect
 
 def draw_player_health(surf, x, y, pct):
     if pct < 0:

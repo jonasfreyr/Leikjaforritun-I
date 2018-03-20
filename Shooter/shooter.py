@@ -6,18 +6,14 @@ from tilemap import *
 from hud import *
 import random
 
-
 class Game:
     def __init__(self):
         pg.mixer.pre_init(44100, -16, 1, 2048)
         pg.init()
         pg.display.set_caption("Shooter")
-        #self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         self.clock = pg.time.Clock()
-
-        pg.mouse.set_visible(False)
 
         self.draw_hit_boxes = False
 
@@ -37,8 +33,13 @@ class Game:
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
-        #self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
-        #self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
+        self.background = pg.image.load(path.join(img_folder, BACKGROUND)).convert_alpha()
+        self.background = pg.transform.scale(self.background, [WIDTH, HEIGHT])
+        self.background_rect = self.background.get_rect()
+        self.background_rect.topleft = [0, 0]
+
+        # self.player_img = pg.image.load(path.join(img_folder, PLAYER_PISTOL)).convert_alpha()
+        # self.player_img = pg.transform.scale(self.player_img, [TILESIZE, TILESIZE])
 
         self.crosshair_img = pg.image.load(path.join(img_folder, CROSSHAIR_IMG)).convert_alpha()
         self.crosshair_img = pg.transform.scale(self.crosshair_img, CROSSHAIR_SIZE)
@@ -115,7 +116,6 @@ class Game:
         self.out_ammo.set_volume(0.08)
 
     def new(self):
-        self.load_data()
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
@@ -330,7 +330,7 @@ class Game:
                 a.vel = vec(0, 0)
 
         now = pg.time.get_ticks()
-        if self.spawn is not None and now - self.last_spawn > ENEMY_SPAWNRATE:
+        if self.spawn is not None and now - self.last_spawn > ENEMY_SPAWNRATE and len(self.enemies) <= 10:
             self.last_spawn = now
 
             x = random.randint(self.spawn.x, self.spawn.x + self.spawn.width)
@@ -351,7 +351,7 @@ class Game:
                         closest = target_dist
                         last_known = a
 
-                Enemy(self, x, y, 'shotgun',
+                Enemy(self, x, y, random.choice(WEAPON),
                       [random.randint(last_known.x, last_known.x + last_known.width),
                        random.randint(last_known.y, last_known.y + last_known.height)])
 
@@ -372,7 +372,7 @@ class Game:
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
     def draw_hud(self):
-        self.screen.blit(FONT.render(str(round(self.clock.get_fps(), 2)), 1, WHITE), (0, 0))
+        draw_text(self.screen, str(round(self.clock.get_fps(), 2)), self.hud_font, 30, WHITE, 5, 5)
 
         draw_player_health(self.screen, 10, HEIGHT - BAR_HEIGHT - 10, self.player.health / PLAYER_HEALTH)
 
@@ -461,10 +461,89 @@ class Game:
                     elif event.key == pg.K_n:
                         return True
 
+    def draw_screen(self):
+        draw_text(self.screen, "Shooter", self.hud_font, 50, WHITE, WIDTH / 2, 20, align="n")
+
+        off = 0
+        for a in self.buttons:
+
+            self.buttons[a] = draw_text(self.screen, a, self.hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2 + off, align="center")
+
+            off += 50
+
+    def check_buttons(self, buttons, pos):
+        for a in buttons:
+            rect = (buttons[a])
+            if pos[0] > rect.x and pos[0] < rect.x + rect.width and pos[1] > rect.y and pos[1] < rect.y + rect.height:
+                return a
+
+    def change_map(self):
+        next = False
+        for a in MAPS:
+            if next is True:
+                return a
+
+            if a == MAP:
+                next = True
+
+        return MAPS[0]
+
     def start_screen(self):
-        pass
+        global FPS, MAP, NIGHT_MODE
+        self.setting = False
+        full = False
+        while True:
+            self.screen.blit(self.background, self.background_rect)
+
+            pressed = pg.mouse.get_pressed()
+            pos = pg.mouse.get_pos()
+            for event in pg.event.get():
+                if pressed[0] == 1 and event.type == pg.MOUSEBUTTONUP:
+                    click = self.check_buttons(self.buttons, pos)
+
+                    if click == 'Start':
+                        if full:
+                            self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+                        pg.mouse.set_visible(False)
+                        return 0
+
+                    if click == 'Settings' or click == "Back":
+                        self.setting = not self.setting
+
+                    if click == 'Quit':
+                        self.quit()
+
+                    if click == 'Full: {}'.format(full):
+                        full = not full
+
+                    if click == 'FPS: {}'.format(FPS):
+                        if FPS == 120:
+                            FPS = 60
+
+                        elif FPS == 60:
+                            FPS = 120
+
+                    if click == 'Map: {}'.format(MAP):
+                        MAP = self.change_map()
+
+                    if click == 'Night Mode: {}'.format(NIGHT_MODE):
+                        NIGHT_MODE = not NIGHT_MODE
+
+                if event.type == pg.QUIT or (event.type == pg.KEYUP and event.key == pg.K_ESCAPE):
+                    self.quit()
+
+            if self.setting is False:
+                self.buttons = {'Start': '', 'Settings': '', 'Quit': ''}
+
+            elif self.setting:
+                self.buttons = {'Full: {}'.format(full): '', 'FPS: {}'.format(FPS): '', 'Map: {}'.format(MAP): '', 'Night Mode: {}'.format(NIGHT_MODE): '', 'Back': ''}
+
+            self.draw_screen()
+
+            pg.display.flip()
 
 H = Game()
+H.load_data()
 H.start_screen()
 while True:
     H.new()
