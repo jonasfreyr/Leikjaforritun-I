@@ -28,6 +28,7 @@ def draw_text(screen, text, font_name, size, color, x, y, align="nw"):
 
     return text_rect
 
+
 def draw_player_health(surf, x, y, pct):
     if pct < 0:
         pct = 0
@@ -61,8 +62,8 @@ def draw_armor_health(surf, x, y, pct):
     pg.draw.rect(surf, col, fill_rect)
     pg.draw.rect(surf, WHITE, outline_rect, 2)
 
-# draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
-def tab(surf, dim, hud_font,Ekills, Akills, E, A):
+
+def tab(surf, dim, hud_font, Ekills, Akills, E, A):
     surf.blit(dim, (0, 0))
 
     draw_text(surf, 'Enemies: {}'.format(E), hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2, align="center")

@@ -465,7 +465,8 @@ class Game:
         draw_text(self.screen, "Shooter", self.hud_font, 50, WHITE, WIDTH / 2, 20, align="n")
 
         off = 0
-        for a in self.buttons:
+        self.buttons = {}
+        for a in self.button:
 
             self.buttons[a] = draw_text(self.screen, a, self.hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2 + off, align="center")
 
@@ -533,10 +534,10 @@ class Game:
                     self.quit()
 
             if self.setting is False:
-                self.buttons = {'Start': '', 'Settings': '', 'Quit': ''}
+                self.button = ['Start', 'Settings', 'Quit']
 
             elif self.setting:
-                self.buttons = {'Full: {}'.format(full): '', 'FPS: {}'.format(FPS): '', 'Map: {}'.format(MAP): '', 'Night Mode: {}'.format(NIGHT_MODE): '', 'Back': ''}
+                self.button = ['Full: {}'.format(full), 'FPS: {}'.format(FPS), 'Map: {}'.format(MAP), 'Night Mode: {}'.format(NIGHT_MODE), 'Back']
 
             self.draw_screen()
 

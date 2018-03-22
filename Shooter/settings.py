@@ -1,5 +1,6 @@
 import pygame as pg
 import tkinter as tk
+import glob, os
 
 vec = pg.math.Vector2
 pg.init()
@@ -22,9 +23,20 @@ WIDTH = int(1920 / 1.5)
 HEIGHT = int(1080 / 1.5)
 
 FPS = 120
+game_folder = os.path.dirname(__file__)
+map_folder = os.path.join(game_folder, "maps")
+MOPS = glob.glob(map_folder + '/*.tmx')
+MAPS = []
+for a in MOPS:
+    maps = ''
+    for b in reversed(a):
+        if b.isalpha() or b == "." or b.isdigit() or b == "-" or b == "_":
+            maps = b + maps
 
-MAPS = ['map1.tmx', 'map2.tmx', 'map3.tmx']
-MAP = 'map1.tmx'
+        else:
+            break
+    MAPS.append(maps)
+MAP = MAPS[0]
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
