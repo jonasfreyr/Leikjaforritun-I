@@ -129,13 +129,13 @@ class Game:
         self.map_rect = self.map_img.get_rect()
 
         self.last_known = []
-        self.spawn = None
+        self.spawn = []
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == "last_known":
                 self.last_known.append(pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height))
 
             if tile_object.name == "spawn":
-                self.spawn = pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+                self.spawn.append(pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height))
 
         for tile_object in self.map.tmxdata.objects:
             obj_center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
@@ -333,8 +333,10 @@ class Game:
         if self.spawn is not None and now - self.last_spawn > ENEMY_SPAWNRATE and len(self.enemies) <= 10:
             self.last_spawn = now
 
-            x = random.randint(self.spawn.x, self.spawn.x + self.spawn.width)
-            y = random.randint(self.spawn.y, self.spawn.y + self.spawn.height)
+            spawn = random.choice(self.spawn)
+
+            x = random.randint(spawn.x, spawn.x + spawn.width)
+            y = random.randint(spawn.y, spawn.y + spawn.height)
 
             if self.last_known == []:
                 Enemy(self, x, y, random.choice(WEAPON))

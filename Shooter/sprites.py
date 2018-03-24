@@ -322,6 +322,35 @@ class Enemy(pg.sprite.Sprite):
 
         return rot
 
+    def move(self):
+        target_dist = self.last_known - self.pos
+        self.rot = self.rot_towards_target(target_dist)
+        # self.rot = target_dist.angle_to(vec(1, 0))
+
+        self.acc = vec(1, 0).rotate(-self.rot)
+        self.avoid_mobs()
+
+        try:
+            self.acc.scale_to_length(ENEMY_SPEED)
+
+        except:
+            pass
+
+        self.acc += self.vel * -1.5
+
+        self.vel += self.acc * self.game.dt
+        self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+
+        self.hit_rect.centerx = self.pos.x
+        collide_with_walls(self, self.game.walls, "x")
+        collide_with_walls(self, self.game.windows, "x")
+
+        self.hit_rect.centery = self.pos.y
+        collide_with_walls(self, self.game.walls, "y")
+        collide_with_walls(self, self.game.windows, "y")
+
+        self.rect.center = self.hit_rect.center
+
     def update(self):
         self.target = self.game.player
         closest = self.target.pos - self.pos
@@ -369,34 +398,7 @@ class Enemy(pg.sprite.Sprite):
             self.moving = False
 
         if self.moving:
-            target_dist = self.last_known - self.pos
-            self.rot = self.rot_towards_target(target_dist)
-            #self.rot = target_dist.angle_to(vec(1, 0))
-
-            self.acc = vec(1, 0).rotate(-self.rot)
-            self.avoid_mobs()
-
-            try:
-                self.acc.scale_to_length(ENEMY_SPEED)
-
-            except:
-                pass
-
-            self.acc += self.vel * -1.5
-
-            self.vel += self.acc * self.game.dt
-            self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
-
-            self.hit_rect.centerx = self.pos.x
-            collide_with_walls(self, self.game.walls, "x")
-            collide_with_walls(self, self.game.windows, "x")
-
-            self.hit_rect.centery = self.pos.y
-            collide_with_walls(self, self.game.walls, "y")
-            collide_with_walls(self, self.game.windows, "y")
-
-            self.rect.center = self.hit_rect.center
-
+            self.move()
 
         if self.health <= 0:
             random.choice(self.game.enemy_hit_sounds).play()

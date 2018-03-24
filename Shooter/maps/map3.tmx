@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextobjectid="86">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextobjectid="87">
  <tileset firstgid="1" source="../img/Kenny Topdown Pack.tsx"/>
  <layer name="Ground" width="50" height="30">
   <data encoding="csv">
@@ -149,7 +149,7 @@
   <object id="11" name="Wall" x="192" y="1792" width="64" height="64"/>
   <object id="14" name="Window" x="480" y="768" width="32" height="192"/>
   <object id="15" name="Window" x="288" y="1600" width="32" height="192"/>
-  <object id="16" name="spawn" x="1856" y="592" width="192" height="560"/>
+  <object id="16" name="spawn" x="1856" y="1152" width="192" height="560"/>
   <object id="17" name="last_known" x="64" y="320" width="64" height="64"/>
   <object id="18" name="Wall" x="256" y="384" width="64" height="448"/>
   <object id="19" name="Wall" x="256" y="1408" width="64" height="192"/>
@@ -211,5 +211,6 @@
   <object id="83" name="Health" x="976" y="784" width="32" height="32"/>
   <object id="84" name="Ally" type="shotgun" x="1152" y="960" width="64" height="64"/>
   <object id="85" name="Ally" type="shotgun" x="1152" y="576" width="64" height="64"/>
+  <object id="86" name="spawn" x="1856" y="0" width="192" height="560"/>
  </objectgroup>
 </map>
