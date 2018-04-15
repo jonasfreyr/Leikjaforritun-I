@@ -40,7 +40,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
-        self.weapon = "M1"
+        self.weapon = "pistol"
 
         self.image = game.player_images[self.weapon]
 

@@ -6,6 +6,7 @@ from tilemap import *
 from hud import *
 import random
 
+
 class Game:
     def __init__(self):
         pg.mixer.pre_init(44100, -16, 1, 2048)
@@ -129,13 +130,17 @@ class Game:
         self.map_rect = self.map_img.get_rect()
 
         self.last_known = []
-        self.spawn = []
+        self.spawn = None
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == "last_known":
                 self.last_known.append(pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height))
 
             if tile_object.name == "spawn":
-                self.spawn.append(pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height))
+                if self.spawn is None:
+                    self.spawn = [pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height)]
+
+                else:
+                    self.spawn.append(pg.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height))
 
         for tile_object in self.map.tmxdata.objects:
             obj_center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
