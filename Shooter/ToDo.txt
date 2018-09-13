@@ -1,7 +1,7 @@
 To Do list fyrir Shooter
-(X) - Búið
-(W) - Þarf að laga smá
-(U) - Ekki búinn að gera
+(X) - Bï¿½iï¿½
+(W) - ï¿½arf aï¿½ laga smï¿½
+(U) - Ekki bï¿½inn aï¿½ gera
 
 Better Enemy rotations (X)
 Mouse Aim (X)
@@ -10,6 +10,7 @@ New Maps (W)
 Start Screen (X)
 Bullet Penetration (U)
 Hostage (U)
+
 Perfromance Improvement? (U)
 Throwables? (U)
 Pathfinding? (U)

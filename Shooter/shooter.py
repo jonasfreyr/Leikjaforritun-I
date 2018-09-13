@@ -25,6 +25,7 @@ class Game:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'img')
         self.map_folder = path.join(game_folder, 'maps')
+        self.bonus_map_folder = path.join(self.map_folder, 'bonusmaps')
         snd_folder = path.join(game_folder, 'snd')
         music_folder = path.join(game_folder, 'music')
 
@@ -44,6 +45,9 @@ class Game:
 
         self.crosshair_img = pg.image.load(path.join(img_folder, CROSSHAIR_IMG)).convert_alpha()
         self.crosshair_img = pg.transform.scale(self.crosshair_img, CROSSHAIR_SIZE)
+
+        self.blood_screen = pg.image.load(path.join(img_folder, BLOOD_SCREEN_IMG)).convert_alpha()
+        self.blood_screen = pg.transform.scale(self.blood_screen, [WIDTH, HEIGHT])
 
         self.player_images = {}
         for a in PLAYER_IMAGES:
@@ -116,6 +120,8 @@ class Game:
         self.out_ammo = pg.mixer.Sound(path.join(snd_folder, OUT_OF_AMMO))
         self.out_ammo.set_volume(0.08)
 
+        self.mapCounter = 0
+
     def new(self):
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.walls = pg.sprite.Group()
@@ -183,6 +189,8 @@ class Game:
         self.kills = 0
         self.deaths = 0
         self.tab = False
+        self.blood_screenBool = False
+        self.blood_screenTimer = 0
 
         #self.effects_sounds['level_start'].play()
 
@@ -306,7 +314,7 @@ class Game:
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
             if self.player.armor <= 0:
-                self.player.health -= WEAPONS[hit.weapon]['damage']
+                #self.player.health -= WEAPONS[hit.weapon]['damage']
                 pass
 
             else:
@@ -319,6 +327,8 @@ class Game:
                 self.running = False
 
         if hits:
+            self.blood_screenTimer = pg.time.get_ticks()
+            self.blood_screenBool = True
             random.choice(self.player_hit_sounds).play()
             self.player.vel = vec(0, 0)
 
@@ -361,6 +371,9 @@ class Game:
                 Enemy(self, x, y, random.choice(WEAPON),
                       [random.randint(last_known.x, last_known.x + last_known.width),
                        random.randint(last_known.y, last_known.y + last_known.height)])
+
+        if self.spawn is None and len(self.enemies) <= 0:
+            self.running = False
 
     def render_fog(self):
         self.fog.fill(NIGHT_COLOR)
@@ -415,6 +428,12 @@ class Game:
 
         self.draw_hud()
 
+        if self.blood_screenBool is True:
+            self.screen.blit(self.blood_screen, (0, 0))
+            now = pg.time.get_ticks()
+            if now - self.blood_screenTimer > BLOOD_SCREEN_TIME:
+                self.blood_screenBool = False
+
         if self.gp:
             self.screen.blit(self.dim_screen, (0, 0))
             draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
@@ -453,7 +472,19 @@ class Game:
 
         return self.wait_for_key()
 
+    def win_screen(self):
+        self.screen.fill(BLACK)
+
+        draw_text(self.screen, "Mission Successful", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="s")
+
+        draw_text(self.screen, "Continue? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="s")
+
+        pg.display.flip()
+
+        return self.wait_for_key()
+
     def wait_for_key(self):
+        global MAP
         while True:
             self.clock.tick(FPS)
 
@@ -463,6 +494,8 @@ class Game:
 
                 if event.type == pg.KEYUP:
                     if event.key == pg.K_y:
+                        self.mapCounter += 1
+                        MAP = MAPS[self.mapCounter]
                         return False
 
                     elif event.key == pg.K_n:
@@ -487,17 +520,17 @@ class Game:
 
     def change_map(self):
         next = False
-        for a in MAPS:
-            if next is True:
+        for a in BONUS_MAPS:
+            if next is True or BONUS_MAP is None:
                 return a
 
-            if a == MAP:
+            if a == BONUS_MAP:
                 next = True
 
-        return MAPS[0]
+        return None
 
     def start_screen(self):
-        global FPS, MAP, NIGHT_MODE
+        global FPS, MAP, NIGHT_MODE, BONUS_MAP
         self.setting = False
         full = False
         while True:
@@ -510,6 +543,9 @@ class Game:
                     click = self.check_buttons(self.buttons, pos)
 
                     if click == 'Start':
+                        if BONUS_MAP != None:
+                            MAP = BONUS_MAP
+
                         if full:
                             self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
                         pg.mouse.set_visible(False)
@@ -531,8 +567,9 @@ class Game:
                         elif FPS == 60:
                             FPS = 120
 
-                    if click == 'Map: {}'.format(MAP):
-                        MAP = self.change_map()
+                    if click == 'Bonus Map: {}'.format(BONUS_MAP):
+                        BONUS_MAP = self.change_map()
+                        pass
 
                     if click == 'Night Mode: {}'.format(NIGHT_MODE):
                         NIGHT_MODE = not NIGHT_MODE
@@ -544,7 +581,8 @@ class Game:
                 self.button = ['Start', 'Settings', 'Quit']
 
             elif self.setting:
-                self.button = ['Full: {}'.format(full), 'FPS: {}'.format(FPS), 'Map: {}'.format(MAP), 'Night Mode: {}'.format(NIGHT_MODE), 'Back']
+                #
+                self.button = ['Full: {}'.format(full), 'Bonus Map: {}'.format(BONUS_MAP), 'FPS: {}'.format(FPS), 'Night Mode: {}'.format(NIGHT_MODE), 'Back']
 
             self.draw_screen()
 
@@ -555,6 +593,9 @@ H.load_data()
 H.start_screen()
 while True:
     H.new()
-    end = H.go_screen()
+    if H.player.health <= 0:
+        end = H.go_screen()
+    else:
+        end = H.win_screen()
     if end is True:
         break

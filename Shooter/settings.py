@@ -27,6 +27,7 @@ game_folder = os.path.dirname(__file__)
 map_folder = os.path.join(game_folder, "maps")
 MOPS = glob.glob(map_folder + '/*.tmx')
 MAPS = []
+BONUS_MAPS = []
 for a in MOPS:
     maps = ''
     for b in reversed(a):
@@ -35,8 +36,13 @@ for a in MOPS:
 
         else:
             break
-    MAPS.append(maps)
+    if "bonusmap" in maps:
+        BONUS_MAPS.append(maps)
+
+    else:
+        MAPS.append(maps)
 MAP = MAPS[0]
+BONUS_MAP = None
 
 TILESIZE = 64
 GRIDWIDTH = WIDTH / TILESIZE
@@ -44,6 +50,8 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 CROSSHAIR_IMG = 'crosshair.png'
 CROSSHAIR_SIZE = [100, 100]
+BLOOD_SCREEN_IMG = 'blood_screen.png'
+BLOOD_SCREEN_TIME = 3000
 
 NIGHT_MODE = False
 NIGHT_RADIUS = 100
