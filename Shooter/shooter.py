@@ -501,9 +501,15 @@ class Game:
     def win_screen(self):
         self.screen.fill(BLACK)
 
-        draw_text(self.screen, "Mission Successful", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="s")
+        if self.mapCounter + 1 < len(MAPS):
+            draw_text(self.screen, "Mission Successful", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="s")
 
-        draw_text(self.screen, "Continue? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="s")
+            draw_text(self.screen, "Continue? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="s")
+
+        else:
+            draw_text(self.screen, "Game Won", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="s")
+
+            draw_text(self.screen, "Continue? y/n", self.title_font, 75, RED, WIDTH / 2, HEIGHT * 3 / 4, align="s")
 
         pg.display.flip()
 
@@ -521,8 +527,13 @@ class Game:
                 if event.type == pg.KEYUP:
                     if event.key == pg.K_y:
                         if over is False:
-                            self.mapCounter += 1
-                            MAP = MAPS[self.mapCounter]
+                            try:
+                                self.mapCounter += 1
+                                MAP = MAPS[self.mapCounter]
+
+                            except IndexError:
+                                return True
+
                         return False
 
                     elif event.key == pg.K_n:

@@ -41,7 +41,7 @@ for a in MOPS:
 
     else:
         MAPS.append(maps)
-MAP = MAPS[2]
+MAP = MAPS[0]
 BONUS_MAP = None
 
 TILESIZE = 64
