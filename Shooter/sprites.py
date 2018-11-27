@@ -183,19 +183,6 @@ class Player(pg.sprite.Sprite):
         self.rect.center = self.hit_rect.center
 
 
-class Turret(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
-        self._layer = PLAYER_LAYER
-
-        self.groups = game.all_sprites
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-
-    def draw_hit_box(self):
-        hit_box = self.hit_rect.move(self.game.camera.camera.topleft)
-        pg.draw.rect(self.game.screen, WHITE, hit_box, 2)
-
-
 class Enemy(pg.sprite.Sprite):
     def __init__(self, game, x, y, weapon, last_known=None):
         self._layer = ENEMY_LAYER
@@ -216,13 +203,19 @@ class Enemy(pg.sprite.Sprite):
         self.acc = vec(0, 0)
         self.rot = 0
 
-        self.health = ENEMY_HEALTH
+        if weapon != "mini":
+            self.health = ENEMY_HEALTH
+            self.maxHealth = ENEMY_HEALTH
+
+        elif weapon == "mini":
+            self.health = BOSS_HEALTH
+            self.maxHealth = BOSS_HEALTH
 
         self.last_shot = 0
 
         self.target = game.player
 
-        if last_known is None:
+        if last_known is None or weapon == "mini":
             self.moving = False
             self.last_known = [int(self.pos.x), int(self.pos.y)]
 
@@ -255,7 +248,7 @@ class Enemy(pg.sprite.Sprite):
         else:
             return False
 
-    def line_collide(self,):
+    def line_collide(self):
         target_dist = self.target.pos - self.pos
         rot = target_dist.angle_to(vec(1, 0))
         pos = self.pos + BARREL_OFFSET.rotate(-rot)
@@ -397,7 +390,7 @@ class Enemy(pg.sprite.Sprite):
         if ((pos[0] - 5 < self.last_known[0]) and (pos[1] - 5 < self.last_known[1])) and ((pos[0] + 5 > self.last_known[0]) and (pos[1] + 5 > self.last_known[1])):
             self.moving = False
 
-        if self.moving:
+        if self.moving and self.weapon != "mini":
             self.move()
 
         if self.health <= 0:
@@ -430,18 +423,18 @@ class Enemy(pg.sprite.Sprite):
             #self.vel = vec(-WEAPONS[self.weapon]['kickback']).rotate(-self.rot)
 
     def draw_health(self):
-        if self.health > 60:
+        if self.health > int((self.maxHealth / 3) * 2):
             col = GREEN
 
-        elif self.health > 30:
+        elif self.health > int(self.maxHealth / 3):
             col = YELLOW
 
         else:
             col = RED
 
-        width = int(self.rect.width * self.health / ENEMY_HEALTH)
+        width = int(self.rect.width * self.health / self.maxHealth)
         self.health_bar = pg.Rect(0, 0, width, 7)
-        if self.health < ENEMY_HEALTH:
+        if self.health < self.maxHealth:
             pg.draw.rect(self.image, col, self.health_bar)
 
 

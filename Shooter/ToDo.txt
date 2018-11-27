@@ -1,16 +1,26 @@
-To Do list fyrir Shooter
+﻿To Do list fyrir Shooter
 (X) - B�i�
 (W) - �arf a� laga sm�
 (U) - Ekki b�inn a� gera
 
+
 Better Enemy rotations (X)
+
 Mouse Aim (X)
+
 Windows (X)
+
 New Maps (W)
+
 Start Screen (X)
+
 Bullet Penetration (U)
+
 Hostage (U)
 
+
 Perfromance Improvement? (U)
+
 Throwables? (U)
+
 Pathfinding? (U)

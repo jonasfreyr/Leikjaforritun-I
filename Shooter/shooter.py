@@ -191,6 +191,7 @@ class Game:
         self.tab = False
         self.blood_screenBool = False
         self.blood_screenTimer = 0
+        self.player_inventory = PLAYER_INVENTORY
 
         #self.effects_sounds['level_start'].play()
 
@@ -204,14 +205,25 @@ class Game:
             self.events()
             if self.gp is False:
                 self.update()
+            else:
+                self.player.get_mouse()
+
             self.draw()
 
             self.clock.tick(FPS)
 
     def events(self):
+        pressed = pg.mouse.get_pressed()
+        pos = pg.mouse.get_pos()
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYUP and event.key == pg.K_ESCAPE):
                 self.quit()
+            if self.gp:
+                if pressed[0] == 1 and event.type == pg.MOUSEBUTTONUP:
+                    click = self.check_buttons(self.menuButtons, pos)
+
+                    if click == 'Quit':
+                        self.start_screen()
 
             if event.type == pg.KEYUP:
                 if event.key == pg.K_p:
@@ -223,6 +235,10 @@ class Game:
 
                 if event.key == pg.K_F1:
                     self.draw_hit_boxes = not self.draw_hit_boxes
+
+                if event.key == pg.K_F2:
+                    for a in self.enemies:
+                        a.kill()
 
                 if event.key == pg.K_RIGHT or event.key == pg.K_LEFT or event.key == pg.K_UP:
                     for a in self.ally:
@@ -435,8 +451,18 @@ class Game:
                 self.blood_screenBool = False
 
         if self.gp:
+            self.menuButton = ["Quit"]
             self.screen.blit(self.dim_screen, (0, 0))
             draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+
+            off = 50
+            self.menuButtons = {}
+            for a in self.menuButton:
+                self.menuButtons[a] = draw_text(self.screen, a, self.hud_font, 30, WHITE, WIDTH / 2, HEIGHT / 2 + off, align="center")
+
+                off += 50
+
+            # draw_text(self.screen, "Quit", self.title_font, 80, WHITE, WIDTH / 2, HEIGHT / 4 * 3, align="center")
 
         if self.tab:
             tab(self.screen, self.dim_screen, self.hud_font, self.kills, self.deaths,
@@ -470,7 +496,7 @@ class Game:
 
         pg.display.flip()
 
-        return self.wait_for_key()
+        return self.wait_for_key(True)
 
     def win_screen(self):
         self.screen.fill(BLACK)
@@ -481,9 +507,9 @@ class Game:
 
         pg.display.flip()
 
-        return self.wait_for_key()
+        return self.wait_for_key(False)
 
-    def wait_for_key(self):
+    def wait_for_key(self, over):
         global MAP
         while True:
             self.clock.tick(FPS)
@@ -494,8 +520,9 @@ class Game:
 
                 if event.type == pg.KEYUP:
                     if event.key == pg.K_y:
-                        self.mapCounter += 1
-                        MAP = MAPS[self.mapCounter]
+                        if over is False:
+                            self.mapCounter += 1
+                            MAP = MAPS[self.mapCounter]
                         return False
 
                     elif event.key == pg.K_n:
@@ -533,6 +560,7 @@ class Game:
         global FPS, MAP, NIGHT_MODE, BONUS_MAP
         self.setting = False
         full = False
+        pg.mouse.set_visible(True)
         while True:
             self.screen.blit(self.background, self.background_rect)
 
@@ -549,6 +577,7 @@ class Game:
                         if full:
                             self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
                         pg.mouse.set_visible(False)
+                        self.new()
                         return 0
 
                     if click == 'Settings' or click == "Back":
@@ -590,9 +619,13 @@ class Game:
 
 H = Game()
 H.load_data()
-H.start_screen()
+first = True
 while True:
-    H.new()
+    if first is True:
+        H.start_screen()
+        first = False
+    else:
+        H.new()
     if H.player.health <= 0:
         end = H.go_screen()
     else:

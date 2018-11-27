@@ -41,7 +41,7 @@ for a in MOPS:
 
     else:
         MAPS.append(maps)
-MAP = MAPS[0]
+MAP = MAPS[2]
 BONUS_MAP = None
 
 TILESIZE = 64
@@ -60,27 +60,26 @@ BACKGROUND = "background.png"
 
 # Player Settings
 PLAYER_SPEED = 800
-PLAYER_MELEE = "melee.png"
-PLAYER_FLASHLIGHT = "flashlight.png"
-PLAYER_PISTOL = "pistol.png"
-PLAYER_SHOTGUN = "shotgun.png"
-PLAYER_RIFLE = "rifle.png"
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 PLAYER_HEALTH = 100
 PLAYER_ARMOR = 50
-PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png", "M1": 'rifleL.png'}
+PLAYER_INVENTORY = ['pistol']
+PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png", "M1": 'rifleL.png', 'uzi': 'uzi.png', "mini": "minigun.png"}
 BARREL_OFFSET = vec(40, 16)
 
 # Images Sizes
-IMAGES_SIZES = {'pistol': [TILESIZE, TILESIZE], 'shotgun': [TILESIZE + 10, TILESIZE - 5], 'rifle': [TILESIZE + 10, TILESIZE - 5], 'M1': [TILESIZE + 10, TILESIZE - 5]}
+IMAGES_SIZES = {'uzi': [TILESIZE, TILESIZE], 'pistol': [TILESIZE, TILESIZE], 'shotgun': [TILESIZE + 10, TILESIZE - 5], 'rifle': [TILESIZE + 10, TILESIZE - 5], 'M1': [TILESIZE + 10, TILESIZE - 5], 'mini': [TILESIZE + 10, TILESIZE - 5]}
+
+# Boss
+BOSS_HEALTH = 1000
+BOSS_IMG = ""
 
 # Enemy Setting
-ENEMY_IMAGES = {'pistol': "pistol_enemy.png", 'shotgun': "shotgun_enemy.png", 'rifle': "rifle_enemy.png", "M1": "rifleL_enemy.png"}
+ENEMY_IMAGES = {'pistol': "pistol_enemy.png", 'shotgun': "shotgun_enemy.png", 'rifle': "rifle_enemy.png", "M1": "rifleL_enemy.png", "uzi": "uzi_enemy.png", "mini": "minigun_enemy.png"}
 ENEMY_IMG = "pistol_enemy.png"
 ENEMY_SPEED = 800
 ENEMY_HIT_RECT = pg.Rect(0, 0, 35, 35)
 ENEMY_HEALTH = 100
-ENEMY_BULLET_RATE = 2000
 AVOID_RADIUS = 50
 ENEMY_ROTATION_SPEED = 5
 ENEMY_SPAWNRATE = 2000
@@ -92,7 +91,9 @@ WEAPON_TYPES = {
     'shotgun': 'shotgun',
     'pistol': 'pistol',
     'rifle': 'rifle',
-    'M1': 'rifle'
+    'M1': 'rifle',
+    'uzi': 'rifle',
+    'mini': 'rifle'
 
 }
 
@@ -106,7 +107,7 @@ WEAPONS['pistol'] = {'bullet_speed': 2000,
                      'rate': 500,
                      'kickback': 200,
                      'spread': 2,
-                     'damage': 10,
+                     'damage': 15,
                      'bullet_size': 'lg',
                      'ammo_clip': 12,
                      'ammo_max': 24,
@@ -116,7 +117,7 @@ WEAPONS['pistol'] = {'bullet_speed': 2000,
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'bullet_lifetime': 300,
-                     'rate':1200,
+                     'rate': 1200,
                      'kickback': 800,
                      'spread': 20,
                      'damage': 5,
@@ -132,7 +133,7 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'rate': 150,
                      'kickback': 500,
                      'spread': 5,
-                     'damage': 15,
+                     'damage': 20,
                      'bullet_size': 'lg',
                      'ammo_clip': 30,
                      'ammo_max': 60,
@@ -153,6 +154,32 @@ WEAPONS['M1'] = {'bullet_speed': 3000,
                      'detect_radius': 800
                     }
 
+WEAPONS['uzi'] = {'bullet_speed': 2000,
+                     'bullet_lifetime': 300,
+                     'rate': 70,
+                     'kickback': 200,
+                     'spread': 15,
+                     'damage': 15,
+                     'bullet_size': 'lg',
+                     'ammo_clip': 20,
+                     'ammo_max': 60,
+                     'bullet_count': 1,
+                     'detect_radius': 400
+                    }
+
+WEAPONS['mini'] = {'bullet_speed': 2000,
+                     'bullet_lifetime': 700,
+                     'rate': 10,
+                     'kickback': 50,
+                     'spread': 10,
+                     'damage': 20,
+                     'bullet_size': 'lg',
+                     'ammo_clip': 120,
+                     'ammo_max': 240,
+                     'bullet_count': 1,
+                     'detect_radius': 700
+                    }
+
 
 BULLET_SIZE = [10, 10]
 
@@ -164,7 +191,9 @@ WEAPON_NAMES = {
     'rifle': 'AK-47 ',
     'pistol': 'USP',
     'shotgun': 'Mossberg 590',
-    'M1': 'M1 Garand'
+    'M1': 'M1 Garand',
+    'uzi': 'UZI ',
+    'mini': 'MINIGUN'
 
 }
 
@@ -191,9 +220,10 @@ ITEM_IMAGES = {'Health': 'health_pack.png',
                'shotgun': 'shotgun_item.png',
                'rifle': 'rifle_item.png',
                'armor': 'armor-vest.png',
-               'M1': 'M1_item.png'
+               'M1': 'M1_item.png',
+               'uzi': 'uzi_item.png'
                }
-ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20], 'armor': [24, 24], 'M1': [64, 20]}
+ITEM_SIZES = {'Health': [24, 24], "Ammo_box": [45, 45], 'shotgun': [64, 20], 'rifle': [64, 20], 'armor': [24, 24], 'M1': [64, 20], 'uzi': [40, 20]}
 HEALTH_PACK_AMOUNT = 50
 BOB_RANGE = 10
 BOB_SPEED = 0.1
@@ -208,7 +238,9 @@ ENEMY_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
                  'shotgun': ['shotgun.wav'],
                  'rifle': ['rifle.wav'],
-                 'M1': ['M1 Garand.wav']
+                 'M1': ['M1 Garand.wav'],
+                 'uzi': ['uzi.wav'],
+                 'mini': ['mini.wav']
                  }
 
 OUT_OF_AMMO = 'Dry-Fire-Gun.wav'
