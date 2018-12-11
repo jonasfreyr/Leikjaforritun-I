@@ -330,7 +330,7 @@ class Game:
         hits = pg.sprite.spritecollide(self.player, self.bullets, collide_hit_rect, collide_hit_rect)
         for hit in hits:
             if self.player.armor <= 0:
-                #self.player.health -= WEAPONS[hit.weapon]['damage']
+                self.player.health -= WEAPONS[hit.weapon]['damage']
                 pass
 
             else:
