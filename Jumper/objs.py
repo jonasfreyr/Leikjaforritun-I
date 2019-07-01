@@ -79,6 +79,7 @@ class Obstacle:
             self.width = self.sprite.width
             self.height = self.sprite.height
 
+
     def draw(self):
         self.sprite.draw()
 
