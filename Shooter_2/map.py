@@ -75,7 +75,7 @@ class TiledRenderer(object):
 
                 # iterate over all the objects in the layer
                 for obj in layer:
-                    logger.info(obj)
+                    # logger.info(obj)
 
                     # objects with points are polygons or lines
                     if hasattr(obj, 'points'):
@@ -110,7 +110,11 @@ class TiledRenderer(object):
         # self.restore()
 
 class Camera:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
     def draw(self, target):
-        x = (-target.pos.x - (target.width / 2)) + (WINDOW_WIDTH / 2)
-        y = (-target.pos.y - (target.height / 2)) + (WINDOW_HEIGHT / 2)
-        pyglet.gl.glTranslated(x, y, 0)
+        self.x = (-target.pos.x - (target.width / 2)) + (WINDOW_WIDTH / 2)
+        self.y = (-target.pos.y - (target.height / 2)) + (WINDOW_HEIGHT / 2)
+        pyglet.gl.glTranslated(self.x, self.y, 0)
