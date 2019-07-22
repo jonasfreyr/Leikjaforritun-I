@@ -73,6 +73,9 @@ class Weapon:
     def shoot(self, pos, rot, game):
         if self.ammo_in_mag > 0:
             if self.type == "auto":
+                if self.spray_num > len(WEAPONS[self.name]["spread"]) - 1:
+                    self.spray_num = 0
+
                 spread = WEAPONS[self.name]["spread"][self.spray_num]
                 game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
                 self.spray_num += 1
@@ -93,6 +96,54 @@ class Weapon:
                 game.effects.append(MuzzleFlash(pos, rot, game))
 
             self.fired = True
+
+class Animation(pyglet.sprite.Sprite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.deleted = False
+
+    def on_animation_end(self):
+        self.delete()
+        self.deleted = True
+
+class Grenade:
+    def __init__(self, pos, vel, rot, game):
+        self.pos = pos
+        self.vel = vel.rotate(-rot)
+        self.slow = GRENADE_SLOWDOWN.copy().rotate(-rot)
+
+        self.game = game
+
+        self.sprite = Sprite(game.granade_img, pos.x, pos.y, batch=game.main_batch)
+        self.sprite.image.anchor_x = self.sprite.width / 2
+        self.sprite.image.anchor_y = self.sprite.height / 2
+
+        self.explode_sprite = None
+
+        self.explode = False
+
+    def update(self, dt):
+        if not self.vel.magnitude() <= 4:
+            self.vel.x -= self.slow.x * dt
+            self.vel.y -= self.slow.y * dt
+
+            self.pos.x += self.vel.x * dt
+            self.pos.y += self.vel.y * dt
+
+            self.sprite.x = self.pos.x
+            self.sprite.y = self.pos.y
+
+        else:
+            if self.explode is False:
+                self.sprite.delete()
+
+                self.vel.multiply(0)
+                self.explode = True
+                self.explode_sprite = Animation(self.game.explosion_anim, self.pos.x, self.pos.y, batch=self.game.effects_batch)
+
+                self.explode_sprite.x = self.pos.x - self.explode_sprite.width / 2
+                self.explode_sprite.y = self.pos.y - self.explode_sprite.height / 2
 
 class MuzzleFlash:
     def __init__(self, pos, rot, game):

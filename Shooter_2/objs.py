@@ -24,6 +24,8 @@ class Player:
         self.hit_box.x = x
         self.hit_box.y = y
 
+        self.o = None
+
         if sprite is not None:
             self.sprite = sprite
             self.width = self.sprite.width
@@ -37,16 +39,9 @@ class Player:
 
     def shoot(self):
         if self.last_shot <= 0:
-            o = WEAPONS[self.weapon.name]['offset'].rotate(-self.rot)
+            rot = self.get_rotation(self.o, self.game.mouse.get_map_pos()) + 90
 
-            pos = Vector(self.pos.x, self.pos.y)
-
-            pos.x += o.x
-            pos.y += o.y
-
-            rot = self.get_rotation(pos, self.game.mouse.get_map_pos()) + 90
-
-            self.weapon.shoot(pos, rot, self.game)
+            self.weapon.shoot(self.o, rot, self.game)
 
             self.last_shot = WEAPONS[self.weapon.name]["rate"]
 
@@ -101,22 +96,29 @@ class Player:
                     self.vel.y = 0
 
     def update(self, dt):
-        if self.last_shot > 0:
-            self.last_shot -= dt
-
-        self.rotate_to_mouse()
-
-        self.sprite.update(rotation=self.rot)
-
-        self.pos.x = self.hit_box.x + self.hit_box.width / 2
-        self.pos.y = self.hit_box.y + self.hit_box.height / 2
-
         # check hit box collisions
         self.hit_box.x += self.vel.x * dt
         self.collide_with_walls("x")
 
         self.hit_box.y += self.vel.y * dt
         self.collide_with_walls("y")
+
+        self.pos.x = self.hit_box.x + self.hit_box.width / 2
+        self.pos.y = self.hit_box.y + self.hit_box.height / 2
+
+        o = WEAPONS[self.weapon.name]['offset'].rotate(-self.rot)
+
+        self.o = Vector(self.pos.x, self.pos.y)
+
+        self.o.x += o.x
+        self.o.y += o.y
+
+        if self.last_shot > 0:
+            self.last_shot -= dt
+
+        self.rotate_to_mouse()
+
+        self.sprite.update(rotation=self.rot)
 
         self.sprite.x = self.hit_box.get_center().x
         self.sprite.y = self.hit_box.get_center().y
@@ -143,6 +145,11 @@ class Player:
 
         pyglet.gl.glBegin(pyglet.gl.GL_LINES)
         pyglet.gl.glVertex2i(int(self.pos.x), int(self.pos.y))
+        pyglet.gl.glVertex2i(int(s.x), int(s.y))
+        pyglet.gl.glEnd()
+
+        pyglet.gl.glBegin(pyglet.gl.GL_LINES)
+        pyglet.gl.glVertex2i(int(self.o.x), int(self.o.y))
         pyglet.gl.glVertex2i(int(s.x), int(s.y))
         pyglet.gl.glEnd()
 

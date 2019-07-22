@@ -24,8 +24,14 @@ class Vector:
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y)
 
+    def __mul__(self, other):
+        return Vector(self.x * other.x, self.y * other.y)
+
     def __str__(self):
         return str([self.x, self.y])
+
+    def copy(self):
+        return Vector(self.x, self.y)
 
     def rotate(self, degrees):
         a = math.radians(degrees)

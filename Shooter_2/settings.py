@@ -7,6 +7,8 @@ WINDOW_HEIGHT = int(1080 / 1.5)
 
 TILESIZE = 64
 
+MAP = "map1.tmx"
+
 # Hud
 FONT_SIZE = 30
 
@@ -20,10 +22,17 @@ CROSSHAIR_IMG = "crosshair.png"
 CROSSHAIR_HEIGHT = 100
 CROSSHAIR_WIDTH = 100
 
+# Grenade
+GRENADE_IMG = "grenade.png"
+GRENADE_SIZE = Vector(30, 30)
+GRENADE_STARTING_VEL = Vector(400, 0)
+GRENADE_SLOWDOWN = Vector(200, 0)
+
 # Bullet
 BULLET_IMG = "bullet.png"
 
 # Weapon
+MUZZLE_FLASH_IMG = "muzzleFlash.png"
 MUZZLE_FLASH_LIFESPAWN = 0.05
 MUZZLE_FLASH_SIZE = Vector(80, 40)
 MUZZLE_OFFSET = Vector(-5, -10)

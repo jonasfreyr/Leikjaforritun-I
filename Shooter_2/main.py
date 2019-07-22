@@ -5,6 +5,7 @@ from objs import *
 from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
+from weapons import Grenade
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -40,11 +41,14 @@ class Game(pyglet.window.Window):
         if symbol == key.ESCAPE:
             pyglet.app.exit()
 
+        elif symbol == key.R:
+            self.player.weapon.reload()
+
+        elif symbol == key.G:
+            self.grenades.append(Grenade(Vector(self.player.pos.x, self.player.pos.y), GRENADE_STARTING_VEL + self.player.vel * Vector(self.dt, self.dt), self.player.rot, self))
+
     def on_key_release(self, symbol, modifiers):
         self.keys[symbol] = False
-
-        if symbol == key.R:
-            self.player.weapon.reload()
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         self.mouse.update(dx, dy)
@@ -83,7 +87,7 @@ class Game(pyglet.window.Window):
         texture.width = CROSSHAIR_WIDTH
         texture.height = CROSSHAIR_HEIGHT
 
-        self.bullet_img = preload_img("bullet.png")
+        self.bullet_img = preload_img(BULLET_IMG)
 
         # x = texture.width / 2
         # y = texture.height / 2
@@ -91,10 +95,19 @@ class Game(pyglet.window.Window):
         # cursor = pyglet.window.ImageMouseCursor(crosshair_img, x, y)
         # self.set_mouse_cursor(cursor)
 
-        self.muzzle_flash_img = preload_img("muzzleFlash.png")
+        self.muzzle_flash_img = preload_img(MUZZLE_FLASH_IMG)
         texture = self.muzzle_flash_img.get_texture()
         texture.width = MUZZLE_FLASH_SIZE.x
         texture.height = MUZZLE_FLASH_SIZE.y
+
+        self.granade_img = preload_img(GRENADE_IMG)
+        texture = self.granade_img.get_texture()
+        texture.width = GRENADE_SIZE.x
+        texture.height = GRENADE_SIZE.y
+
+        explosion = preload_img("explosion.png")
+        explosion_seq = pyglet.image.ImageGrid(explosion, 4, 5, item_width=96, item_height=96)
+        self.explosion_anim = pyglet.image.Animation.from_image_sequence(explosion_seq[0:], 0.01, loop=False)
 
     def new(self):
         self.main_batch = pyglet.graphics.Batch()
@@ -102,11 +115,12 @@ class Game(pyglet.window.Window):
         self.effects_batch = pyglet.graphics.Batch()
         self.hud_batch = pyglet.graphics.Batch()
 
-        self.map = TiledRenderer(path.join(self.map_folder, "map1.tmx"))
+        self.map = TiledRenderer(path.join(self.map_folder, MAP))
 
         self.hud_labels = []
         self.walls = []
         self.effects = []
+        self.grenades = []
 
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
@@ -136,6 +150,9 @@ class Game(pyglet.window.Window):
     def update(self, dt):
         # print(len(self.bullets))
         # print(len(self.effects))
+        print(len(self.grenades))
+
+        self.dt = dt
 
         for label in self.hud_labels:
             label.update()
@@ -164,6 +181,13 @@ class Game(pyglet.window.Window):
             if bullet.distance > WEAPONS[bullet.weapon]["bullet_distance"] or bullet.check(self):
                 bullet.sprite.delete()
                 self.bullets.remove(bullet)
+
+        for grenade in self.grenades:
+            grenade.update(dt)
+
+            if grenade.explode_sprite is not None:
+                if grenade.explode_sprite.deleted:
+                    self.grenades.remove(grenade)
 
         for effect in self.effects:
             effect.update(dt)
