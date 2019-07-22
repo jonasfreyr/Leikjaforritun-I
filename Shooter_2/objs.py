@@ -29,8 +29,8 @@ class Player:
             self.width = self.sprite.width
             self.height = self.sprite.height
 
-        self.sprite.image.anchor_x = self.sprite.image.width / 2
-        self.sprite.image.anchor_y = self.sprite.image.height / 2
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[weapon]['img_offset'].x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[weapon]['img_offset'].y
 
     def get_rotation(self, point1, point2):
         return math.degrees(math.atan2(point1.x - point2.x, point1.y - point2.y))
@@ -144,7 +144,6 @@ class Player:
         pyglet.gl.glBegin(pyglet.gl.GL_LINES)
         pyglet.gl.glVertex2i(int(self.pos.x), int(self.pos.y))
         pyglet.gl.glVertex2i(int(s.x), int(s.y))
-
         pyglet.gl.glEnd()
 
 

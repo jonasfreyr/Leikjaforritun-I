@@ -130,7 +130,7 @@
 </data>
  </layer>
  <objectgroup id="5" name="Objects">
-  <object id="1" name="Player" type="pistol" x="1216" y="576" width="64" height="64"/>
+  <object id="1" name="Player" type="rifle" x="1216" y="576" width="64" height="64"/>
   <object id="2" name="Wall" x="1088" y="448" width="128" height="64"/>
   <object id="4" name="Wall" x="1280" y="448" width="128" height="64"/>
   <object id="5" name="Wall" x="1280" y="704" width="128" height="64"/>

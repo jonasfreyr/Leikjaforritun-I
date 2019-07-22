@@ -13,7 +13,7 @@ FONT_SIZE = 30
 # Player
 PLAYER_SPEED = 300
 PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
-PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.8, TILESIZE * 0.8)
+PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 
 # Crosshair
 CROSSHAIR_IMG = "crosshair.png"
@@ -42,8 +42,9 @@ WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'ammo_max': 24,
                      'bullet_count': 1,
                      'detect_radius': 400,
-                     'offset': Vector(25, -15),
-                     'img_size': Vector(TILESIZE, TILESIZE)
+                     'offset': Vector(35, -11),
+                     'img_size': Vector(TILESIZE, TILESIZE),
+                     'img_offset': Vector(5, 5)
                      }
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
@@ -57,21 +58,23 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'ammo_max': 16,
                      'bullet_count': 20,
                      'detect_radius': 400,
-                     'offset': Vector(35, -15),
-                     'img_size': Vector(TILESIZE * 1.2, TILESIZE)
+                     'offset': Vector(47, -11),
+                     'img_size': Vector(TILESIZE * 1.2, TILESIZE),
+                     'img_offset': Vector(10, 5)
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'bullet_distance': 800,
                      'rate': 0.15,
                      'kickback': 500,
-                     'spread': [0, 0, 0, 5, 10, 7, 5, 3, 0, -3, -6, -10, -6, -4, 2, 0, 0, 0, 5, 10, 7, 5, 3, 0, -3, -6, -10, -6, -4, 2],
+                     'spread': [0, 1, -2, 5, 10, 7, 5, 3, 0, -3, -6, -10, -6, -4, 2, 0, 0, 0, 5, 10, 7, 5, 3, 0, -3, -6, -10, -6, -4, 2],
                      'damage': 20,
                      'bullet_size': 0.010,
                      'ammo_clip': 30,
                      'ammo_max': 60,
                      'bullet_count': 1,
                      'detect_radius': 600,
-                     'offset': Vector(32, -15),
-                     'img_size': Vector(TILESIZE * 1.2, TILESIZE)
+                     'offset': Vector(47, -11),
+                     'img_size': Vector(TILESIZE * 1.2, TILESIZE),
+                     'img_offset': Vector(10, 5)
                     }

@@ -53,7 +53,7 @@ class Weapon:
         self.spray_num = 0
 
     def reload(self):
-        if self.extra_ammo > 0 and self.ammo_in_mag != self.max_ammo_in_mag:
+        if self.extra_ammo > 0 and self.ammo_in_mag != self.max_ammo_in_mag and self.fired is False:
             if self.type != "shotgun":
                 a = self.max_ammo_in_mag - self.ammo_in_mag
 
