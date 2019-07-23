@@ -48,9 +48,11 @@ class Weapon:
         self.fired = False
 
         self.spray_num = 0
+
+        self.recovery_time = 0
+
     def reset(self):
         self.fired = False
-        self.spray_num = 0
 
     def reload(self):
         if self.extra_ammo > 0 and self.ammo_in_mag != self.max_ammo_in_mag and self.fired is False:
@@ -97,6 +99,15 @@ class Weapon:
 
             self.fired = True
 
+    def update(self, dt):
+        if self.type == "auto":
+            if self.recovery_time >= WEAPONS[self.name]["recovery_time"]:
+                self.spray_num = 0
+                self.recovery_time = 0
+
+            else:
+                self.recovery_time += dt
+
 class Animation(pyglet.sprite.Sprite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -108,28 +119,98 @@ class Animation(pyglet.sprite.Sprite):
         self.deleted = True
 
 class Grenade:
-    def __init__(self, pos, vel, rot, game):
+    def __init__(self, game, type):
+        self.game = game
+
+        self.type = type
+
+        self.explode = False
+
+        self.tossed = False
+
+        self.duration = 0
+        self.opacity = 255
+
+    def throw(self, pos, vel, rot):
         self.pos = pos
         self.vel = vel.rotate(-rot)
         self.slow = GRENADE_SLOWDOWN.copy().rotate(-rot)
 
-        self.game = game
+        if self.type == "grenade":
+            self.sprite = Sprite(self.game.granade_img, pos.x, pos.y, batch=self.game.main_batch)
 
-        self.sprite = Sprite(game.granade_img, pos.x, pos.y, batch=game.main_batch)
+        elif self.type == "smoke":
+            self.sprite = Sprite(self.game.smoke_img, pos.x, pos.y, batch=self.game.main_batch)
+
         self.sprite.image.anchor_x = self.sprite.width / 2
         self.sprite.image.anchor_y = self.sprite.height / 2
 
         self.explode_sprite = None
 
-        self.explode = False
+        self.hit_box = GRENADE_HIT_BOX.copy()
+        self.hit_box.x = pos.x - self.hit_box.width / 2
+        self.hit_box.y = pos.y - self.hit_box.height / 2
+
+        self.tossed = True
+
+        self.game.grenades.append(self)
+
+    def collide_with_walls(self, dir):
+        if dir == "x":
+            for wall in self.game.walls:
+                if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
+                    if wall.center.x > self.hit_box.get_center().x:
+                        self.hit_box.x = wall.pos.x - self.hit_box.width
+
+                    elif wall.center.x < self.hit_box.get_center().x:
+                        self.hit_box.x = wall.pos.x + wall.width
+
+                    self.vel.x = -self.vel.x
+                    self.slow.x = -self.slow.x
+
+        elif dir == "y":
+            for wall in self.game.walls:
+                if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
+                    if wall.center.y > self.hit_box.get_center().y:
+                        self.hit_box.y = wall.pos.y - self.hit_box.height
+
+                    elif wall.center.y < self.hit_box.get_center().y:
+                        self.hit_box.y = wall.pos.y + wall.height
+
+                    self.vel.y = -self.vel.y
+                    self.slow.y = -self.slow.y
+
+    def draw_hit_box(self):
+        glBegin(GL_LINES)
+
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y + self.hit_box.height))
+
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y + self.hit_box.height))
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y + self.hit_box.height))
+
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y + self.hit_box.height))
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y))
+
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y))
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
+
+        glEnd()
 
     def update(self, dt):
-        if not self.vel.magnitude() <= 4:
+        if not self.vel.magnitude() <= 4 and self.tossed:
             self.vel.x -= self.slow.x * dt
             self.vel.y -= self.slow.y * dt
 
-            self.pos.x += self.vel.x * dt
-            self.pos.y += self.vel.y * dt
+            # check hit box collisions
+            self.hit_box.x += self.vel.x * dt
+            self.collide_with_walls("x")
+
+            self.hit_box.y += self.vel.y * dt
+            self.collide_with_walls("y")
+
+            self.pos.x = self.hit_box.x + self.hit_box.width / 2
+            self.pos.y = self.hit_box.y + self.hit_box.height / 2
 
             self.sprite.x = self.pos.x
             self.sprite.y = self.pos.y
@@ -140,10 +221,29 @@ class Grenade:
 
                 self.vel.multiply(0)
                 self.explode = True
-                self.explode_sprite = Animation(self.game.explosion_anim, self.pos.x, self.pos.y, batch=self.game.effects_batch)
+                if self.type == "grenade":
+                    self.explode_sprite = Animation(self.game.explosion_anim, self.pos.x, self.pos.y, batch=self.game.effects_batch)
+
+                elif self.type == "smoke":
+                    self.explode_sprite = Animation(self.game.smoke, self.pos.x, self.pos.y, batch=self.game.effects_batch)
+
+                    self.duration = SMOKE_DURATION
 
                 self.explode_sprite.x = self.pos.x - self.explode_sprite.width / 2
                 self.explode_sprite.y = self.pos.y - self.explode_sprite.height / 2
+
+        if self.type == "smoke" and self.explode is True:
+            if self.duration <= 0:
+                if self.opacity <= 0:
+                    self.explode_sprite.deleted = True
+
+                self.explode_sprite.opacity = self.opacity
+                if self.opacity > 0:
+                    self.opacity -= int(300 * dt)
+
+            else:
+                self.duration -= dt
+
 
 class MuzzleFlash:
     def __init__(self, pos, rot, game):

@@ -27,6 +27,22 @@ GRENADE_IMG = "grenade.png"
 GRENADE_SIZE = Vector(30, 30)
 GRENADE_STARTING_VEL = Vector(400, 0)
 GRENADE_SLOWDOWN = Vector(200, 0)
+GRENADE_HIT_BOX = Rect(0, 0, GRENADE_SIZE.x * 0.6, GRENADE_SIZE.y * 0.6)
+
+GRENADE_LOGO = "grenade_logo.png"
+
+EXPLOSION_IMG = "explosion.png"
+EXPLOSION_DURATION = 0.01
+
+SMOKE_GRENADE_IMG = "smoke_grenade.png"
+SMOKE_GRENADE_SIZE = Vector(120, 60)
+
+SMOKE_IMG = "smoke.png"
+SMOKE_DURATION = 10
+SMOKE_SIZE = Vector(400, 350)
+
+SMOKE_LOGO = "smoke_logo.png"
+SMOKE_LOGO_SIZE = Vector()
 
 # Bullet
 BULLET_IMG = "bullet.png"
@@ -80,10 +96,11 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'damage': 20,
                      'bullet_size': 0.010,
                      'ammo_clip': 30,
-                     'ammo_max': 60,
+                     'ammo_max': 90,
                      'bullet_count': 1,
                      'detect_radius': 600,
                      'offset': Vector(47, -11),
                      'img_size': Vector(TILESIZE * 1.2, TILESIZE),
-                     'img_offset': Vector(10, 5)
+                     'img_offset': Vector(10, 5),
+                     'recovery_time': 1
                     }

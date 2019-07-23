@@ -13,6 +13,9 @@ class Rect:
     def get_center(self):
         return Vector(self.x + self.width / 2, self.y + self.height / 2)
 
+    def copy(self):
+        return Rect(self.x, self.y, self.width, self.height)
+
 class Vector:
     def __init__(self, x, y):
         self.x = x

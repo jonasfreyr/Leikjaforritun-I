@@ -45,10 +45,13 @@ class Game(pyglet.window.Window):
             self.player.weapon.reload()
 
         elif symbol == key.G:
-            self.grenades.append(Grenade(Vector(self.player.pos.x, self.player.pos.y), GRENADE_STARTING_VEL + self.player.vel * Vector(self.dt, self.dt), self.player.rot, self))
+            self.player.throw(self.dt)
 
     def on_key_release(self, symbol, modifiers):
         self.keys[symbol] = False
+
+        if symbol == key.SPACE:
+            self.new()
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         self.mouse.update(dx, dy)
@@ -105,9 +108,22 @@ class Game(pyglet.window.Window):
         texture.width = GRENADE_SIZE.x
         texture.height = GRENADE_SIZE.y
 
-        explosion = preload_img("explosion.png")
+        explosion = preload_img(EXPLOSION_IMG)
         explosion_seq = pyglet.image.ImageGrid(explosion, 4, 5, item_width=96, item_height=96)
-        self.explosion_anim = pyglet.image.Animation.from_image_sequence(explosion_seq[0:], 0.01, loop=False)
+        self.explosion_anim = pyglet.image.Animation.from_image_sequence(explosion_seq[0:], EXPLOSION_DURATION, loop=False)
+
+        self.smoke_img = preload_img(SMOKE_GRENADE_IMG)
+        texture = self.smoke_img.get_texture()
+        texture.width = SMOKE_GRENADE_SIZE.x
+        texture.height = SMOKE_GRENADE_SIZE.y
+
+        self.smoke = preload_img(SMOKE_IMG)
+        texture = self.smoke.get_texture()
+        texture.width = SMOKE_SIZE.x
+        texture.height = SMOKE_SIZE.y
+
+        # smoke_seq = pyglet.image.ImageGrid(smoke, 6, 12, item_width=341, item_height=280)
+        # self.smoke_anim = pyglet.image.Animation.from_image_sequence(smoke_seq[0:], SMOKE_DURATION, loop=False)
 
     def new(self):
         self.main_batch = pyglet.graphics.Batch()
@@ -145,12 +161,15 @@ class Game(pyglet.window.Window):
         l.font_size = FONT_SIZE
         self.hud_labels.append(AmmoText(self, l))
 
+        # Grenades Logos
+        self.grenade_logo = preload_img(GRENADE_LOGO)
+
         self.target = self.player
 
     def update(self, dt):
         # print(len(self.bullets))
         # print(len(self.effects))
-        print(len(self.grenades))
+        # print(len(self.grenades))
 
         self.dt = dt
 
@@ -212,6 +231,9 @@ class Game(pyglet.window.Window):
 
         for wall in self.walls:
             wall.draw()
+
+        for grenade in self.grenades:
+            grenade.draw_hit_box()
 
         pyglet.gl.glPopMatrix()
 

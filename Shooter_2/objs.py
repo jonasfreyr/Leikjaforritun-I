@@ -5,7 +5,7 @@ from pyglet.gl import *
 from pyglet.sprite import Sprite
 # import pygame as pg
 import math
-from weapons import Weapon
+from weapons import *
 
 class Player:
     def __init__(self, x, y, sprite, game, weapon):
@@ -17,6 +17,10 @@ class Player:
         self.game = game
 
         self.weapon = Weapon(weapon)
+        self.sec_weapon = Weapon("pistol")
+
+        self.grenades = [Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke")]
+        self.grenade_num = 0
 
         self.last_shot = 0
 
@@ -36,6 +40,13 @@ class Player:
 
     def get_rotation(self, point1, point2):
         return math.degrees(math.atan2(point1.x - point2.x, point1.y - point2.y))
+
+    def throw(self, dt):
+        if len(self.grenades) > 0:
+            self.grenades[self.grenade_num].throw(Vector(self.pos.x, self.pos.y), GRENADE_STARTING_VEL + self.vel * Vector(dt, dt), self.rot)
+            self.grenades.remove(self.grenades[self.grenade_num])
+
+            self.grenade_num = 0
 
     def shoot(self):
         if self.last_shot <= 0:
@@ -122,6 +133,9 @@ class Player:
 
         self.sprite.x = self.hit_box.get_center().x
         self.sprite.y = self.hit_box.get_center().y
+
+        self.weapon.update(dt)
+
 
     def draw_hit_box(self):
         glBegin(GL_LINES)
