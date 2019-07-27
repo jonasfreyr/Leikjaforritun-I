@@ -204,8 +204,9 @@ class Game(pyglet.window.Window):
             data = conn.recv(262144).decode()
 
             data = eval(data)
-
+            i_ids = []
             for ids in data:
+                i_ids.append(ids)
                 for player in self.o_players:
                     if ids == player.id:
                         player.rot = data[ids]["player"]["rot"]
@@ -216,11 +217,18 @@ class Game(pyglet.window.Window):
                 else:
                     self.o_players.append(Oplayers(ids, Vector(data[ids]["player"]["pos"]["x"], data[ids]["player"]["pos"]["x"]), data[ids]["player"]["rot"], data[ids]["player"]["weapon"], self))
 
+
+            for player in self.o_players:
+                if player.id not in i_ids:
+                    self.o_players.remove(player)
+
+
+
     def update(self, dt):
         # print(len(self.bullets))
         # print(len(self.effects))
         # print(len(self.grenades))
-        print(len(self.o_players))
+        # print(len(self.o_players))
         self.hud_logos = []
         smoke_pos = SMOKE_LOGO_POS + SMOKE_LOGO_PADDING
         grenade_pos = GRENADE_LOGO_POS + GRENADE_LOGO_PADDING

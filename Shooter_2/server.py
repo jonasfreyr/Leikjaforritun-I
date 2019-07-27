@@ -35,8 +35,6 @@ def new_client(conn, addr, id):
 
             conn.sendall(str(temp).encode())
 
-            print("-----------")
-
         except:
             print("fd")
             conns.remove(conn)
