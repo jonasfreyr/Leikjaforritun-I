@@ -9,6 +9,9 @@ TILESIZE = 64
 
 MAP = "map1.tmx"
 
+HOST = '127.0.0.1'
+PORT = 65432
+
 # Hud
 FONT_SIZE = 30
 
@@ -30,6 +33,9 @@ GRENADE_SLOWDOWN = Vector(200, 0)
 GRENADE_HIT_BOX = Rect(0, 0, GRENADE_SIZE.x * 0.6, GRENADE_SIZE.y * 0.6)
 
 GRENADE_LOGO = "grenade_logo.png"
+GRENADE_LOGO_SIZE = Vector(50, 50)
+GRENADE_LOGO_POS = Vector(WINDOW_WIDTH, FONT_SIZE)
+GRENADE_LOGO_PADDING = Vector(-5, 5)
 
 EXPLOSION_IMG = "explosion.png"
 EXPLOSION_DURATION = 0.01
@@ -42,12 +48,30 @@ SMOKE_DURATION = 10
 SMOKE_SIZE = Vector(400, 350)
 
 SMOKE_LOGO = "smoke_logo.png"
-SMOKE_LOGO_SIZE = Vector()
+SMOKE_LOGO_SIZE = Vector(50, 50)
+SMOKE_LOGO_POS = Vector(WINDOW_WIDTH, FONT_SIZE * 2)
+SMOKE_LOGO_PADDING = Vector(-5, 5)
 
 # Bullet
 BULLET_IMG = "bullet.png"
 
 # Weapon
+LOGOS = {"rifle": "ak47_logo.png"}
+LOGO_SIZE = {"rifle": Vector(200, 50)}
+LOGO_POS = {"rifle": Vector(-300, 0)}
+
+AK47_LOGO = "ak47_logo.png"
+AK47_LOGO_SIZE = Vector(140, 40)
+AK47_LOGO_POS = Vector(WINDOW_WIDTH -130, 0)
+
+PISTOL_LOGO = "pistol_logo.png"
+PISTOL_LOGO_SIZE = Vector(70, 40)
+PISTOL_LOGO_POS = Vector(WINDOW_WIDTH -130, 0)
+
+SHOTGUN_LOGO = "shotgun_logo.png"
+SHOTGUN_LOGO_SIZE = Vector(170, 110)
+SHOTGUN_LOGO_POS = Vector(WINDOW_WIDTH -100, -25)
+
 MUZZLE_FLASH_IMG = "muzzleFlash.png"
 MUZZLE_FLASH_LIFESPAWN = 0.05
 MUZZLE_FLASH_SIZE = Vector(80, 40)
@@ -58,7 +82,7 @@ WEAPONS_TYPES = {"shotgun": "shotgun", "rifle": "auto", "pistol": "semi-auto"}
 WEAPONS = {}
 WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'bullet_distance': 420,
-                     'rate': 1,
+                     'rate': 0.5,
                      'kickback': 200,
                      'spread': 2,
                      'damage': 15,

@@ -6,6 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import Grenade
+import _thread, socket
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -16,14 +17,11 @@ class Game(pyglet.window.Window):
         pyglet.clock.schedule_interval(self.update, self.frame_rate)
         pyglet.clock.set_fps_limit(FPS)
 
-        self.set_location(30, 500)
+        self.set_location(1000, 500)
 
         self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
 
-        self.load()
-        self.new()
-
-        self.set_exclusive_mouse(True)
+        # self.set_exclusive_mouse(True)
 
         self.mouse_down = False
 
@@ -52,6 +50,9 @@ class Game(pyglet.window.Window):
 
         if symbol == key.SPACE:
             self.new()
+
+        elif symbol == key.Q:
+            self.player.switch()
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         self.mouse.update(dx, dy)
@@ -125,11 +126,43 @@ class Game(pyglet.window.Window):
         # smoke_seq = pyglet.image.ImageGrid(smoke, 6, 12, item_width=341, item_height=280)
         # self.smoke_anim = pyglet.image.Animation.from_image_sequence(smoke_seq[0:], SMOKE_DURATION, loop=False)
 
+        # Grenades Logos
+        self.grenade_logo = preload_img(GRENADE_LOGO)
+        texture = self.grenade_logo.get_texture()
+        texture.width = GRENADE_LOGO_SIZE.x
+        texture.height = GRENADE_LOGO_SIZE.y
+
+        self.smoke_logo = preload_img(SMOKE_LOGO)
+        texture = self.smoke_logo.get_texture()
+        texture.width = SMOKE_LOGO_SIZE.x
+        texture.height = SMOKE_LOGO_SIZE.y
+
+
+        self.ak47_logo = preload_img(AK47_LOGO)
+        texture = self.ak47_logo.get_texture()
+        texture.width = AK47_LOGO_SIZE.x
+        texture.height = AK47_LOGO_SIZE.y
+
+        self.pistol_logo = preload_img(PISTOL_LOGO)
+        texture = self.pistol_logo.get_texture()
+        texture.width = PISTOL_LOGO_SIZE.x
+        texture.height = PISTOL_LOGO_SIZE.y
+
+        self.shotgun_logo = preload_img(SHOTGUN_LOGO)
+        texture = self.shotgun_logo.get_texture()
+        texture.width = SHOTGUN_LOGO_SIZE.x
+        texture.height = SHOTGUN_LOGO_SIZE.y
+
+        _thread.start_new_thread(self.receive_data, (s, 2))
+        self.s = s
+
     def new(self):
         self.main_batch = pyglet.graphics.Batch()
         self.bullet_batch = pyglet.graphics.Batch()
         self.effects_batch = pyglet.graphics.Batch()
         self.hud_batch = pyglet.graphics.Batch()
+        self.hud_logo_batch = pyglet.graphics.Batch()
+        self.o_players_batch = pyglet.graphics.Batch()
 
         self.map = TiledRenderer(path.join(self.map_folder, MAP))
 
@@ -137,6 +170,8 @@ class Game(pyglet.window.Window):
         self.walls = []
         self.effects = []
         self.grenades = []
+        self.o_players = []
+        self.weapon_logos = {}
 
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
@@ -146,7 +181,7 @@ class Game(pyglet.window.Window):
                 self.walls.append(Wall(tile_object.x, pos.y - tile_object.height / 2, tile_object.width, tile_object.height))
 
             elif tile_object.name == "Player":
-                self.player = Player(pos.x, pos.y, Sprite(self.player_images[tile_object.type]), self, tile_object.type)
+                self.player = Player(pos.x, pos.y, self, tile_object.type)
 
         self.bullets = []
 
@@ -154,22 +189,61 @@ class Game(pyglet.window.Window):
 
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
-        # Hud Labels
+        # self.hud_labels.append(Logo(SMOKE_LOGO_POS ,Sprite(self.smoke_logo, batch=self.hud_batch), self))
+
         #   Ammo Label
         l =  pyglet.text.Label("big lel", x=WINDOW_WIDTH, y=0, batch=self.hud_batch)
         l.anchor_x = "right"
         l.font_size = FONT_SIZE
         self.hud_labels.append(AmmoText(self, l))
 
-        # Grenades Logos
-        self.grenade_logo = preload_img(GRENADE_LOGO)
-
         self.target = self.player
+
+    def receive_data(self, conn, i):
+        while True:
+            data = conn.recv(262144).decode()
+
+            data = eval(data)
+
+            for ids in data:
+                for player in self.o_players:
+                    if ids == player.id:
+                        player.rot = data[ids]["player"]["rot"]
+                        player.pos.x = data[ids]["player"]["pos"]["x"]
+                        player.pos.y = data[ids]["player"]["pos"]["y"]
+                        break
+
+                else:
+                    self.o_players.append(Oplayers(ids, Vector(data[ids]["player"]["pos"]["x"], data[ids]["player"]["pos"]["x"]), data[ids]["player"]["rot"], data[ids]["player"]["weapon"], self))
 
     def update(self, dt):
         # print(len(self.bullets))
         # print(len(self.effects))
         # print(len(self.grenades))
+        print(len(self.o_players))
+        self.hud_logos = []
+        smoke_pos = SMOKE_LOGO_POS + SMOKE_LOGO_PADDING
+        grenade_pos = GRENADE_LOGO_POS + GRENADE_LOGO_PADDING
+
+        for grenade in self.player.grenades:
+            if grenade.type == "grenade":
+                self.hud_logos.append(Logo(grenade_pos, Sprite(self.grenade_logo, batch=self.hud_batch), self))
+
+                grenade_pos.x = grenade_pos.x - GRENADE_LOGO_SIZE.x
+
+            elif grenade.type == "smoke":
+                self.hud_logos.append(Logo(smoke_pos, Sprite(self.smoke_logo, batch=self.hud_batch), self))
+
+                smoke_pos.x = smoke_pos.x - SMOKE_LOGO_SIZE.x
+
+        if self.player.weapon.name == "rifle":
+            self.hud_logos.append(Logo(AK47_LOGO_POS, Sprite(self.ak47_logo, batch=self.hud_batch), self))
+
+        elif self.player.weapon.name == "pistol":
+            self.hud_logos.append(Logo(PISTOL_LOGO_POS, Sprite(self.pistol_logo, batch=self.hud_batch), self))
+
+        elif self.player.weapon.name == "shotgun":
+            self.hud_logos.append(Logo(SHOTGUN_LOGO_POS, Sprite(self.shotgun_logo, batch=self.hud_batch), self))
 
         self.dt = dt
 
@@ -216,6 +290,12 @@ class Game(pyglet.window.Window):
 
         self.player.update(dt)
 
+        for player in self.o_players:
+            player.update()
+
+        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name}}
+        self.s.sendall(str(data).encode())
+
     def on_draw(self):
         pyglet.clock.tick()
 
@@ -226,6 +306,8 @@ class Game(pyglet.window.Window):
         self.map.draw()
         self.main_batch.draw()
         self.player.draw()
+        for player in self.o_players:
+            player.sprite.draw()
         self.bullet_batch.draw()
         self.effects_batch.draw()
 
@@ -244,7 +326,13 @@ class Game(pyglet.window.Window):
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 
 
-pyglet.app.run()
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+
+    g.load()
+    g.new()
+
+    pyglet.app.run()
 
 
 

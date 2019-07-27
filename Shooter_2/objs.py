@@ -7,8 +7,34 @@ from pyglet.sprite import Sprite
 import math
 from weapons import *
 
+class Oplayers:
+    def __init__(self, id, pos, rot, weapon, game):
+        self.id = id
+
+        self.pos = pos
+
+        self.rot = rot
+
+        self.weapon = weapon
+
+        self.sprite = Sprite(game.player_images[weapon])
+        self.width = self.sprite.width
+        self.height = self.sprite.height
+
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[weapon]['img_offset'].x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[weapon]['img_offset'].y
+
+    def update(self):
+        self.sprite.update(rotation=self.rot)
+
+        self.sprite.x = self.pos.x
+        self.sprite.y = self.pos.y
+
+        # print(self.pos)
+
+
 class Player:
-    def __init__(self, x, y, sprite, game, weapon):
+    def __init__(self, x, y, game, weapon):
         self.pos = Vector(x, y)
         self.vel = Vector(x, y)
 
@@ -17,7 +43,7 @@ class Player:
         self.game = game
 
         self.weapon = Weapon(weapon)
-        self.sec_weapon = Weapon("pistol")
+        self.other_weapon = Weapon("pistol")
 
         self.grenades = [Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke")]
         self.grenade_num = 0
@@ -30,13 +56,27 @@ class Player:
 
         self.o = None
 
-        if sprite is not None:
-            self.sprite = sprite
-            self.width = self.sprite.width
-            self.height = self.sprite.height
+        self.main_weap_bool = True
+
+        self.sprite = Sprite(game.player_images[weapon])
+        self.width = self.sprite.width
+        self.height = self.sprite.height
 
         self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[weapon]['img_offset'].x
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[weapon]['img_offset'].y
+
+    def switch(self):
+        s = self.weapon
+        self.weapon = self.other_weapon
+        self.other_weapon = s
+
+        self.sprite = Sprite(self.game.player_images[self.weapon.name])
+        self.width = self.sprite.width
+        self.height = self.sprite.height
+
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapon.name]['img_offset'].x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapon.name]['img_offset'].y
+
 
     def get_rotation(self, point1, point2):
         return math.degrees(math.atan2(point1.x - point2.x, point1.y - point2.y))
