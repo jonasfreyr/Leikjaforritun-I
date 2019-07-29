@@ -5,7 +5,7 @@ from objs import *
 from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
-from weapons import Grenade
+from weapons import *
 import _thread, socket
 
 class Game(pyglet.window.Window):
@@ -29,7 +29,6 @@ class Game(pyglet.window.Window):
         """
         When a key is pressed on
         the keyboard.
-
         :param symbol:
         :param modifiers:
         :return: None
@@ -172,6 +171,10 @@ class Game(pyglet.window.Window):
         self.grenades = []
         self.o_players = []
         self.weapon_logos = {}
+        self.o_bullets = []
+        self.new_bullets = []
+        self.new_grenades = []
+        self.o_grenades = []
 
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
@@ -205,23 +208,29 @@ class Game(pyglet.window.Window):
 
             data = eval(data)
             i_ids = []
-            for ids in data:
+            for ids in data["players"]:
                 i_ids.append(ids)
                 for player in self.o_players:
                     if ids == player.id:
-                        player.rot = data[ids]["player"]["rot"]
-                        player.pos.x = data[ids]["player"]["pos"]["x"]
-                        player.pos.y = data[ids]["player"]["pos"]["y"]
+                        player.rot = data["players"][ids]["rot"]
+                        player.pos.x = data["players"][ids]["pos"]["x"]
+                        player.pos.y = data["players"][ids]["pos"]["y"]
+                        player.weapon = data["players"][ids]["weapon"]
                         break
 
                 else:
-                    self.o_players.append(Oplayers(ids, Vector(data[ids]["player"]["pos"]["x"], data[ids]["player"]["pos"]["x"]), data[ids]["player"]["rot"], data[ids]["player"]["weapon"], self))
+                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
+
+                for bullet in data["bullets"][ids]:
+                    self.new_bullets.append(bullet)
+
+                for grenade in data["grenades"][ids]:
+                    self.new_grenades.append(grenade)
 
 
             for player in self.o_players:
                 if player.id not in i_ids:
                     self.o_players.remove(player)
-
 
 
     def update(self, dt):
@@ -298,10 +307,31 @@ class Game(pyglet.window.Window):
 
         self.player.update(dt)
 
+        for bullet in self.new_bullets:
+            self.bullets.append(Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], self.bullet_img, bullet["weapon"], self, False))
+            self.effects.append(MuzzleFlash(Vector(bullet["pos"]["x"], bullet["pos"]["y"]), bullet["rot"], self))
+
+        self.new_bullets = []
+
+        for grenade in self.new_grenades:
+            Grenade(self, grenade["type"]).throw(Vector(grenade["pos"]["x"], grenade["pos"]["y"]), Vector(grenade["vel"]["x"], grenade["vel"]["y"]), grenade["rot"], True)
+
+        self.new_grenades = []
+
         for player in self.o_players:
             player.update()
 
-        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name}}
+        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name}, "bullets": [], "grenades": []}
+        for bullet in self.o_bullets:
+            data["bullets"].append(bullet)
+
+        self.o_bullets = []
+
+        for grenade in self.o_grenades:
+            data["grenades"].append(grenade)
+
+        self.o_grenades = []
+
         self.s.sendall(str(data).encode())
 
     def on_draw(self):
@@ -341,58 +371,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     g.new()
 
     pyglet.app.run()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

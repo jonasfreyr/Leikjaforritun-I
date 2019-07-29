@@ -8,6 +8,7 @@ conns = []
 players = {}
 bullets = {}
 grenades = {}
+new_bullets = []
 
 id = 1
 
@@ -19,7 +20,9 @@ def new_client(conn, addr, id):
 
             data = eval(data)
 
-            players[id] = data
+            players[id] = data["player"]
+            bullets[id] = data["bullets"]
+            grenades[id] = data["grenades"]
 
         except:
             print("Connection ended with:", addr)
@@ -29,11 +32,16 @@ def new_client(conn, addr, id):
 
         try:
             temp = dict(players)
+            tempB = dict(bullets)
+            tempG = dict(grenades)
 
             del temp[id]
+            del tempB[id]
+            del tempG[id]
 
+            d = {"players": temp, "bullets": tempB, "grenades": tempG}
 
-            conn.sendall(str(temp).encode())
+            conn.sendall(str(d).encode())
 
         except:
             print("fd")

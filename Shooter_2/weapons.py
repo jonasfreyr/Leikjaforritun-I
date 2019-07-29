@@ -4,7 +4,7 @@ import random
 from pyglet.gl import *
 
 class Bullet:
-    def __init__(self, x, y, rot, img, weapon, game):
+    def __init__(self, x, y, rot, img, weapon, game, main=True):
         self.o_pos = Vector(x, y)
         self.pos = Vector(x, y)
         self.vector = Vector(WEAPONS[weapon]["bullet_speed"], 0).rotate(-rot)
@@ -17,6 +17,9 @@ class Bullet:
         self.sprite.image.anchor_y = self.sprite.image.height / 2
 
         self.distance = 0
+
+        if main:
+            game.o_bullets.append({"rot": rot, "pos": {"x": x, "y": y}, "weapon": weapon})
 
     def check(self, game):
         for wall in game.walls:
@@ -131,7 +134,7 @@ class Grenade:
         self.duration = 0
         self.opacity = 255
 
-    def throw(self, pos, vel, rot):
+    def throw(self, pos, vel, rot, o=False):
         self.pos = pos
         self.vel = vel.rotate(-rot)
         self.slow = GRENADE_SLOWDOWN.copy().rotate(-rot)
@@ -154,6 +157,9 @@ class Grenade:
         self.tossed = True
 
         self.game.grenades.append(self)
+
+        if o is False:
+            self.game.o_grenades.append({"pos": {"x": pos.x, "y": pos.y}, "vel": {"x": vel.x, "y": vel.y}, "rot": rot, "type": self.type})
 
     def collide_with_walls(self, dir):
         if dir == "x":
