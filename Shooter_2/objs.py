@@ -41,7 +41,6 @@ class Oplayers:
 
         # print(self.pos)
 
-
 class Player:
     def __init__(self, x, y, game, weapon):
         self.pos = Vector(x, y)

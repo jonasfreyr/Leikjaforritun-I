@@ -208,6 +208,7 @@ class Game(pyglet.window.Window):
 
             data = eval(data)
             i_ids = []
+            print(data)
             for ids in data["players"]:
                 i_ids.append(ids)
                 for player in self.o_players:
