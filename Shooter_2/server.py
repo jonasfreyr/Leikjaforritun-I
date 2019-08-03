@@ -1,14 +1,14 @@
 import _thread, socket
+from settings import *
 
-HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
+HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
 
-conns = []
+conns = {}
 
 players = {}
 bullets = {}
 grenades = {}
-new_bullets = []
 
 id = 1
 
@@ -27,7 +27,7 @@ class Ui_server_window(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.textBrowser.setGeometry(QtCore.QRect(80, 70, 331, 481))
+        self.textBrowser.setGeometry(QtCore.QRect(80, 70, 331, 451))
         self.textBrowser.setObjectName("textBrowser")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(180, 20, 101, 41))
@@ -44,6 +44,9 @@ class Ui_server_window(object):
         self.listWidget = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget.setGeometry(QtCore.QRect(480, 70, 256, 481))
         self.listWidget.setObjectName("listWidget")
+        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit.setGeometry(QtCore.QRect(80, 530, 331, 20))
+        self.lineEdit.setObjectName("lineEdit")
         server_window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(server_window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -56,12 +59,23 @@ class Ui_server_window(object):
         self.retranslateUi(server_window)
         QtCore.QMetaObject.connectSlotsByName(server_window)
 
+        self.lineEdit.returnPressed.connect(self.command)
+
     def retranslateUi(self, server_window):
         _translate = QtCore.QCoreApplication.translate
         server_window.setWindowTitle(_translate("server_window", "MainWindow"))
         self.label.setText(_translate("server_window", "Server"))
         self.label_2.setText(_translate("server_window", "Output"))
         self.label_3.setText(_translate("server_window", "Users"))
+
+    def command(self):
+        text = self.lineEdit.text()
+        self.lineEdit.clear()
+
+        text = text.split(" ")
+
+        if text[0] == "dc":
+            remove_user(int(text[1]))
 
     def update_output(self, data):
         self.textBrowser.append(data)
@@ -74,12 +88,48 @@ class Ui_server_window(object):
     def update_user(self, id):
         self.listWidget.addItem(str(id))
 
+def remove_user(id):
+    del conns[id]
+    del players[id]
+    del bullets[id]
+    del grenades[id]
+    ui.remove_user()
+
+def check(id):
+    rect = PLAYER_HIT_BOX.copy()
+    rect.x = players[id]["pos"]["x"]
+    rect.y = players[id]["pos"]["y"]
+
+    try:
+        for ids in bullets:
+            for bullet in bullets[ids]:
+                if rect.x + rect.width > bullet["pos"]["x"] > rect.x and rect.y + rect.height > bullet["pos"]["y"] > rect.y:
+                    print("yay")
+
+    except:
+        pass
+
+def update():
+    while True:
+        try:
+            for id in players:
+                #check(id)
+                pass
+        except:
+            pass
+
 def new_client(conn, addr, id):
     # print("Connection started with:", addr)
     msg = "Connection started with:" + str(addr) + " id: " + str(id)
     ui.update_output(msg)
     while True:
         try:
+            if id not in conns:
+                conn.sendall(b"dc")
+                msg = "Connection ended with:" + str(addr) + " id: " + str(id)
+                ui.update_output(msg)
+                break
+
             data = conn.recv(262144).decode()
 
             data = eval(data)
@@ -91,35 +141,28 @@ def new_client(conn, addr, id):
         except:
             msg = "Connection ended with:" + str(addr) + " id: " + str(id)
             ui.update_output(msg)
-
-            conns.remove(conn)
-            del players[id]
-            del bullets[id]
-            del grenades[id]
-            ui.remove_user()
+            remove_user(id)
             break
 
-        try:
-            temp = dict(players)
-            tempB = dict(bullets)
-            tempG = dict(grenades)
 
-            del temp[id]
-            del tempB[id]
-            del tempG[id]
+        temp = dict(players)
+        tempB = dict(bullets)
+        tempG = dict(grenades)
 
-            d = {"players": temp, "bullets": tempB, "grenades": tempG}
+        del temp[id]
+        del tempB[id]
+        del tempG[id]
 
-            conn.sendall(str(d).encode())
+        d = {"players": temp, "bullets": tempB, "grenades": tempG}
 
-        except:
-            print("Connection ended with:", addr)
-            conns.remove(conn)
-            del players[id]
-            del bullets[id]
-            del grenades[id]
-            break
+        conn.sendall(str(d).encode())
 
+        '''
+        msg = "Connection ended with:" + str(addr) + " id: " + str(id)
+        ui.update_output(msg)
+        remove_user(id)
+        break
+        '''
 def socket_func():
     global id
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -130,7 +173,7 @@ def socket_func():
         while True:
             conn, addr = s.accept()
 
-            conns.append(conn)
+            conns[id] = conn
 
             ui.update_user(id)
             _thread.start_new_thread(new_client, (conn, addr, id))
@@ -143,6 +186,7 @@ if __name__ == "__main__":
     server_window = QtWidgets.QMainWindow()
     ui = Ui_server_window()
     _thread.start_new_thread(socket_func, ())
+    _thread.start_new_thread(update, ())
     ui.setupUi(server_window)
     server_window.show()
     sys.exit(app.exec_())

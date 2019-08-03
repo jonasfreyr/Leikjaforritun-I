@@ -66,6 +66,8 @@ class Player:
 
         self.main_weap_bool = True
 
+        self.health = PLAYER_HEALTH
+
         self.sprite = Sprite(game.player_images[weapon])
         self.width = self.sprite.width
         self.height = self.sprite.height

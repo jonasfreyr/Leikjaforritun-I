@@ -9,7 +9,7 @@ TILESIZE = 64
 
 MAP = "map1.tmx"
 
-HOST = '127.0.0.1'
+HOST = '192.168.1.188'
 PORT = 65432
 
 # Hud
@@ -19,6 +19,7 @@ FONT_SIZE = 30
 PLAYER_SPEED = 300
 PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
 PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
+PLAYER_HEALTH = 100
 
 # Crosshair
 CROSSHAIR_IMG = "crosshair.png"
