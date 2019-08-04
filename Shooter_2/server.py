@@ -1,5 +1,6 @@
 import _thread, socket
 from settings import *
+from vector import *
 
 HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
@@ -111,12 +112,11 @@ def check(id):
 
 def update():
     while True:
-        try:
-            for id in players:
-                #check(id)
-                pass
-        except:
+        for ids in players:
             pass
+
+        print(players)
+
 
 def new_client(conn, addr, id):
     # print("Connection started with:", addr)
