@@ -41,6 +41,10 @@ class Oplayers:
 
         # print(self.pos)
 
+    def check(self):
+        for bullet in self.game.bullets:
+            if self.pos.x + self.width > bullet.pos.x > self.pos.x and self.pos.y + self.height > bullet.pos.y > self.pos.y:
+
 class Player:
     def __init__(self, x, y, game, weapon):
         self.pos = Vector(x, y)

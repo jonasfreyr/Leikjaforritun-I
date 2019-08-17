@@ -179,6 +179,9 @@ class Game(pyglet.window.Window):
         self.new_grenades = []
         self.o_grenades = []
 
+        # self.s_bullets = []
+        # self.s_grenades = []
+
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
             pos.x = pos.x + tile_object.width / 2
@@ -216,7 +219,7 @@ class Game(pyglet.window.Window):
                     break
 
                 i_ids = []
-
+                # print(data)
                 for ids in data["players"]:
                     i_ids.append(ids)
                     for player in self.o_players:
@@ -230,26 +233,40 @@ class Game(pyglet.window.Window):
                     else:
                         self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
 
-                    for bullet in data["bullets"][ids]:
-                        self.new_bullets.append(bullet)
-
-                    for grenade in data["grenades"][ids]:
-                        self.new_grenades.append(grenade)
-
-
                 for player in self.o_players:
                     if player.id not in i_ids:
                         self.o_players.remove(player)
 
+                self.new_bullets = data["bullets"]
+                self.new_grenades = data["grenades"]
+
             except:
                 print("Cresh")
 
-
     def update(self, dt):
+        # print(self.o_bullets)
         # print(len(self.bullets))
         # print(len(self.effects))
         # print(len(self.grenades))
         # print(len(self.o_players))
+        # print(self.new_grenades)
+        self.bullets = []
+        for bullet in self.new_bullets:
+            self.bullets.append(O_Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], bullet["weapon"], self))
+
+        self.grenades = []
+        for grenade in self.new_grenades:
+            g = O_Grenade(grenade["pos"]["x"], grenade["pos"]["y"], grenade["type"], self)
+
+            if grenade["exploded"]:
+                g.explode()
+                if grenade["type"] == "smoke":
+                    g.sprite.opacity = grenade["opacity"]
+
+            self.grenades.append(g)
+
+        # print(self.bullets)
+
         self.hud_logos = []
         smoke_pos = SMOKE_LOGO_POS + SMOKE_LOGO_PADDING
         grenade_pos = GRENADE_LOGO_POS + GRENADE_LOGO_PADDING
@@ -297,20 +314,6 @@ class Game(pyglet.window.Window):
             self.player.vel.x += -PLAYER_SPEED
             # print("yay")
 
-        for bullet in self.bullets:
-            bullet.update(dt)
-
-            if bullet.distance > WEAPONS[bullet.weapon]["bullet_distance"] or bullet.check(self):
-                bullet.sprite.delete()
-                self.bullets.remove(bullet)
-
-        for grenade in self.grenades:
-            grenade.update(dt)
-
-            if grenade.explode_sprite is not None:
-                if grenade.explode_sprite.deleted:
-                    self.grenades.remove(grenade)
-
         for effect in self.effects:
             effect.update(dt)
 
@@ -318,17 +321,6 @@ class Game(pyglet.window.Window):
                 self.effects.remove(effect)
 
         self.player.update(dt)
-
-        for bullet in self.new_bullets:
-            self.bullets.append(Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], self.bullet_img, bullet["weapon"], self, False))
-            self.effects.append(MuzzleFlash(Vector(bullet["pos"]["x"], bullet["pos"]["y"]), bullet["rot"], self))
-
-        self.new_bullets = []
-
-        for grenade in self.new_grenades:
-            Grenade(self, grenade["type"]).throw(Vector(grenade["pos"]["x"], grenade["pos"]["y"]), Vector(grenade["vel"]["x"], grenade["vel"]["y"]), grenade["rot"], True)
-
-        self.new_grenades = []
 
         for player in self.o_players:
             player.update()
@@ -358,14 +350,13 @@ class Game(pyglet.window.Window):
         self.player.draw()
         for player in self.o_players:
             player.sprite.draw()
+
         self.bullet_batch.draw()
+
         self.effects_batch.draw()
 
         for wall in self.walls:
             wall.draw()
-
-        for grenade in self.grenades:
-            grenade.draw_hit_box()
 
         pyglet.gl.glPopMatrix()
 

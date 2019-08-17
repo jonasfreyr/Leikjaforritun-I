@@ -3,6 +3,54 @@ from pyglet.sprite import Sprite
 import random
 from pyglet.gl import *
 
+class O_Bullet:
+    def __init__(self, x, y, rot, weapon, game):
+        self.pos = Vector(x, y)
+
+        self.rot = rot
+
+        self.sprite = Sprite(game.bullet_img, x, y, batch=game.bullet_batch)
+        self.sprite.update(rotation=rot, scale=WEAPONS[weapon]["bullet_size"])
+        self.sprite.image.anchor_x = self.sprite.image.width / 2
+        self.sprite.image.anchor_y = self.sprite.image.height / 2
+
+class O_Grenade:
+    def __init__(self, x, y, type, game):
+        self.pos = Vector(x, y)
+        self.type = type
+        self.game = game
+
+        if type == "grenade":
+            self.sprite = Sprite(game.granade_img, x, y, batch=game.main_batch)
+
+        elif type == "smoke":
+            self.sprite = Sprite(game.smoke_img, x, y, batch=game.main_batch)
+
+        self.sprite.image.anchor_x = self.sprite.width / 2
+        self.sprite.image.anchor_y = self.sprite.height / 2
+
+        self.exploded = False
+        self.duration = 0
+        self.opacity = 255
+        self.explode_sprite = None
+
+    def explode(self):
+        self.exploded = True
+
+        if self.type == "grenade":
+            self.explode_sprite = Animation(self.game.explosion_anim, self.pos.x, self.pos.y,
+                                            batch=self.game.effects_batch)
+
+            self.explode_sprite.x = self.pos.x - self.explode_sprite.width / 2
+            self.explode_sprite.y = self.pos.y - self.explode_sprite.height / 2
+
+        elif self.type == "smoke":
+            self.sprite = Sprite(self.game.smoke, self.pos.x, self.pos.y, batch=self.game.effects_batch)
+
+            self.sprite.image.anchor_x = self.sprite.width / 2
+            self.sprite.image.anchor_y = self.sprite.height / 2
+
+
 class Bullet:
     def __init__(self, x, y, rot, img, weapon, game, main=True):
         self.o_pos = Vector(x, y)
@@ -17,6 +65,8 @@ class Bullet:
         self.sprite.image.anchor_y = self.sprite.image.height / 2
 
         self.distance = 0
+
+        self.rot = rot
 
         if main:
             game.o_bullets.append({"rot": rot, "pos": {"x": x, "y": y}, "weapon": weapon})
@@ -82,21 +132,24 @@ class Weapon:
                     self.spray_num = 0
 
                 spread = WEAPONS[self.name]["spread"][self.spray_num]
-                game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
+                # game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
+                game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
                 self.spray_num += 1
                 self.ammo_in_mag -= 1
                 game.effects.append(MuzzleFlash(pos, rot, game))
 
             elif self.type == "semi-auto" and self.fired is False:
                 spread = random.uniform(-WEAPONS[self.name]['spread'], WEAPONS[self.name]['spread'])
-                game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
+                # game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
+                game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
                 self.ammo_in_mag -= 1
                 game.effects.append(MuzzleFlash(pos, rot, game))
 
             elif self.type == "shotgun" and self.fired is False:
                 for a in range(WEAPONS[self.name]['bullet_count']):
                     spread = random.uniform(-WEAPONS[self.name]['spread'], WEAPONS[self.name]['spread'])
-                    game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
+                    # game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
+                    game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
                 self.ammo_in_mag -= 1
                 game.effects.append(MuzzleFlash(pos, rot, game))
 
@@ -134,6 +187,8 @@ class Grenade:
         self.duration = 0
         self.opacity = 255
 
+        self.sent = False
+
     def throw(self, pos, vel, rot, o=False):
         self.pos = pos
         self.vel = vel.rotate(-rot)
@@ -156,10 +211,10 @@ class Grenade:
 
         self.tossed = True
 
-        self.game.grenades.append(self)
+        if o is True:
+            self.game.grenades.append(self)
 
-        if o is False:
-            self.game.o_grenades.append({"pos": {"x": pos.x, "y": pos.y}, "vel": {"x": vel.x, "y": vel.y}, "rot": rot, "type": self.type})
+        self.game.o_grenades.append({"pos": {"x": pos.x, "y": pos.y}, "vel": {"x": vel.x, "y": vel.y}, "rot": rot, "type": self.type})
 
     def collide_with_walls(self, dir):
         if dir == "x":
