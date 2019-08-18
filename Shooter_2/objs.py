@@ -21,10 +21,17 @@ class Oplayers:
         self.width = self.sprite.width
         self.height = self.sprite.height
 
+        self.hit_box = PLAYER_HIT_BOX.copy()
+        self.hit_box.x = pos.x
+        self.hit_box.y = pos.y
+
         self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[weapon]['img_offset'].x
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[weapon]['img_offset'].y
 
         self.game = game
+
+        self.health = PLAYER_HEALTH
+        self.dead = False
 
     def update(self):
         self.sprite = Sprite(self.game.player_images[self.weapon])
@@ -39,11 +46,27 @@ class Oplayers:
         self.sprite.x = self.pos.x
         self.sprite.y = self.pos.y
 
+        self.hit_box.x = self.pos.x - self.hit_box.width / 2
+        self.hit_box.y = self.pos.y - self.hit_box.height / 2
+
         # print(self.pos)
 
-    def check(self):
-        for bullet in self.game.bullets:
-            if self.pos.x + self.width > bullet.pos.x > self.pos.x and self.pos.y + self.height > bullet.pos.y > self.pos.y:
+    def draw_hit_box(self):
+        glBegin(GL_LINES)
+
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y + self.hit_box.height))
+
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y + self.hit_box.height))
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y + self.hit_box.height))
+
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y + self.hit_box.height))
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y))
+
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y))
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
+
+        glEnd()
 
 class Player:
     def __init__(self, x, y, game, weapon):
@@ -62,11 +85,11 @@ class Player:
 
         self.last_shot = 0
 
-        self.hit_box = PLAYER_HIT_BOX
+        self.hit_box = PLAYER_HIT_BOX.copy()
         self.hit_box.x = x
         self.hit_box.y = y
 
-        self.o = None
+        self.o = Vector(self.pos.x, self.pos.y)
 
         self.main_weap_bool = True
 
@@ -95,7 +118,7 @@ class Player:
             self.grenade_num = 0
 
     def shoot(self):
-        if self.last_shot <= 0:
+        if self.last_shot <= 0 < self.health:
             rot = self.get_rotation(self.o, self.game.mouse.get_map_pos()) + 90
 
             self.weapon.shoot(self.o, rot, self.game)
@@ -130,27 +153,28 @@ class Player:
         self.rot = self.get_rotation(self.pos, self.game.mouse.get_map_pos()) + 90
 
     def collide_with_walls(self, dir):
-        if dir == "x":
-            for wall in self.game.walls:
-                if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
-                    if wall.center.x > self.hit_box.get_center().x:
-                        self.hit_box.x = wall.pos.x - self.hit_box.width
+        if self.health > 0:
+            if dir == "x":
+                for wall in self.game.walls:
+                    if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
+                        if wall.center.x > self.hit_box.get_center().x:
+                            self.hit_box.x = wall.pos.x - self.hit_box.width
 
-                    elif wall.center.x < self.hit_box.get_center().x:
-                        self.hit_box.x = wall.pos.x + wall.width
+                        elif wall.center.x < self.hit_box.get_center().x:
+                            self.hit_box.x = wall.pos.x + wall.width
 
-                    self.vel.x = 0
+                        self.vel.x = 0
 
-        elif dir == "y":
-            for wall in self.game.walls:
-                if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
-                    if wall.center.y > self.hit_box.get_center().y:
-                        self.hit_box.y = wall.pos.y - self.hit_box.height
+            elif dir == "y":
+                for wall in self.game.walls:
+                    if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
+                        if wall.center.y > self.hit_box.get_center().y:
+                            self.hit_box.y = wall.pos.y - self.hit_box.height
 
-                    elif wall.center.y < self.hit_box.get_center().y:
-                        self.hit_box.y = wall.pos.y + wall.height
+                        elif wall.center.y < self.hit_box.get_center().y:
+                            self.hit_box.y = wall.pos.y + wall.height
 
-                    self.vel.y = 0
+                        self.vel.y = 0
 
     def update(self, dt):
         self.sprite = Sprite(self.game.player_images[self.weapon.name])

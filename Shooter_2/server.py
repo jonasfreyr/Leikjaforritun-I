@@ -18,82 +18,6 @@ grenades = {}
 
 id = 1
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-class Ui_server_window(object):
-    def setupUi(self, server_window):
-        server_window.setObjectName("server_window")
-        server_window.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(server_window)
-        self.centralwidget.setObjectName("centralwidget")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(10, 10, 101, 31))
-        font = QtGui.QFont()
-        font.setPointSize(21)
-        self.label.setFont(font)
-        self.label.setObjectName("label")
-        self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.textBrowser.setGeometry(QtCore.QRect(80, 70, 331, 451))
-        self.textBrowser.setObjectName("textBrowser")
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(180, 20, 101, 41))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
-        self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(580, 30, 71, 21))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self.label_3.setFont(font)
-        self.label_3.setObjectName("label_3")
-        self.listWidget = QtWidgets.QListWidget(self.centralwidget)
-        self.listWidget.setGeometry(QtCore.QRect(480, 70, 256, 481))
-        self.listWidget.setObjectName("listWidget")
-        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(80, 530, 331, 20))
-        self.lineEdit.setObjectName("lineEdit")
-        server_window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(server_window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
-        self.menubar.setObjectName("menubar")
-        server_window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(server_window)
-        self.statusbar.setObjectName("statusbar")
-        server_window.setStatusBar(self.statusbar)
-
-        self.retranslateUi(server_window)
-        QtCore.QMetaObject.connectSlotsByName(server_window)
-
-        self.lineEdit.returnPressed.connect(self.command)
-
-    def retranslateUi(self, server_window):
-        _translate = QtCore.QCoreApplication.translate
-        server_window.setWindowTitle(_translate("server_window", "MainWindow"))
-        self.label.setText(_translate("server_window", "Server"))
-        self.label_2.setText(_translate("server_window", "Output"))
-        self.label_3.setText(_translate("server_window", "Users"))
-
-    def command(self):
-        text = self.lineEdit.text()
-        self.lineEdit.clear()
-
-        text = text.split(" ")
-
-        if text[0] == "dc":
-            remove_user(int(text[1]))
-
-    def update_output(self, data):
-        self.textBrowser.append(data)
-
-    def remove_user(self):
-        self.listWidget.clear()
-        for id in players:
-            self.update_user(id)
-
-    def update_user(self, id):
-        self.listWidget.addItem(str(id))
-
 def remove_user(id):
     del conns[id]
     del players[id]
@@ -104,7 +28,6 @@ def remove_user(id):
 def new_client(conn, addr, id):
     # print("Connection started with:", addr)
     msg = "Connection started with:" + str(addr) + " id: " + str(id)
-    # ui.update_output(msg)
     print(msg)
     bullets[id] = []
     grenades[id] = []
@@ -113,7 +36,6 @@ def new_client(conn, addr, id):
             if id not in conns:
                 conn.sendall(b"dc")
                 msg = "Connection ended with:" + str(addr) + " id: " + str(id)
-                # ui.update_output(msg)
                 print(msg)
                 break
 
@@ -121,7 +43,6 @@ def new_client(conn, addr, id):
 
             print(data)
             data = eval(data)
-
 
             players[id] = data["player"]
             for bullet in data["bullets"]:
@@ -131,23 +52,12 @@ def new_client(conn, addr, id):
             for grenade in data["grenades"]:
                 grenades[id].append(grenade)
 
-            # bullets[id] = data["bullets"]
-            # grenades[id] = data["grenades"]
-
         except:
             msg = "Connection ended with:" + str(addr) + " id: " + str(id)
-            # ui.update_output(msg)
             print(msg)
             remove_user(id)
             break
 
-
-        '''
-        msg = "Connection ended with:" + str(addr) + " id: " + str(id)
-        ui.update_output(msg)
-        remove_user(id)
-        break
-        '''
 def socket_func():
     global id
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -177,10 +87,6 @@ class Game(pyglet.window.Window):
         self.set_location(1000, 500)
 
         self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
-
-        # self.set_exclusive_mouse(True)
-
-        self.mouse_down = False
 
     def load(self):
         game_folder = path.dirname(__file__)
@@ -326,6 +232,9 @@ class Game(pyglet.window.Window):
                     player.pos.x = players[id]["pos"]["x"]
                     player.pos.y = players[id]["pos"]["y"]
                     player.weapon = players[id]["weapon"]
+                    if players[id]["respawn"]:
+                        player.health = PLAYER_HEALTH
+                        player.dead = False
                     break
 
             else:
@@ -338,11 +247,11 @@ class Game(pyglet.window.Window):
                 self.o_players.remove(player)
 
         temp = bullets
-        for id in temp:
-            for bullet in temp[id]:
+        for num in temp:
+            for bullet in temp[num]:
                 self.bullets.append(Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], self.bullet_img, bullet["weapon"], self, False))
                 self.effects.append(MuzzleFlash(Vector(bullet["pos"]["x"], bullet["pos"]["y"]), bullet["rot"], self))
-                bullets[id].remove(bullet)
+                bullets[num].remove(bullet)
 
         temp = grenades
         for id in temp:
@@ -396,6 +305,12 @@ class Game(pyglet.window.Window):
         for player in self.o_players:
             player.update()
 
+            if not player.dead:
+                for bullet in self.bullets:
+                    if player.hit_box.x + player.hit_box.width > bullet.pos.x > player.hit_box.x and player.hit_box.y + player.hit_box.height > bullet.pos.y > player.hit_box.y:
+                        player.health -= WEAPONS[bullet.weapon]["damage"]
+                        self.bullets.remove(bullet)
+
         tempB = []
         for bullet in self.bullets:
             tempB.append({"pos": {"x": bullet.pos.x, "y": bullet.pos.y}, "rot": bullet.rot, "weapon": bullet.weapon})
@@ -407,15 +322,25 @@ class Game(pyglet.window.Window):
                 if grenade.explode:
                     grenade.sent = True
 
+        for player in self.o_players:
+            players[player.id]["health"] = player.health
+            if player.health <= 0:
+                players[player.id]["dead"] = True
+                player.dead = True
+
+            else:
+                players[player.id]["dead"] = False
+
         try:
             tempC = conns
             for id in tempC:
                 temp = dict(players)
+
+                health = temp[id]["health"]
+
                 del temp[id]
 
-
-
-                d = {"players": temp, "bullets": tempB, "grenades": tempG}
+                d = {"players": temp, "bullets": tempB, "grenades": tempG, "health": health}
                 conns[id].sendall(str(d).encode())
 
         except:
@@ -432,7 +357,10 @@ class Game(pyglet.window.Window):
         self.main_batch.draw()
         # self.player.draw()
         for player in self.o_players:
-            player.sprite.draw()
+            if not player.dead:
+                player.sprite.draw()
+                player.draw_hit_box()
+
         self.bullet_batch.draw()
         self.effects_batch.draw()
 
@@ -456,18 +384,3 @@ g.new()
 _thread.start_new_thread(socket_func, ())
 
 pyglet.app.run()
-
-
-
-'''
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    server_window = QtWidgets.QMainWindow()
-    ui = Ui_server_window()
-    
-    _thread.start_new_thread(start_game, ())
-    ui.setupUi(server_window)
-    server_window.show()
-    sys.exit(app.exec_())
-'''

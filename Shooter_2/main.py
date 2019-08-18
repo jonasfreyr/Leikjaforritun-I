@@ -28,6 +28,8 @@ class Game(pyglet.window.Window):
 
         self.mouse_down = False
 
+        self.respawn = False
+
     def on_key_press(self, symbol, modifiers):
         """
         When a key is pressed on
@@ -51,7 +53,7 @@ class Game(pyglet.window.Window):
         self.keys[symbol] = False
 
         if symbol == key.SPACE:
-            self.new()
+            self.respawn = True
 
         elif symbol == key.Q:
             self.player.switch()
@@ -219,7 +221,7 @@ class Game(pyglet.window.Window):
                     break
 
                 i_ids = []
-                # print(data)
+                print(data)
                 for ids in data["players"]:
                     i_ids.append(ids)
                     for player in self.o_players:
@@ -228,6 +230,7 @@ class Game(pyglet.window.Window):
                             player.pos.x = data["players"][ids]["pos"]["x"]
                             player.pos.y = data["players"][ids]["pos"]["y"]
                             player.weapon = data["players"][ids]["weapon"]
+                            player.dead = data["players"][ids]["dead"]
                             break
 
                     else:
@@ -240,6 +243,8 @@ class Game(pyglet.window.Window):
                 self.new_bullets = data["bullets"]
                 self.new_grenades = data["grenades"]
 
+                self.player.health = data["health"]
+
             except:
                 print("Cresh")
 
@@ -250,6 +255,15 @@ class Game(pyglet.window.Window):
         # print(len(self.grenades))
         # print(len(self.o_players))
         # print(self.new_grenades)
+        # print(self.player.health)
+
+        if self.player.health <= 0:
+            try:
+                self.target = self.o_players[0]
+
+            except:
+                self.target = self.player
+
         self.bullets = []
         for bullet in self.new_bullets:
             self.bullets.append(O_Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], bullet["weapon"], self))
@@ -325,7 +339,10 @@ class Game(pyglet.window.Window):
         for player in self.o_players:
             player.update()
 
-        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name}, "bullets": [], "grenades": []}
+        if self.respawn:
+            self.new()
+
+        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [], "grenades": []}
         for bullet in self.o_bullets:
             data["bullets"].append(bullet)
 
@@ -338,6 +355,9 @@ class Game(pyglet.window.Window):
 
         self.s.sendall(str(data).encode())
 
+        if self.respawn:
+            self.respawn = False
+
     def on_draw(self):
         pyglet.clock.tick()
 
@@ -347,9 +367,12 @@ class Game(pyglet.window.Window):
         self.camera.draw(self.target)
         self.map.draw()
         self.main_batch.draw()
-        self.player.draw()
+        if self.player.health > 0:
+            self.player.draw()
+
         for player in self.o_players:
-            player.sprite.draw()
+            if not player.dead:
+                player.sprite.draw()
 
         self.bullet_batch.draw()
 
