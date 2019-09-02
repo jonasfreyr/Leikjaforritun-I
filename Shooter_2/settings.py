@@ -1,5 +1,16 @@
 from vector import *
 
+def lineLine(x1, y1, x2, y2, x3, y3, x4, y4):
+    uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1))
+
+    uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1))
+
+    if (uA >= 0 and uA <= 1 and uB >= 0 and uB <= 1):
+        return True
+
+    else:
+        return False
+
 # Game
 FPS = 120
 WINDOW_WIDTH = int(1920 / 1.5)
@@ -32,6 +43,8 @@ GRENADE_SIZE = Vector(30, 30)
 GRENADE_STARTING_VEL = Vector(400, 0)
 GRENADE_SLOWDOWN = Vector(200, 0)
 GRENADE_HIT_BOX = Rect(0, 0, GRENADE_SIZE.x * 0.6, GRENADE_SIZE.y * 0.6)
+GRENADE_DAMAGE_RADIUS = 100
+GRENADE_DAMAGE = 65
 
 GRENADE_LOGO = "grenade_logo.png"
 GRENADE_LOGO_SIZE = Vector(50, 50)
@@ -77,6 +90,9 @@ MUZZLE_FLASH_IMG = "muzzleFlash.png"
 MUZZLE_FLASH_LIFESPAWN = 0.05
 MUZZLE_FLASH_SIZE = Vector(80, 40)
 MUZZLE_OFFSET = Vector(-5, -10)
+
+ITEM_IMAGES = {"rifle": "rifle_item.png", "shotgun": "shotgun_item.png", "smoke": "smoke_item.png", "grenade": "grenade_item.png"}
+ITEM_SIZES = {"rifle": "rifle_item.png", "shotgun": "shotgun_item.png", "smoke": "smoke_item.png", "grenade": "grenade_item.png"}
 
 WEAPONS_TYPES = {"shotgun": "shotgun", "rifle": "auto", "pistol": "semi-auto"}
 

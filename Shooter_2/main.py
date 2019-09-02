@@ -193,6 +193,11 @@ class Game(pyglet.window.Window):
 
             elif tile_object.name == "Player":
                 self.player = Player(pos.x, pos.y, self, tile_object.type)
+                self.r_pos = pos.copy()
+                if tile_object.type == 'None':
+                    self.r_wep = "pistol"
+                else:
+                    self.r_wep = tile_object.type
 
         self.bullets = []
 
@@ -212,41 +217,49 @@ class Game(pyglet.window.Window):
 
     def receive_data(self, conn, i):
         while True:
-            try:
-                data = conn.recv(262144).decode()
+            data = conn.recv(262144).decode()
 
-                data = eval(data)
+            data = eval(data)
 
-                if data == "dc":
-                    break
+            if data == "dc":
+                break
 
-                i_ids = []
-                print(data)
-                for ids in data["players"]:
-                    i_ids.append(ids)
-                    for player in self.o_players:
-                        if ids == player.id:
-                            player.rot = data["players"][ids]["rot"]
-                            player.pos.x = data["players"][ids]["pos"]["x"]
-                            player.pos.y = data["players"][ids]["pos"]["y"]
-                            player.weapon = data["players"][ids]["weapon"]
-                            player.dead = data["players"][ids]["dead"]
-                            break
-
-                    else:
-                        self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
-
+            i_ids = []
+            # print(data)
+            for ids in data["players"]:
+                i_ids.append(ids)
                 for player in self.o_players:
-                    if player.id not in i_ids:
-                        self.o_players.remove(player)
+                    if ids == player.id:
+                        player.rot = data["players"][ids]["rot"]
+                        player.pos.x = data["players"][ids]["pos"]["x"]
+                        player.pos.y = data["players"][ids]["pos"]["y"]
+                        player.weapon = data["players"][ids]["weapon"]
+                        player.dead = data["players"][ids]["dead"]
+                        break
 
-                self.new_bullets = data["bullets"]
-                self.new_grenades = data["grenades"]
+                else:
+                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
 
-                self.player.health = data["health"]
+            for player in self.o_players:
+                if player.id not in i_ids:
+                    self.o_players.remove(player)
 
-            except:
-                print("Cresh")
+            self.new_bullets = data["bullets"]
+            self.new_grenades = data["grenades"]
+
+            self.player.health = data["health"]
+
+    def reset(self):
+        self.player.hit_box.x = self.r_pos.x
+        self.player.hit_box.y = self.r_pos.y
+
+
+        self.player.weapon = Weapon(self.r_wep)
+
+        if self.r_wep != "pistol":
+            self.player.other_weapon = Weapon("pistol")
+
+        self.player.grenades = [Grenade(self, "smoke"),Grenade(self, "grenade"),Grenade(self, "smoke"),Grenade(self, "grenade"),Grenade(self, "smoke")]
 
     def update(self, dt):
         # print(self.o_bullets)
@@ -255,7 +268,8 @@ class Game(pyglet.window.Window):
         # print(len(self.grenades))
         # print(len(self.o_players))
         # print(self.new_grenades)
-        # print(self.player.health)
+        # print(self.player.pos)
+        # print(self.player.other_weapon)
 
         if self.player.health <= 0:
             try:
@@ -263,6 +277,9 @@ class Game(pyglet.window.Window):
 
             except:
                 self.target = self.player
+
+        else:
+            self.target = self.player
 
         self.bullets = []
         for bullet in self.new_bullets:
@@ -340,7 +357,7 @@ class Game(pyglet.window.Window):
             player.update()
 
         if self.respawn:
-            self.new()
+            self.reset()
 
         data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [], "grenades": []}
         for bullet in self.o_bullets:

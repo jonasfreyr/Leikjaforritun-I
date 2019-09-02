@@ -41,7 +41,7 @@ def new_client(conn, addr, id):
 
             data = conn.recv(262144).decode()
 
-            print(data)
+            # print(data)
             data = eval(data)
 
             players[id] = data["player"]
@@ -87,6 +87,22 @@ class Game(pyglet.window.Window):
         self.set_location(1000, 500)
 
         self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
+
+    def on_key_press(self, symbol, modifiers):
+        """
+        When a key is pressed on
+        the keyboard.
+        :param symbol:
+        :param modifiers:
+        :return: None
+        """
+        self.keys[symbol] = True
+
+        if symbol == key.ESCAPE:
+            pyglet.app.exit()
+
+    def on_key_release(self, symbol, modifiers):
+        self.keys[symbol] = False
 
     def load(self):
         game_folder = path.dirname(__file__)
@@ -261,7 +277,6 @@ class Game(pyglet.window.Window):
                                                      True)
                 grenades[id].remove(grenade)
 
-
         self.dt = dt
 
 
@@ -300,7 +315,7 @@ class Game(pyglet.window.Window):
             if effect.dead:
                 self.effects.remove(effect)
 
-        self.player.update(dt)
+        self.player.update(dt, True)
 
         for player in self.o_players:
             player.update()
@@ -310,6 +325,12 @@ class Game(pyglet.window.Window):
                     if player.hit_box.x + player.hit_box.width > bullet.pos.x > player.hit_box.x and player.hit_box.y + player.hit_box.height > bullet.pos.y > player.hit_box.y:
                         player.health -= WEAPONS[bullet.weapon]["damage"]
                         self.bullets.remove(bullet)
+
+                for grenade in self.grenades:
+                    if grenade.explode and not grenade.sent and grenade.type == "grenade":
+                        if (player.pos - grenade.pos).magnitude() <= GRENADE_DAMAGE_RADIUS:
+                            player.health -= GRENADE_DAMAGE
+
 
         tempB = []
         for bullet in self.bullets:
@@ -322,25 +343,27 @@ class Game(pyglet.window.Window):
                 if grenade.explode:
                     grenade.sent = True
 
+        playersC = dict(players)
         for player in self.o_players:
-            players[player.id]["health"] = player.health
+            playersC[player.id]["health"] = player.health
             if player.health <= 0:
-                players[player.id]["dead"] = True
+                playersC[player.id]["dead"] = True
                 player.dead = True
 
             else:
-                players[player.id]["dead"] = False
+                playersC[player.id]["dead"] = False
 
         try:
             tempC = conns
             for id in tempC:
-                temp = dict(players)
+                temp = dict(playersC)
 
                 health = temp[id]["health"]
 
                 del temp[id]
 
                 d = {"players": temp, "bullets": tempB, "grenades": tempG, "health": health}
+
                 conns[id].sendall(str(d).encode())
 
         except:
@@ -372,9 +395,6 @@ class Game(pyglet.window.Window):
 
         pyglet.gl.glPopMatrix()
 
-        # self.hud_batch.draw()
-
-        # self.mouse.draw()
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 

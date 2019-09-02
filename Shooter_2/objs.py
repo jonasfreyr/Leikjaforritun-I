@@ -77,8 +77,14 @@ class Player:
 
         self.game = game
 
-        self.weapon = Weapon(weapon)
-        self.other_weapon = Weapon("pistol")
+        if weapon != 'None':
+            self.weapon = Weapon(weapon)
+            self.other_weapon = Weapon("pistol")
+
+        else:
+            self.weapon = Weapon("pistol")
+            self.other_weapon = None
+
 
         self.grenades = [Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke")]
         self.grenade_num = 0
@@ -95,17 +101,18 @@ class Player:
 
         self.health = PLAYER_HEALTH
 
-        self.sprite = Sprite(game.player_images[weapon])
+        self.sprite = Sprite(game.player_images[self.weapon.name])
         self.width = self.sprite.width
         self.height = self.sprite.height
 
-        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[weapon]['img_offset'].x
-        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[weapon]['img_offset'].y
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapon.name]['img_offset'].x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapon.name]['img_offset'].y
 
     def switch(self):
-        s = self.weapon
-        self.weapon = self.other_weapon
-        self.other_weapon = s
+        if self.other_weapon != None:
+            s = self.weapon
+            self.weapon = self.other_weapon
+            self.other_weapon = s
 
     def get_rotation(self, point1, point2):
         return math.degrees(math.atan2(point1.x - point2.x, point1.y - point2.y))
@@ -121,7 +128,7 @@ class Player:
         if self.last_shot <= 0 < self.health:
             rot = self.get_rotation(self.o, self.game.mouse.get_map_pos()) + 90
 
-            self.weapon.shoot(self.o, rot, self.game)
+            self.weapon.shoot(self.o, self.pos, rot,self.game)
 
             self.last_shot = WEAPONS[self.weapon.name]["rate"]
 
@@ -176,7 +183,7 @@ class Player:
 
                         self.vel.y = 0
 
-    def update(self, dt):
+    def update(self, dt, server=False):
         self.sprite = Sprite(self.game.player_images[self.weapon.name])
         self.width = self.sprite.width
         self.height = self.sprite.height
@@ -186,15 +193,17 @@ class Player:
 
         # check hit box collisions
         self.hit_box.x += self.vel.x * dt
-        self.collide_with_walls("x")
+        if not server:
+            self.collide_with_walls("x")
 
         self.hit_box.y += self.vel.y * dt
-        self.collide_with_walls("y")
+        if not server:
+            self.collide_with_walls("y")
 
         self.pos.x = self.hit_box.x + self.hit_box.width / 2
         self.pos.y = self.hit_box.y + self.hit_box.height / 2
 
-        o = WEAPONS[self.weapon.name]['offset'].rotate(-self.rot)
+        o = WEAPONS[self.weapon.name]['offset'].copy().rotate(-self.rot)
 
         self.o = Vector(self.pos.x, self.pos.y)
 
@@ -312,3 +321,15 @@ class Wall:
         glVertex2i(int(self.pos.x), int(self.pos.y))
 
         glEnd()
+
+class Item:
+    def __init__(self, x, y, item):
+        self.pos = Vector(x, y)
+
+        self.sprite = Sprite(ITEM_IMAGES[item])
+
+        self.sprite.image.anchor_x = self.sprite.width / 2
+        self.sprite.image.anchor_y = self.sprite.height / 2
+
+        self.sprite.x = x
+        self.sprite.y = y

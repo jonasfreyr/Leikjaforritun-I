@@ -125,7 +125,28 @@ class Weapon:
                 self.ammo_in_mag += 1
                 self.extra_ammo -= 1
 
-    def shoot(self, pos, rot, game):
+    def line_collide(self, game, pos, o):
+        for wall in game.walls:
+            topleft = [wall.pos.x, wall.pos.y + wall.height]
+            topright = [wall.pos.x + wall.width, wall.pos.y + wall.height]
+
+            bottomleft = [wall.pos.x, wall.pos.y]
+            bottomright = [wall.pos.x + wall.width, wall.pos.y]
+
+            left = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topleft[0], bottomleft[1])
+
+            right = lineLine(pos.x, pos.y, o.x, o.y, topright[0], topright[1], topright[0], bottomright[1])
+
+            top = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topright[0], topright[1])
+
+            bottom = lineLine(pos.x, pos.y, o.x, o.y, bottomleft[0], bottomleft[1], bottomright[0], bottomright[1])
+
+            if left or right or top or bottom:
+                return True
+
+        return False
+
+    def shoot(self, pos, o_pos, rot, game):
         if self.ammo_in_mag > 0:
             if self.type == "auto":
                 if self.spray_num > len(WEAPONS[self.name]["spread"]) - 1:
@@ -133,7 +154,8 @@ class Weapon:
 
                 spread = WEAPONS[self.name]["spread"][self.spray_num]
                 # game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
-                game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
+                if not self.line_collide(game, o_pos, pos):
+                    game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
                 self.spray_num += 1
                 self.ammo_in_mag -= 1
                 game.effects.append(MuzzleFlash(pos, rot, game))
@@ -141,7 +163,8 @@ class Weapon:
             elif self.type == "semi-auto" and self.fired is False:
                 spread = random.uniform(-WEAPONS[self.name]['spread'], WEAPONS[self.name]['spread'])
                 # game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
-                game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
+                if not self.line_collide(game, o_pos, pos):
+                    game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
                 self.ammo_in_mag -= 1
                 game.effects.append(MuzzleFlash(pos, rot, game))
 
@@ -149,7 +172,8 @@ class Weapon:
                 for a in range(WEAPONS[self.name]['bullet_count']):
                     spread = random.uniform(-WEAPONS[self.name]['spread'], WEAPONS[self.name]['spread'])
                     # game.bullets.append(Bullet(pos.x, pos.y, rot + spread, game.bullet_img, self.name, game))
-                    game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
+                    if not self.line_collide(game, o_pos, pos):
+                        game.o_bullets.append({"rot": rot + spread, "pos": {"x": pos.x, "y": pos.y}, "weapon": self.name})
                 self.ammo_in_mag -= 1
                 game.effects.append(MuzzleFlash(pos, rot, game))
 
