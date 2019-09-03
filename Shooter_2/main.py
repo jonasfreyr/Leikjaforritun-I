@@ -216,38 +216,41 @@ class Game(pyglet.window.Window):
         self.target = self.player
 
     def receive_data(self, conn, i):
-        while True:
-            data = conn.recv(262144).decode()
+        try:
+            while True:
+                data = conn.recv(262144).decode()
 
-            data = eval(data)
+                data = eval(data)
 
-            if data == "dc":
-                break
+                if data == "dc":
+                    break
 
-            i_ids = []
-            # print(data)
-            for ids in data["players"]:
-                i_ids.append(ids)
+                i_ids = []
+                # print(data)
+                for ids in data["players"]:
+                    i_ids.append(ids)
+                    for player in self.o_players:
+                        if ids == player.id:
+                            player.rot = data["players"][ids]["rot"]
+                            player.pos.x = data["players"][ids]["pos"]["x"]
+                            player.pos.y = data["players"][ids]["pos"]["y"]
+                            player.weapon = data["players"][ids]["weapon"]
+                            player.dead = data["players"][ids]["dead"]
+                            break
+
+                    else:
+                        self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
+
                 for player in self.o_players:
-                    if ids == player.id:
-                        player.rot = data["players"][ids]["rot"]
-                        player.pos.x = data["players"][ids]["pos"]["x"]
-                        player.pos.y = data["players"][ids]["pos"]["y"]
-                        player.weapon = data["players"][ids]["weapon"]
-                        player.dead = data["players"][ids]["dead"]
-                        break
+                    if player.id not in i_ids:
+                        self.o_players.remove(player)
 
-                else:
-                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
+                self.new_bullets = data["bullets"]
+                self.new_grenades = data["grenades"]
 
-            for player in self.o_players:
-                if player.id not in i_ids:
-                    self.o_players.remove(player)
-
-            self.new_bullets = data["bullets"]
-            self.new_grenades = data["grenades"]
-
-            self.player.health = data["health"]
+                self.player.health = data["health"]
+        except:
+            pass
 
     def reset(self):
         self.player.hit_box.x = self.r_pos.x
