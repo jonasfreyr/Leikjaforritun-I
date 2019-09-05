@@ -20,7 +20,7 @@ TILESIZE = 64
 
 MAP = "map1.tmx"
 
-HOST = '127.0.0.1'
+HOST = '192.168.1.188'
 PORT = 65432
 
 # Hud

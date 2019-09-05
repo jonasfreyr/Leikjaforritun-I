@@ -7,7 +7,7 @@ from hud import *
 from weapons import *
 import _thread, socket, site, os, sys
 
-HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
+HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
@@ -33,30 +33,28 @@ def new_client(conn, addr, id):
     grenades[id] = []
     while True:
         try:
-            if id not in conns:
-                conn.sendall(b"dc")
-                msg = "Connection ended with:" + str(addr) + " id: " + str(id)
-                print(msg)
-                break
-
             data = conn.recv(262144).decode()
-
-            # print(data)
-            data = eval(data)
-
-            players[id] = data["player"]
-            for bullet in data["bullets"]:
-                # print(bullet)
-                bullets[id].append(bullet)
-
-            for grenade in data["grenades"]:
-                grenades[id].append(grenade)
 
         except:
             msg = "Connection ended with:" + str(addr) + " id: " + str(id)
             print(msg)
             remove_user(id)
             break
+
+        try:
+            # print(data)
+            data = eval(data)
+
+        except:
+            print(data)
+
+        players[id] = data["player"]
+        for bullet in data["bullets"]:
+            # print(bullet)
+            bullets[id].append(bullet)
+
+        for grenade in data["grenades"]:
+            grenades[id].append(grenade)
 
 def socket_func():
     global id
@@ -328,8 +326,13 @@ class Game(pyglet.window.Window):
 
                 for grenade in self.grenades:
                     if grenade.explode and not grenade.sent and grenade.type == "grenade":
-                        if (player.pos - grenade.pos).magnitude() <= GRENADE_DAMAGE_RADIUS:
-                            player.health -= GRENADE_DAMAGE
+                        mag = (player.pos - grenade.pos).magnitude()
+                        if  mag <= GRENADE_DAMAGE_RADIUS:
+                            dmg = round(GRENADE_DAMAGE / (mag / 32))
+                            print(mag)
+                            print(dmg)
+                            print("----------")
+                            player.health -= dmg
 
 
         tempB = []
@@ -363,7 +366,7 @@ class Game(pyglet.window.Window):
                 del temp[id]
 
                 d = {"players": temp, "bullets": tempB, "grenades": tempG, "health": health}
-
+                # print(d)
                 conns[id].sendall(str(d).encode())
 
         except:

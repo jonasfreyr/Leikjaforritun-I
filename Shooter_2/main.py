@@ -213,44 +213,42 @@ class Game(pyglet.window.Window):
         l.font_size = FONT_SIZE
         self.hud_labels.append(AmmoText(self, l))
 
+        l = pyglet.text.Label("big lel 2", x=0, y=0, batch=self.hud_batch)
+        l.font_size = FONT_SIZE
+        self.hud_labels.append(Health(self, l))
+
         self.target = self.player
 
     def receive_data(self, conn, i):
-        try:
-            while True:
-                data = conn.recv(262144).decode()
+        while True:
+            data = conn.recv(262144).decode()
 
-                data = eval(data)
+            data = eval(data)
 
-                if data == "dc":
-                    break
-
-                i_ids = []
-                # print(data)
-                for ids in data["players"]:
-                    i_ids.append(ids)
-                    for player in self.o_players:
-                        if ids == player.id:
-                            player.rot = data["players"][ids]["rot"]
-                            player.pos.x = data["players"][ids]["pos"]["x"]
-                            player.pos.y = data["players"][ids]["pos"]["y"]
-                            player.weapon = data["players"][ids]["weapon"]
-                            player.dead = data["players"][ids]["dead"]
-                            break
-
-                    else:
-                        self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
-
+            i_ids = []
+            # print(data)
+            for ids in data["players"]:
+                i_ids.append(ids)
                 for player in self.o_players:
-                    if player.id not in i_ids:
-                        self.o_players.remove(player)
+                    if ids == player.id:
+                        player.rot = data["players"][ids]["rot"]
+                        player.pos.x = data["players"][ids]["pos"]["x"]
+                        player.pos.y = data["players"][ids]["pos"]["y"]
+                        player.weapon = data["players"][ids]["weapon"]
+                        player.dead = data["players"][ids]["dead"]
+                        break
 
-                self.new_bullets = data["bullets"]
-                self.new_grenades = data["grenades"]
+                else:
+                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
 
-                self.player.health = data["health"]
-        except:
-            pass
+            for player in self.o_players:
+                if player.id not in i_ids:
+                    self.o_players.remove(player)
+
+            self.new_bullets = data["bullets"]
+            self.new_grenades = data["grenades"]
+
+            self.player.health = data["health"]
 
     def reset(self):
         self.player.hit_box.x = self.r_pos.x
@@ -287,6 +285,7 @@ class Game(pyglet.window.Window):
         self.bullets = []
         for bullet in self.new_bullets:
             self.bullets.append(O_Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], bullet["weapon"], self))
+
 
         self.grenades = []
         for grenade in self.new_grenades:
@@ -362,16 +361,19 @@ class Game(pyglet.window.Window):
         if self.respawn:
             self.reset()
 
-        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot, "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [], "grenades": []}
-        for bullet in self.o_bullets:
+        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
+                           "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [],
+                "grenades": []}
+
+        tempB = list(self.o_bullets)
+        for bullet in tempB:
             data["bullets"].append(bullet)
+            self.o_bullets.remove(bullet)
 
-        self.o_bullets = []
-
-        for grenade in self.o_grenades:
+        tempG = list(self.o_grenades)
+        for grenade in tempG:
             data["grenades"].append(grenade)
-
-        self.o_grenades = []
+            self.o_grenades.remove(grenade)
 
         self.s.sendall(str(data).encode())
 
