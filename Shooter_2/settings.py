@@ -20,7 +20,7 @@ TILESIZE = 64
 
 MAP = "map2.tmx"
 
-HOST = '192.168.1.188'
+HOST = '127.0.0.1'
 PORT = 65432
 
 # Hud
@@ -38,6 +38,8 @@ SIDE = "ct"
 CROSSHAIR_IMG = "crosshair.png"
 CROSSHAIR_HEIGHT = 100
 CROSSHAIR_WIDTH = 100
+
+PICK_IMG = "pick.png"
 
 # Grenade
 GRENADE_IMG = "grenade.png"

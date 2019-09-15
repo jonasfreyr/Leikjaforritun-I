@@ -68,10 +68,23 @@ class Game(pyglet.window.Window):
             self.mouse_down = True
 
     def on_mouse_release(self, x, y, button, modifiers):
+        global SIDE
         if button == 1:
             self.mouse_down = False
 
-            self.player.weapon.reset()
+            if self.picked:
+                self.player.weapon.reset()
+
+            else:
+                if x < WINDOW_WIDTH:
+                    SIDE = "T"
+
+                else:
+                    SIDE = "CT"
+
+                self.picked = True
+                s.sendall(SIDE.encode())
+                self.new()
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse.update(dx, dy)
@@ -159,12 +172,18 @@ class Game(pyglet.window.Window):
         texture.width = SHOTGUN_LOGO_SIZE.x
         texture.height = SHOTGUN_LOGO_SIZE.y
 
-        _thread.start_new_thread(self.receive_data, (s, 2))
-        self.s = s
+        pick_img = preload_img(PICK_IMG)
+        texture = pick_img.get_texture()
+        texture.width = WINDOW_WIDTH
+        texture.height = WINDOW_HEIGHT
+        self.pick_sprite = Sprite(pick_img)
 
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
     def new(self):
+        _thread.start_new_thread(self.receive_data, (s, 2))
+        self.s = s
+
         self.main_batch = pyglet.graphics.Batch()
         self.bullet_batch = pyglet.graphics.Batch()
         self.effects_batch = pyglet.graphics.Batch()
@@ -197,8 +216,8 @@ class Game(pyglet.window.Window):
 
             elif tile_object.name == "Spawn":
                 self.r_wep = "pistol"
-                if tile_object.type == SIDE:
-                    self.player = Player(pos.x, pos.y, self, tile_object.type)
+                if tile_object.type == SIDE.lower():
+                    self.player = Player(pos.x, pos.y, self, 'None')
                     self.r_pos = pos.copy()
 
         self.bullets = []
@@ -208,7 +227,7 @@ class Game(pyglet.window.Window):
         # self.hud_labels.append(Logo(SMOKE_LOGO_POS ,Sprite(self.smoke_logo, batch=self.hud_batch), self))
 
         #   Ammo Label
-        l =  pyglet.text.Label("big lel", x=WINDOW_WIDTH, y=0, batch=self.hud_batch)
+        l = pyglet.text.Label("big lel", x=WINDOW_WIDTH, y=0, batch=self.hud_batch)
         l.anchor_x = "right"
         l.font_size = FONT_SIZE
         self.hud_labels.append(AmmoText(self, l))
@@ -218,6 +237,8 @@ class Game(pyglet.window.Window):
         self.hud_labels.append(Health(self, l))
 
         self.target = self.player
+
+        self.picked = True
 
     def receive_data(self, conn, i):
         while True:
@@ -437,10 +458,7 @@ class Game(pyglet.window.Window):
             self.mouse.draw()
 
         else:
-
-
-
-    def pick(self):
+            self.pick_sprite.draw()
 
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
@@ -450,7 +468,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
 
     g.load()
-    g.pick()
 
     pyglet.app.run()
 

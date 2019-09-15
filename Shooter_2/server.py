@@ -7,7 +7,7 @@ from hud import *
 from weapons import *
 import _thread, socket, site, os, sys
 
-HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
+HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
@@ -34,6 +34,7 @@ def new_client(conn, addr, id):
     print(msg)
 
     data = conn.recv(262144).decode()
+
     if data == "T":
         t_players.append(id)
 
