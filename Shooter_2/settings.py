@@ -32,14 +32,15 @@ PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rif
 PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 PLAYER_HEALTH = 100
 
+# Misc
 SIDE = "ct"
+PICK_IMG = "pick.png"
+TEAM_DAMAGE_REDUCE = 0.5
 
 # Crosshair
 CROSSHAIR_IMG = "crosshair.png"
 CROSSHAIR_HEIGHT = 100
 CROSSHAIR_WIDTH = 100
-
-PICK_IMG = "pick.png"
 
 # Grenade
 GRENADE_IMG = "grenade.png"

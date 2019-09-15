@@ -76,7 +76,7 @@ class Game(pyglet.window.Window):
                 self.player.weapon.reset()
 
             else:
-                if x < WINDOW_WIDTH:
+                if x < WINDOW_WIDTH / 2:
                     SIDE = "T"
 
                 else:
