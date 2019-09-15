@@ -30,6 +30,8 @@ class Game(pyglet.window.Window):
 
         self.respawn = False
 
+        self.picked = False
+
     def on_key_press(self, symbol, modifiers):
         """
         When a key is pressed on
@@ -160,6 +162,8 @@ class Game(pyglet.window.Window):
         _thread.start_new_thread(self.receive_data, (s, 2))
         self.s = s
 
+        self.mouse = Mouse(Sprite(self.crosshair_img), self)
+
     def new(self):
         self.main_batch = pyglet.graphics.Batch()
         self.bullet_batch = pyglet.graphics.Batch()
@@ -191,19 +195,15 @@ class Game(pyglet.window.Window):
             if tile_object.name == "Wall":
                 self.walls.append(Wall(tile_object.x, pos.y - tile_object.height / 2, tile_object.width, tile_object.height))
 
-            elif tile_object.name == "Player":
-                self.player = Player(pos.x, pos.y, self, tile_object.type)
-                self.r_pos = pos.copy()
-                if tile_object.type == 'None':
-                    self.r_wep = "pistol"
-                else:
-                    self.r_wep = tile_object.type
+            elif tile_object.name == "Spawn":
+                self.r_wep = "pistol"
+                if tile_object.type == SIDE:
+                    self.player = Player(pos.x, pos.y, self, tile_object.type)
+                    self.r_pos = pos.copy()
 
         self.bullets = []
 
         self.camera = Camera()
-
-        self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
         # self.hud_labels.append(Logo(SMOKE_LOGO_POS ,Sprite(self.smoke_logo, batch=self.hud_batch), self))
 
@@ -223,7 +223,33 @@ class Game(pyglet.window.Window):
         while True:
             data = conn.recv(262144).decode()
 
-            data = eval(data)
+            try:
+                data = eval(data)
+            except:
+                s = ""
+                count = 0
+                first = False
+                pref = ""
+                for a in data:
+
+                    if a == "{" and pref != "[":
+                        first = True
+
+                    if a == "{":
+                        count += 1
+
+                    elif a == "}":
+                        count -= 1
+
+                    if first is True:
+                        s = s + a
+
+                    if count == 0 and first is not False:
+                        break
+
+                    pref = a
+
+                data = eval(s)
 
             i_ids = []
             # print(data)
@@ -271,143 +297,151 @@ class Game(pyglet.window.Window):
         # print(self.new_grenades)
         # print(self.player.pos)
         # print(self.player.other_weapon)
+        if self.picked:
+            if self.player.health <= 0:
+                try:
+                    self.target = self.o_players[0]
 
-        if self.player.health <= 0:
-            try:
-                self.target = self.o_players[0]
+                except:
+                    self.target = self.player
 
-            except:
+            else:
                 self.target = self.player
 
-        else:
-            self.target = self.player
-
-        self.bullets = []
-        for bullet in self.new_bullets:
-            self.bullets.append(O_Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], bullet["weapon"], self))
+            self.bullets = []
+            for bullet in self.new_bullets:
+                self.bullets.append(O_Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], bullet["weapon"], self))
 
 
-        self.grenades = []
-        for grenade in self.new_grenades:
-            g = O_Grenade(grenade["pos"]["x"], grenade["pos"]["y"], grenade["type"], self)
+            self.grenades = []
+            for grenade in self.new_grenades:
+                g = O_Grenade(grenade["pos"]["x"], grenade["pos"]["y"], grenade["type"], self)
 
-            if grenade["exploded"]:
-                g.explode()
-                if grenade["type"] == "smoke":
-                    g.sprite.opacity = grenade["opacity"]
+                if grenade["exploded"]:
+                    g.explode()
+                    if grenade["type"] == "smoke":
+                        g.sprite.opacity = grenade["opacity"]
 
-            self.grenades.append(g)
+                self.grenades.append(g)
 
-        # print(self.bullets)
+            # print(self.bullets)
 
-        self.hud_logos = []
-        smoke_pos = SMOKE_LOGO_POS + SMOKE_LOGO_PADDING
-        grenade_pos = GRENADE_LOGO_POS + GRENADE_LOGO_PADDING
+            self.hud_logos = []
+            smoke_pos = SMOKE_LOGO_POS + SMOKE_LOGO_PADDING
+            grenade_pos = GRENADE_LOGO_POS + GRENADE_LOGO_PADDING
 
-        for grenade in self.player.grenades:
-            if grenade.type == "grenade":
-                self.hud_logos.append(Logo(grenade_pos, Sprite(self.grenade_logo, batch=self.hud_batch), self))
+            for grenade in self.player.grenades:
+                if grenade.type == "grenade":
+                    self.hud_logos.append(Logo(grenade_pos, Sprite(self.grenade_logo, batch=self.hud_batch), self))
 
-                grenade_pos.x = grenade_pos.x - GRENADE_LOGO_SIZE.x
+                    grenade_pos.x = grenade_pos.x - GRENADE_LOGO_SIZE.x
 
-            elif grenade.type == "smoke":
-                self.hud_logos.append(Logo(smoke_pos, Sprite(self.smoke_logo, batch=self.hud_batch), self))
+                elif grenade.type == "smoke":
+                    self.hud_logos.append(Logo(smoke_pos, Sprite(self.smoke_logo, batch=self.hud_batch), self))
 
-                smoke_pos.x = smoke_pos.x - SMOKE_LOGO_SIZE.x
+                    smoke_pos.x = smoke_pos.x - SMOKE_LOGO_SIZE.x
 
-        if self.player.weapon.name == "rifle":
-            self.hud_logos.append(Logo(AK47_LOGO_POS, Sprite(self.ak47_logo, batch=self.hud_batch), self))
+            if self.player.weapon.name == "rifle":
+                self.hud_logos.append(Logo(AK47_LOGO_POS, Sprite(self.ak47_logo, batch=self.hud_batch), self))
 
-        elif self.player.weapon.name == "pistol":
-            self.hud_logos.append(Logo(PISTOL_LOGO_POS, Sprite(self.pistol_logo, batch=self.hud_batch), self))
+            elif self.player.weapon.name == "pistol":
+                self.hud_logos.append(Logo(PISTOL_LOGO_POS, Sprite(self.pistol_logo, batch=self.hud_batch), self))
 
-        elif self.player.weapon.name == "shotgun":
-            self.hud_logos.append(Logo(SHOTGUN_LOGO_POS, Sprite(self.shotgun_logo, batch=self.hud_batch), self))
+            elif self.player.weapon.name == "shotgun":
+                self.hud_logos.append(Logo(SHOTGUN_LOGO_POS, Sprite(self.shotgun_logo, batch=self.hud_batch), self))
 
-        self.dt = dt
+            self.dt = dt
 
-        for label in self.hud_labels:
-            label.update()
+            for label in self.hud_labels:
+                label.update()
 
-        if self.mouse_down:
-            self.player.shoot()
+            if self.mouse_down:
+                self.player.shoot()
 
-        self.player.vel.multiply(0)
+            self.player.vel.multiply(0)
 
-        if self.keys[key.W]:
-            self.player.vel.y += PLAYER_SPEED
+            if self.keys[key.W]:
+                self.player.vel.y += PLAYER_SPEED
 
-        if self.keys[key.S]:
-            self.player.vel.y += -PLAYER_SPEED
+            if self.keys[key.S]:
+                self.player.vel.y += -PLAYER_SPEED
 
-        if self.keys[key.D]:
-            self.player.vel.x += PLAYER_SPEED
+            if self.keys[key.D]:
+                self.player.vel.x += PLAYER_SPEED
 
-        if self.keys[key.A]:
-            self.player.vel.x += -PLAYER_SPEED
-            # print("yay")
+            if self.keys[key.A]:
+                self.player.vel.x += -PLAYER_SPEED
+                # print("yay")
 
-        for effect in self.effects:
-            effect.update(dt)
+            for effect in self.effects:
+                effect.update(dt)
 
-            if effect.dead:
-                self.effects.remove(effect)
+                if effect.dead:
+                    self.effects.remove(effect)
 
-        self.player.update(dt)
+            self.player.update(dt)
 
-        for player in self.o_players:
-            player.update()
+            for player in self.o_players:
+                player.update()
 
-        if self.respawn:
-            self.reset()
+            if self.respawn:
+                self.reset()
 
-        data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
-                           "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [],
-                "grenades": []}
+            data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
+                               "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [],
+                    "grenades": []}
 
-        tempB = list(self.o_bullets)
-        for bullet in tempB:
-            data["bullets"].append(bullet)
-            self.o_bullets.remove(bullet)
+            tempB = list(self.o_bullets)
+            for bullet in tempB:
+                data["bullets"].append(bullet)
+                self.o_bullets.remove(bullet)
 
-        tempG = list(self.o_grenades)
-        for grenade in tempG:
-            data["grenades"].append(grenade)
-            self.o_grenades.remove(grenade)
+            tempG = list(self.o_grenades)
+            for grenade in tempG:
+                data["grenades"].append(grenade)
+                self.o_grenades.remove(grenade)
 
-        self.s.sendall(str(data).encode())
+            self.s.sendall(str(data).encode())
 
-        if self.respawn:
-            self.respawn = False
+            if self.respawn:
+                self.respawn = False
 
     def on_draw(self):
         pyglet.clock.tick()
 
         self.clear()
 
-        pyglet.gl.glPushMatrix()
-        self.camera.draw(self.target)
-        self.map.draw()
-        self.main_batch.draw()
-        if self.player.health > 0:
-            self.player.draw()
+        if self.picked:
+            pyglet.gl.glPushMatrix()
+            self.camera.draw(self.target)
+            self.map.draw()
+            self.main_batch.draw()
+            if self.player.health > 0:
+                self.player.draw()
 
-        for player in self.o_players:
-            if not player.dead:
-                player.sprite.draw()
+            for player in self.o_players:
+                if not player.dead:
+                    player.sprite.draw()
 
-        self.bullet_batch.draw()
+            self.bullet_batch.draw()
 
-        self.effects_batch.draw()
+            self.effects_batch.draw()
 
-        for wall in self.walls:
-            wall.draw()
+            for wall in self.walls:
+                wall.draw()
 
-        pyglet.gl.glPopMatrix()
+            pyglet.gl.glPopMatrix()
 
-        self.hud_batch.draw()
+            self.hud_batch.draw()
 
-        self.mouse.draw()
+            self.mouse.draw()
+
+        else:
+
+
+
+    def pick(self):
+
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 
@@ -416,6 +450,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
 
     g.load()
-    g.new()
+    g.pick()
 
     pyglet.app.run()
+

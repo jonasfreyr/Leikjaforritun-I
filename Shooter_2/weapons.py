@@ -52,7 +52,7 @@ class O_Grenade:
 
 
 class Bullet:
-    def __init__(self, x, y, rot, img, weapon, game, main=True):
+    def __init__(self, x, y, rot, img, weapon, game, main=True, owner=None):
         self.o_pos = Vector(x, y)
         self.pos = Vector(x, y)
         self.vector = Vector(WEAPONS[weapon]["bullet_speed"], 0).rotate(-rot)
@@ -70,6 +70,8 @@ class Bullet:
 
         if main:
             game.o_bullets.append({"rot": rot, "pos": {"x": x, "y": y}, "weapon": weapon})
+
+        self.owner = owner
 
     def check(self, game):
         for wall in game.walls:

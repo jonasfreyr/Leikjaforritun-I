@@ -18,7 +18,7 @@ WINDOW_HEIGHT = int(1080 / 1.5)
 
 TILESIZE = 64
 
-MAP = "map1.tmx"
+MAP = "map2.tmx"
 
 HOST = '192.168.1.188'
 PORT = 65432
@@ -31,6 +31,8 @@ PLAYER_SPEED = 300
 PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
 PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 PLAYER_HEALTH = 100
+
+SIDE = "ct"
 
 # Crosshair
 CROSSHAIR_IMG = "crosshair.png"

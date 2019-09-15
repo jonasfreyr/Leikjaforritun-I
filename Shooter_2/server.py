@@ -16,6 +16,9 @@ players = {}
 bullets = {}
 grenades = {}
 
+t_players = []
+ct_players = []
+
 id = 1
 
 def remove_user(id):
@@ -29,6 +32,15 @@ def new_client(conn, addr, id):
     # print("Connection started with:", addr)
     msg = "Connection started with:" + str(addr) + " id: " + str(id)
     print(msg)
+
+    data = conn.recv(262144).decode()
+    if data == "T":
+        t_players.append(id)
+
+    elif data == "CT":
+        ct_players.append(id)
+
+
     bullets[id] = []
     grenades[id] = []
     while True:
@@ -42,11 +54,34 @@ def new_client(conn, addr, id):
             break
 
         try:
-            # print(data)
             data = eval(data)
-
         except:
             print(data)
+            s = ""
+            count = 0
+            first = False
+            pref = ""
+            listi = []
+            for a in data:
+
+                if a == "{" and pref != "[":
+                    first = True
+
+                if a == "{":
+                    count += 1
+
+                elif a == "}":
+                    count -= 1
+
+                if first is True:
+                    s = s + a
+
+                if count == 0 and first is not False:
+                    break
+
+                pref = a
+
+            data = eval(s)
 
         players[id] = data["player"]
         for bullet in data["bullets"]:
