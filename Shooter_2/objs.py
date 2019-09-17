@@ -108,6 +108,79 @@ class Player:
         self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapon.name]['img_offset'].x
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapon.name]['img_offset'].y
 
+    def see_player(self, player):
+        corner1 = self.hit_box.copy()
+        corner2 = Vector(self.hit_box.x, self.hit_box.y + self.hit_box.height)
+        corner3 = Vector(self.hit_box.x + self.hit_box.width, self.hit_box.y + self.hit_box.height)
+        corner4 = Vector(self.hit_box.x + self.hit_box.width, self.hit_box.y)
+
+        if self.see_point(player, corner1):
+            return True
+
+        if self.see_point(player, corner2):
+            return True
+
+        if self.see_point(player, corner3):
+            return True
+
+        if self.see_point(player, corner4):
+            return True
+
+        return False
+
+    def see_point(self, player, point_1):
+        o_point_1 = player.hit_box.copy()
+        o_point_2 = Vector(player.hit_box.x, player.hit_box.y + player.hit_box.height)
+        o_point_3 = Vector(player.hit_box.x + player.hit_box.width, player.hit_box.y + player.hit_box.height)
+        o_point_4 = Vector(player.hit_box.x + player.hit_box.width, player.hit_box.y)
+
+        glBegin(GL_LINES)
+        glVertex2i(int(point_1.x), int(point_1.y))
+        glVertex2i(int(o_point_1.x), int(o_point_1.y))
+        glEnd()
+
+        glBegin(GL_LINES)
+        glVertex2i(int(point_1.x), int(point_1.y))
+        glVertex2i(int(o_point_2.x), int(o_point_2.y))
+        glEnd()
+
+        glBegin(GL_LINES)
+        glVertex2i(int(point_1.x), int(point_1.y))
+        glVertex2i(int(o_point_3.x), int(o_point_3.y))
+        glEnd()
+
+        glBegin(GL_LINES)
+        glVertex2i(int(point_1.x), int(point_1.y))
+        glVertex2i(int(o_point_4.x), int(o_point_4.y))
+        glEnd()
+
+        if self.line_collide(self.game, point_1, o_point_1) and self.line_collide(self.game, point_1, o_point_2) and self.line_collide(self.game, point_1, o_point_3) \
+            and self.line_collide(self.game, point_1, o_point_4):
+            return False
+
+        return True
+
+    def line_collide(self, game, pos, o):
+        for wall in game.walls:
+            topleft = [wall.pos.x, wall.pos.y + wall.height]
+            topright = [wall.pos.x + wall.width, wall.pos.y + wall.height]
+
+            bottomleft = [wall.pos.x, wall.pos.y]
+            bottomright = [wall.pos.x + wall.width, wall.pos.y]
+
+            left = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topleft[0], bottomleft[1])
+
+            right = lineLine(pos.x, pos.y, o.x, o.y, topright[0], topright[1], topright[0], bottomright[1])
+
+            top = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topright[0], topright[1])
+
+            bottom = lineLine(pos.x, pos.y, o.x, o.y, bottomleft[0], bottomleft[1], bottomright[0], bottomright[1])
+
+            if left or right or top or bottom:
+                return True
+
+        return False
+
     def switch(self):
         if self.other_weapon != None:
             s = self.weapon

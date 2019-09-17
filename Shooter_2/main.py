@@ -286,7 +286,7 @@ class Game(pyglet.window.Window):
                         break
 
                 else:
-                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["x"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
+                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["y"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
 
             for player in self.o_players:
                 if player.id not in i_ids:
@@ -442,7 +442,8 @@ class Game(pyglet.window.Window):
 
             for player in self.o_players:
                 if not player.dead:
-                    player.sprite.draw()
+                    if self.player.see_player(player) or self.player.health <= 0:
+                        player.sprite.draw()
 
             self.bullet_batch.draw()
 
