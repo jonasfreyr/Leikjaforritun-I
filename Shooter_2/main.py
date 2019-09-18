@@ -181,7 +181,7 @@ class Game(pyglet.window.Window):
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
     def new(self):
-        _thread.start_new_thread(self.receive_data, (s, 2))
+        # _thread.start_new_thread(self.receive_data, (s, 2))
         self.s = s
 
         self.main_batch = pyglet.graphics.Batch()
@@ -422,7 +422,7 @@ class Game(pyglet.window.Window):
                 data["grenades"].append(grenade)
                 self.o_grenades.remove(grenade)
 
-            self.s.sendall(str(data).encode())
+            self.s.sendto(str(data).encode(), addr)
 
             if self.respawn:
                 self.respawn = False
@@ -464,11 +464,22 @@ class Game(pyglet.window.Window):
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 
-
+'''
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
 
     g.load()
 
     pyglet.app.run()
+'''
 
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    # s.connect((HOST, PORT))
+    s.settimeout(2.0)
+
+    addr = (HOST, PORT)
+
+    g.load()
+    g.new()
+
+    pyglet.app.run()

@@ -11,6 +11,7 @@ HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
+connsUDP = []
 
 players = {}
 bullets = {}
@@ -91,7 +92,7 @@ def new_client(conn, addr, id):
 
         for grenade in data["grenades"]:
             grenades[id].append(grenade)
-
+'''
 def socket_func():
     global id
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -108,6 +109,35 @@ def socket_func():
             _thread.start_new_thread(new_client, (conn, addr, id))
 
             id += 1
+'''
+def socket_func():
+    global id
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind(('', PORT))
+    # _thread.start_new_thread(start_main, ())
+
+    while True:
+        data, address = s.recvfrom(262144)
+
+        if address not in connsUDP:
+            print("yay")
+            connsUDP.append(address)
+            bullets[address] = []
+            grenades[address] = []
+
+        print(address, ":" ,data)
+
+        data = eval(data)
+
+        players[address] = data["player"]
+        for bullet in data["bullets"]:
+            # print(bullet)
+            bullets[address].append(bullet)
+
+        for grenade in data["grenades"]:
+            grenades[address].append(grenade)
+
+        # _thread.start_new_thread(new_client, (conn, addr, id))
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -391,7 +421,7 @@ class Game(pyglet.window.Window):
 
             else:
                 playersC[player.id]["dead"] = False
-
+        '''
         try:
             tempC = conns
             for id in tempC:
@@ -407,7 +437,7 @@ class Game(pyglet.window.Window):
 
         except:
             pass
-
+        '''
     def on_draw(self):
         pyglet.clock.tick()
 
