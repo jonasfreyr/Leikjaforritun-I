@@ -242,36 +242,13 @@ class Game(pyglet.window.Window):
 
     def receive_data(self, conn, i):
         while True:
-            data = conn.recv(262144).decode()
+            data = conn.recvfrom(262144).decode()
 
-            try:
-                data = eval(data)
-            except:
-                s = ""
-                count = 0
-                first = False
-                pref = ""
-                for a in data:
+            data = eval(data)
 
-                    if a == "{" and pref != "[":
-                        first = True
+            print(data)
 
-                    if a == "{":
-                        count += 1
-
-                    elif a == "}":
-                        count -= 1
-
-                    if first is True:
-                        s = s + a
-
-                    if count == 0 and first is not False:
-                        break
-
-                    pref = a
-
-                data = eval(s)
-
+            '''
             i_ids = []
             # print(data)
             for ids in data["players"]:
@@ -296,7 +273,7 @@ class Game(pyglet.window.Window):
             self.new_grenades = data["grenades"]
 
             self.player.health = data["health"]
-
+            '''
     def reset(self):
         self.player.hit_box.x = self.r_pos.x
         self.player.hit_box.y = self.r_pos.y
@@ -408,7 +385,7 @@ class Game(pyglet.window.Window):
             if self.respawn:
                 self.reset()
 
-            data = {"player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
+            data = {"id": ID, "player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
                                "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [],
                     "grenades": []}
 
@@ -464,18 +441,16 @@ class Game(pyglet.window.Window):
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 
-'''
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
 
-    g.load()
-
-    pyglet.app.run()
-'''
+tcp_s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcp_s.connect((HOST, PORT))
+ID = int(tcp_s.recv(1024).decode())
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     # s.connect((HOST, PORT))
     s.settimeout(2.0)
+
+    s.bind(('', MY_PORT))
 
     addr = (HOST, PORT)
 

@@ -11,7 +11,7 @@ HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
-connsUDP = []
+connsUDP = {}
 
 players = {}
 bullets = {}
@@ -23,6 +23,7 @@ ct_players = []
 id = 1
 
 def remove_user(id):
+    del connsUDP[id]
     del conns[id]
     del players[id]
     del bullets[id]
@@ -30,70 +31,21 @@ def remove_user(id):
     # ui.remove_user()
 
 def new_client(conn, addr, id):
-    # print("Connection started with:", addr)
-    msg = "Connection started with:" + str(addr) + " id: " + str(id)
-    print(msg)
+    conn.sendall(str(id).encode())
 
-    data = conn.recv(262144).decode()
-
-    if data == "T":
-        t_players.append(id)
-
-    elif data == "CT":
-        ct_players.append(id)
-
-
-    bullets[id] = []
-    grenades[id] = []
     while True:
         try:
-            data = conn.recv(262144).decode()
+            data = conn.recv(1024).decode()
 
         except:
-            msg = "Connection ended with:" + str(addr) + " id: " + str(id)
-            print(msg)
+            print("Connection ended with: ", id)
             remove_user(id)
-            break
+            print("yay")
 
-        try:
-            data = eval(data)
-        except:
-            print(data)
-            s = ""
-            count = 0
-            first = False
-            pref = ""
-            listi = []
-            for a in data:
+        if (data == ""):
+            remove_user(id)
 
-                if a == "{" and pref != "[":
-                    first = True
-
-                if a == "{":
-                    count += 1
-
-                elif a == "}":
-                    count -= 1
-
-                if first is True:
-                    s = s + a
-
-                if count == 0 and first is not False:
-                    break
-
-                pref = a
-
-            data = eval(s)
-
-        players[id] = data["player"]
-        for bullet in data["bullets"]:
-            # print(bullet)
-            bullets[id].append(bullet)
-
-        for grenade in data["grenades"]:
-            grenades[id].append(grenade)
-'''
-def socket_func():
+def socket_func_TCP():
     global id
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
@@ -105,13 +57,18 @@ def socket_func():
 
             conns[id] = conn
 
+            bullets[id] = []
+            grenades[id] = []
+
+            print(addr)
+
             # ui.update_user(id)
             _thread.start_new_thread(new_client, (conn, addr, id))
 
             id += 1
-'''
+
 def socket_func():
-    global id
+    global id, s
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind(('', PORT))
     # _thread.start_new_thread(start_main, ())
@@ -119,23 +76,18 @@ def socket_func():
     while True:
         data, address = s.recvfrom(262144)
 
-        if address not in connsUDP:
-            print("yay")
-            connsUDP.append(address)
-            bullets[address] = []
-            grenades[address] = []
+        # print(address, ":" ,data)
 
-        print(address, ":" ,data)
+        data = eval(data.decode())
 
-        data = eval(data)
-
-        players[address] = data["player"]
+        connsUDP[data["id"]] = address
+        players[data["id"]] = data["player"]
         for bullet in data["bullets"]:
             # print(bullet)
-            bullets[address].append(bullet)
+            bullets[data["id"]].append(bullet)
 
         for grenade in data["grenades"]:
-            grenades[address].append(grenade)
+            grenades[data["id"]].append(grenade)
 
         # _thread.start_new_thread(new_client, (conn, addr, id))
 
@@ -438,6 +390,10 @@ class Game(pyglet.window.Window):
         except:
             pass
         '''
+        tempC = dict(connsUDP)
+        for id in tempC:
+            s.sendto(b"1", tempC[id])
+
     def on_draw(self):
         pyglet.clock.tick()
 
@@ -471,5 +427,6 @@ g.load()
 g.new()
 
 _thread.start_new_thread(socket_func, ())
+_thread.start_new_thread(socket_func_TCP, ())
 
 pyglet.app.run()
