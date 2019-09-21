@@ -20,7 +20,7 @@ class Game(pyglet.window.Window):
         pyglet.clock.schedule_interval(self.update, self.frame_rate)
         pyglet.clock.set_fps_limit(FPS)
 
-        self.set_location(1000, 500)
+        self.set_location(0, 0)
 
         self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
 
@@ -83,7 +83,7 @@ class Game(pyglet.window.Window):
                     SIDE = "CT"
 
                 self.picked = True
-                s.sendall(SIDE.encode())
+                tcp_s.sendall(SIDE.encode())
                 self.new()
 
     def on_mouse_motion(self, x, y, dx, dy):
@@ -181,7 +181,7 @@ class Game(pyglet.window.Window):
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
     def new(self):
-        # _thread.start_new_thread(self.receive_data, (s, 2))
+        _thread.start_new_thread(self.receive_data, (s, 2))
         self.s = s
 
         self.main_batch = pyglet.graphics.Batch()
@@ -241,14 +241,14 @@ class Game(pyglet.window.Window):
         self.picked = True
 
     def receive_data(self, conn, i):
+        print("Starting Receive function")
         while True:
-            data = conn.recvfrom(262144).decode()
+            data, address = conn.recvfrom(262144)
 
-            data = eval(data)
+            data = eval(data.decode())
 
             print(data)
 
-            '''
             i_ids = []
             # print(data)
             for ids in data["players"]:
@@ -273,7 +273,7 @@ class Game(pyglet.window.Window):
             self.new_grenades = data["grenades"]
 
             self.player.health = data["health"]
-            '''
+
     def reset(self):
         self.player.hit_box.x = self.r_pos.x
         self.player.hit_box.y = self.r_pos.y
@@ -442,7 +442,7 @@ class Game(pyglet.window.Window):
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 
 
-tcp_s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcp_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_s.connect((HOST, PORT))
 ID = int(tcp_s.recv(1024).decode())
 
@@ -455,6 +455,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     addr = (HOST, PORT)
 
     g.load()
-    g.new()
+    #g.new()
 
     pyglet.app.run()
