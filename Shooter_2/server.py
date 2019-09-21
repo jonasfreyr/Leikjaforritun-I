@@ -7,7 +7,7 @@ from hud import *
 from weapons import *
 import _thread, socket, site, os, sys
 
-HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
+HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
@@ -28,6 +28,12 @@ def remove_user(id):
     del players[id]
     del bullets[id]
     del grenades[id]
+
+    if id in t_players:
+        t_players.remove(id)
+    else:
+        ct_players.remove(id)
+
     # ui.remove_user()
 
 def new_client(conn, addr, id):
@@ -38,12 +44,21 @@ def new_client(conn, addr, id):
             data = conn.recv(1024).decode()
 
         except:
-            print("Connection ended with: ", id)
+            print("Connection ended with: \n id: ", id, "\n TCP address: ", addr, "\n UDP address: ", connsUDP[id])
             remove_user(id)
-            print("yay")
+            break
 
         if (data == ""):
+            print("Connection ended with: \n id: ", id, "\n TCP address: ", addr, "\n UDP address: ", connsUDP[id])
             remove_user(id)
+            break
+
+        if data == "CT" and id not in ct_players and id not in t_players:
+            ct_players.append(id)
+
+        if data == "T" and id not in ct_players and id not in t_players:
+            t_players.append(id)
+
 
 def socket_func_TCP():
     global id
@@ -70,7 +85,7 @@ def socket_func_TCP():
 def socket_func():
     global id, s
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(('', PORT))
+    s.bind((HOST, PORT))
     # _thread.start_new_thread(start_main, ())
 
     while True:
@@ -255,6 +270,7 @@ class Game(pyglet.window.Window):
         # print(len(self.effects))
         # print(len(self.grenades))
         # print(len(self.o_players))
+        # print(ct_players)
         i_ids = []
         for id in players:
             i_ids.append(id)
@@ -373,9 +389,9 @@ class Game(pyglet.window.Window):
 
             else:
                 playersC[player.id]["dead"] = False
-        '''
+
         try:
-            tempC = conns
+            tempC = dict(connsUDP)
             for id in tempC:
                 temp = dict(playersC)
 
@@ -385,14 +401,10 @@ class Game(pyglet.window.Window):
 
                 d = {"players": temp, "bullets": tempB, "grenades": tempG, "health": health}
                 # print(d)
-                conns[id].sendall(str(d).encode())
+                s.sendto(str(d).encode(), tempC[id])
 
         except:
             pass
-        '''
-        tempC = dict(connsUDP)
-        for id in tempC:
-            s.sendto(b"1", tempC[id])
 
     def on_draw(self):
         pyglet.clock.tick()
