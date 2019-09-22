@@ -191,32 +191,6 @@ class Game(pyglet.window.Window):
         # smoke_seq = pyglet.image.ImageGrid(smoke, 6, 12, item_width=341, item_height=280)
         # self.smoke_anim = pyglet.image.Animation.from_image_sequence(smoke_seq[0:], SMOKE_DURATION, loop=False)
 
-        # Grenades Logos
-        self.grenade_logo = preload_img(GRENADE_LOGO)
-        texture = self.grenade_logo.get_texture()
-        texture.width = GRENADE_LOGO_SIZE.x
-        texture.height = GRENADE_LOGO_SIZE.y
-
-        self.smoke_logo = preload_img(SMOKE_LOGO)
-        texture = self.smoke_logo.get_texture()
-        texture.width = SMOKE_LOGO_SIZE.x
-        texture.height = SMOKE_LOGO_SIZE.y
-
-
-        self.ak47_logo = preload_img(AK47_LOGO)
-        texture = self.ak47_logo.get_texture()
-        texture.width = AK47_LOGO_SIZE.x
-        texture.height = AK47_LOGO_SIZE.y
-
-        self.pistol_logo = preload_img(PISTOL_LOGO)
-        texture = self.pistol_logo.get_texture()
-        texture.width = PISTOL_LOGO_SIZE.x
-        texture.height = PISTOL_LOGO_SIZE.y
-
-        self.shotgun_logo = preload_img(SHOTGUN_LOGO)
-        texture = self.shotgun_logo.get_texture()
-        texture.width = SHOTGUN_LOGO_SIZE.x
-        texture.height = SHOTGUN_LOGO_SIZE.y
 
     def new(self):
         self.main_batch = pyglet.graphics.Batch()

@@ -79,22 +79,6 @@ SMOKE_LOGO_PADDING = Vector(-5, 5)
 # Bullet
 BULLET_IMG = "bullet.png"
 
-# Weapon
-LOGOS = {"rifle": "ak47_logo.png"}
-LOGO_SIZE = {"rifle": Vector(200, 50)}
-LOGO_POS = {"rifle": Vector(-300, 0)}
-
-AK47_LOGO = "ak47_logo.png"
-AK47_LOGO_SIZE = Vector(140, 40)
-AK47_LOGO_POS = Vector(WINDOW_WIDTH -130, 0)
-
-PISTOL_LOGO = "pistol_logo.png"
-PISTOL_LOGO_SIZE = Vector(70, 40)
-PISTOL_LOGO_POS = Vector(WINDOW_WIDTH -130, 0)
-
-SHOTGUN_LOGO = "shotgun_logo.png"
-SHOTGUN_LOGO_SIZE = Vector(170, 110)
-SHOTGUN_LOGO_POS = Vector(WINDOW_WIDTH -100, -25)
 
 MUZZLE_FLASH_IMG = "muzzleFlash.png"
 MUZZLE_FLASH_LIFESPAWN = 0.05
@@ -120,7 +104,10 @@ WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'detect_radius': 400,
                      'offset': Vector(35, -11),
                      'img_size': Vector(TILESIZE, TILESIZE),
-                     'img_offset': Vector(5, 5)
+                     'img_offset': Vector(5, 5),
+                     'logo_img': "pistol_logo.png",
+                     'logo_pos': Vector(WINDOW_WIDTH -130, 0),
+                     'logo_size': Vector(70, 40)
                      }
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
@@ -136,7 +123,10 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'detect_radius': 400,
                      'offset': Vector(47, -11),
                      'img_size': Vector(TILESIZE * 1.2, TILESIZE),
-                     'img_offset': Vector(10, 5)
+                     'img_offset': Vector(10, 5),
+                     'logo_img': "shotgun_logo.png",
+                     'logo_pos': Vector(WINDOW_WIDTH -100, -25),
+                     'logo_size': Vector(170, 110)
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
@@ -153,5 +143,8 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'offset': Vector(47, -11),
                      'img_size': Vector(TILESIZE * 1.2, TILESIZE),
                      'img_offset': Vector(10, 5),
-                     'recovery_time': 1
+                     'recovery_time': 1,
+                     'logo_img': "ak47_logo.png",
+                     'logo_pos': Vector(WINDOW_WIDTH -130, 0),
+                     'logo_size': Vector(140, 40)
                     }

@@ -156,21 +156,15 @@ class Game(pyglet.window.Window):
         texture.width = SMOKE_LOGO_SIZE.x
         texture.height = SMOKE_LOGO_SIZE.y
 
+        self.weapon_logos = {}
 
-        self.ak47_logo = preload_img(AK47_LOGO)
-        texture = self.ak47_logo.get_texture()
-        texture.width = AK47_LOGO_SIZE.x
-        texture.height = AK47_LOGO_SIZE.y
-
-        self.pistol_logo = preload_img(PISTOL_LOGO)
-        texture = self.pistol_logo.get_texture()
-        texture.width = PISTOL_LOGO_SIZE.x
-        texture.height = PISTOL_LOGO_SIZE.y
-
-        self.shotgun_logo = preload_img(SHOTGUN_LOGO)
-        texture = self.shotgun_logo.get_texture()
-        texture.width = SHOTGUN_LOGO_SIZE.x
-        texture.height = SHOTGUN_LOGO_SIZE.y
+        for weapon in WEAPONS:
+            logo = preload_img(WEAPONS[weapon]["logo_img"])
+            texture = logo.get_texture()
+            size = WEAPONS[weapon]["logo_size"]
+            texture.width = size.x
+            texture.height = size.y
+            self.weapon_logos[weapon] = logo
 
         pick_img = preload_img(PICK_IMG)
         texture = pick_img.get_texture()
@@ -198,7 +192,6 @@ class Game(pyglet.window.Window):
         self.effects = []
         self.grenades = []
         self.o_players = []
-        self.weapon_logos = {}
         self.o_bullets = []
         self.new_bullets = []
         self.new_grenades = []
@@ -339,14 +332,7 @@ class Game(pyglet.window.Window):
 
                     smoke_pos.x = smoke_pos.x - SMOKE_LOGO_SIZE.x
 
-            if self.player.weapon.name == "rifle":
-                self.hud_logos.append(Logo(AK47_LOGO_POS, Sprite(self.ak47_logo, batch=self.hud_batch), self))
-
-            elif self.player.weapon.name == "pistol":
-                self.hud_logos.append(Logo(PISTOL_LOGO_POS, Sprite(self.pistol_logo, batch=self.hud_batch), self))
-
-            elif self.player.weapon.name == "shotgun":
-                self.hud_logos.append(Logo(SHOTGUN_LOGO_POS, Sprite(self.shotgun_logo, batch=self.hud_batch), self))
+            self.hud_logos.append(Logo(WEAPONS[self.player.weapon.name]["logo_pos"], Sprite(self.weapon_logos[self.player.weapon.name], batch=self.hud_batch), self))
 
             self.dt = dt
 
