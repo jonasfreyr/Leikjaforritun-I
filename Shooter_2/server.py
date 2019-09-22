@@ -89,22 +89,22 @@ def socket_func():
     # _thread.start_new_thread(start_main, ())
 
     while True:
-        data, address = s.recvfrom(262144)
+        try:
+            data, address = s.recvfrom(262144)
 
-        # print(address, ":" ,data)
+            data = eval(data.decode())
 
-        data = eval(data.decode())
+            connsUDP[data["id"]] = address
+            players[data["id"]] = data["player"]
+            for bullet in data["bullets"]:
+                # print(bullet)
+                bullets[data["id"]].append(bullet)
 
-        connsUDP[data["id"]] = address
-        players[data["id"]] = data["player"]
-        for bullet in data["bullets"]:
-            # print(bullet)
-            bullets[data["id"]].append(bullet)
+            for grenade in data["grenades"]:
+                grenades[data["id"]].append(grenade)
 
-        for grenade in data["grenades"]:
-            grenades[data["id"]].append(grenade)
-
-        # _thread.start_new_thread(new_client, (conn, addr, id))
+        except ConnectionResetError:
+            pass
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):

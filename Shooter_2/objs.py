@@ -109,24 +109,10 @@ class Player:
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapon.name]['img_offset'].y
 
     def see_player(self, player):
-        corner1 = self.hit_box.copy()
-        corner2 = Vector(self.hit_box.x, self.hit_box.y + self.hit_box.height)
-        corner3 = Vector(self.hit_box.x + self.hit_box.width, self.hit_box.y + self.hit_box.height)
-        corner4 = Vector(self.hit_box.x + self.hit_box.width, self.hit_box.y)
+        corner2 = Vector(self.hit_box.x + self.hit_box.width / 2, self.hit_box.y + self.hit_box.height / 2)
 
-        if self.see_point(player, corner1):
-            return True
+        return self.see_point(player, corner2)
 
-        if self.see_point(player, corner2):
-            return True
-
-        if self.see_point(player, corner3):
-            return True
-
-        if self.see_point(player, corner4):
-            return True
-
-        return False
 
     def see_point(self, player, point_1):
         o_point_1 = player.hit_box.copy()
