@@ -6,7 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys, platform
+import _thread, socket, site, os, sys, platform, random
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -28,6 +28,7 @@ class Game(pyglet.window.Window):
         self.respawn = False
 
         self.picked = False
+        self.buy_menu = False
 
     def on_key_press(self, symbol, modifiers):
         """
@@ -51,17 +52,24 @@ class Game(pyglet.window.Window):
     def on_key_release(self, symbol, modifiers):
         self.keys[symbol] = False
 
-        if symbol == key.SPACE:
-            self.respawn = True
+        if self.picked:
+            if self.buy_menu is False:
+                if symbol == key.SPACE:
+                    self.respawn = True
 
-        elif symbol == key.Q:
-            self.player.switch()
+                elif symbol == key.Q:
+                    self.player.switch()
+
+            if symbol == key.B:
+                if self.can_buy:
+                    self.buy_menu = not self.buy_menu
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        self.mouse.update(dx, dy)
+        if not self.buy_menu:
+            self.mouse.update(dx, dy)
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if button == 1:
+        if button == 1 and not self.buy_menu:
             self.mouse_down = True
 
     def on_mouse_release(self, x, y, button, modifiers):
@@ -70,7 +78,17 @@ class Game(pyglet.window.Window):
             self.mouse_down = False
 
             if self.picked:
-                self.player.weapon.reset()
+                if not self.buy_menu:
+                    self.player.weapon.reset()
+
+                else:
+                    for box in self.buy_menu_items:
+                        if x > box.x - box.content_width / 2 and x < box.x + box.content_width / 2 and y > box.y - box.content_height / 2 and y < box.y + box.content_height / 2:
+                            if self.player.other_weapon is None:
+                                self.player.other_weapon = self.player.weapon
+
+                            self.player.weapon = Weapon(box.text)
+                            break
 
             else:
                 if x < WINDOW_WIDTH / 2:
@@ -84,7 +102,8 @@ class Game(pyglet.window.Window):
                 self.picked = True
 
     def on_mouse_motion(self, x, y, dx, dy):
-        self.mouse.update(dx, dy)
+        if not self.buy_menu:
+            self.mouse.update(dx, dy)
 
     def load(self):
         osystem = platform.system()
@@ -116,12 +135,6 @@ class Game(pyglet.window.Window):
         texture.height = CROSSHAIR_HEIGHT
 
         self.bullet_img = preload_img(BULLET_IMG)
-
-        # x = texture.width / 2
-        # y = texture.height / 2
-
-        # cursor = pyglet.window.ImageMouseCursor(crosshair_img, x, y)
-        # self.set_mouse_cursor(cursor)
 
         self.muzzle_flash_img = preload_img(MUZZLE_FLASH_IMG)
         texture = self.muzzle_flash_img.get_texture()
@@ -189,11 +202,10 @@ class Game(pyglet.window.Window):
         self.hud_batch = pyglet.graphics.Batch()
         self.hud_logo_batch = pyglet.graphics.Batch()
         self.o_players_batch = pyglet.graphics.Batch()
+        self.buy_menu_batch = pyglet.graphics.Batch()
 
         self.map = TiledRenderer((self.map_folder + "/" + MAP))
-        print("---------------------------")
-        print(self.map_folder + "/" + MAP)
-        print("---------------------------")
+
         self.hud_labels = []
         self.walls = []
         self.effects = []
@@ -217,7 +229,7 @@ class Game(pyglet.window.Window):
             elif tile_object.name == "Spawn":
                 self.r_wep = "pistol"
                 if tile_object.type == SIDE.lower():
-                    print("yeet")
+                    self.buy_menu_area = Rect(pos.x - tile_object.width / 2, pos.y - tile_object.height / 2, tile_object.width, tile_object.height)
                     self.player = Player(pos.x, pos.y, self, 'None')
                     self.r_pos = pos.copy()
 
@@ -236,6 +248,17 @@ class Game(pyglet.window.Window):
         l = pyglet.text.Label("big lel 2", x=0, y=0, batch=self.hud_batch)
         l.font_size = FONT_SIZE
         self.hud_labels.append(Health(self, l))
+
+        self.buy_menu_items = []
+        y_pos = WINDOW_HEIGHT / 2
+        for weapon in WEAPONS:
+            l = pyglet.text.Label(weapon, x=WINDOW_WIDTH / 2, y=y_pos, batch=self.buy_menu_batch)
+            l.anchor_x = "center"
+            l.anchor_y = "center"
+            l.font_size = BUY_MENU_FONT_SIZE
+            self.buy_menu_items.append(l)
+
+            y_pos += BUY_MENU_FONT_SIZE + BUY_MENU_PADDING
 
         self.target = self.player
 
@@ -282,8 +305,7 @@ class Game(pyglet.window.Window):
 
         self.player.weapon = Weapon(self.r_wep)
 
-        if self.r_wep != "pistol":
-            self.player.other_weapon = Weapon("pistol")
+        self.player.other_weapon = None
 
         self.player.grenades = [Grenade(self, "smoke"),Grenade(self, "grenade"),Grenade(self, "smoke"),Grenade(self, "grenade"),Grenade(self, "smoke")]
 
@@ -297,6 +319,7 @@ class Game(pyglet.window.Window):
         # print(self.player.pos)
         # print(self.player.other_weapon)
         if self.picked:
+            self.can_buy = False
             if self.player.health <= 0:
                 try:
                     self.target = self.o_players[0]
@@ -306,6 +329,13 @@ class Game(pyglet.window.Window):
 
             else:
                 self.target = self.player
+
+                if self.player.pos.x > self.buy_menu_area.x and self.player.pos.x < self.buy_menu_area.x + self.buy_menu_area.width \
+                        and self.player.pos.y > self.buy_menu_area.y and self.player.pos.y < self.buy_menu_area.y + self.buy_menu_area.height:
+                    self.can_buy = True
+
+                else:
+                    self.buy_menu = False
 
             self.bullets = []
             for bullet in self.new_bullets:
@@ -427,10 +457,13 @@ class Game(pyglet.window.Window):
 
             self.hud_batch.draw()
 
-            self.mouse.draw()
+            if self.buy_menu:
+                self.buy_menu_batch.draw()
 
         else:
             self.pick_sprite.draw()
+
+        self.mouse.draw()
 
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)

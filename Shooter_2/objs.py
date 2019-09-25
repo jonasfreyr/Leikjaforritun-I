@@ -71,7 +71,7 @@ class Oplayers:
 class Player:
     def __init__(self, x, y, game, weapon):
         self.pos = Vector(x, y)
-        self.vel = Vector(x, y)
+        self.vel = Vector(0, 0)
 
         self.rot = 0
 
