@@ -5,7 +5,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys
+import _thread, socket, site, os, sys, platform
 
 HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
@@ -113,7 +113,7 @@ class Game(pyglet.window.Window):
         self.frame_rate = 1 / 120
 
         pyglet.clock.schedule_interval(self.update, self.frame_rate)
-        pyglet.clock.set_fps_limit(FPS)
+        #pyglet.clock.set_fps_limit(FPS)
 
         self.set_location(1000, 500)
 
@@ -136,10 +136,18 @@ class Game(pyglet.window.Window):
         self.keys[symbol] = False
 
     def load(self):
-        game_folder = path.dirname(__file__)
-        res_folder =  path.join(game_folder, "res")
-        img_folder = path.join(res_folder, "img")
-        self.map_folder = path.join(res_folder, "maps")
+        osystem = platform.system()
+
+        if osystem == "Linux":
+            game_folder = os.getcwd()
+            res_folder = game_folder + "/res"
+            img_folder = res_folder + "/img"
+            self.map_folder = res_folder + "/maps"
+        elif osystem == "Windows":
+            game_folder = path.dirname(__file__)
+            res_folder = path.join(game_folder, "res")
+            img_folder = path.join(res_folder, "img")
+            self.map_folder = path.join(res_folder, "maps")
 
         self.player_images = {}
         for a in PLAYER_IMAGES:
@@ -200,7 +208,7 @@ class Game(pyglet.window.Window):
         self.hud_logo_batch = pyglet.graphics.Batch()
         self.o_players_batch = pyglet.graphics.Batch()
 
-        self.map = TiledRenderer(path.join(self.map_folder, MAP))
+        self.map = TiledRenderer((self.map_folder + "/" + MAP))
 
         self.hud_labels = []
         self.walls = []
