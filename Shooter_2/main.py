@@ -6,10 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys
-
-print(site.getsitepackages())
-print(os.path.dirname(sys.executable))
+import _thread, socket, site, os, sys, platform
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -18,7 +15,7 @@ class Game(pyglet.window.Window):
         self.frame_rate = 1 / FPS
 
         pyglet.clock.schedule_interval(self.update, self.frame_rate)
-        pyglet.clock.set_fps_limit(FPS)
+        # pyglet.clock.set_fps_limit(FPS)
 
         self.set_location(0, 0)
 
@@ -82,18 +79,26 @@ class Game(pyglet.window.Window):
                 else:
                     SIDE = "CT"
 
-                self.picked = True
                 tcp_s.sendall(SIDE.encode())
                 self.new()
+                self.picked = True
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse.update(dx, dy)
 
     def load(self):
-        game_folder = path.dirname(__file__)
-        res_folder =  path.join(game_folder, "res")
-        img_folder = path.join(res_folder, "img")
-        self.map_folder = path.join(res_folder, "maps")
+        osystem = platform.system()
+
+        if osystem == "Linux":
+            game_folder = os.getcwd()
+            res_folder = game_folder + "/res"
+            img_folder = res_folder + "/img"
+            self.map_folder = res_folder + "/maps"
+        elif osystem == "Windows":
+            game_folder = path.dirname(__file__)
+            res_folder =  path.join(game_folder, "res")
+            img_folder = path.join(res_folder, "img")
+            self.map_folder = path.join(res_folder, "maps")
 
         self.player_images = {}
         for a in PLAYER_IMAGES:
@@ -185,8 +190,10 @@ class Game(pyglet.window.Window):
         self.hud_logo_batch = pyglet.graphics.Batch()
         self.o_players_batch = pyglet.graphics.Batch()
 
-        self.map = TiledRenderer(path.join(self.map_folder, MAP))
-
+        self.map = TiledRenderer((self.map_folder + "/" + MAP))
+        print("---------------------------")
+        print(self.map_folder + "/" + MAP)
+        print("---------------------------")
         self.hud_labels = []
         self.walls = []
         self.effects = []
@@ -210,6 +217,7 @@ class Game(pyglet.window.Window):
             elif tile_object.name == "Spawn":
                 self.r_wep = "pistol"
                 if tile_object.type == SIDE.lower():
+                    print("yeet")
                     self.player = Player(pos.x, pos.y, self, 'None')
                     self.r_pos = pos.copy()
 
