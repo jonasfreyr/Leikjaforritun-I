@@ -33,7 +33,7 @@ class TiledRenderer(object):
         self.sprites = []   # container for tiles
         self.o_sprites = []
         self.generate_sprites()
-        self.clock_display = pyglet.clock.ClockDisplay()
+        #self.clock_display = pyglet.clock.ClockDisplay()
 
     def draw_rect(self, color, rect, width):
         pass
