@@ -7,7 +7,7 @@ from hud import *
 from weapons import *
 import _thread, socket, site, os, sys, platform
 
-HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
+HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}

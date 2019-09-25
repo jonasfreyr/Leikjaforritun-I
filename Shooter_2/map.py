@@ -1,11 +1,11 @@
 import pytmx
+import platform
 from pytmx.util_pyglet import load_pyglet
 import pyglet
 from pyglet import *
 from pyglet.sprite import Sprite
 from settings import *
 from vector import Vector
-
 from pytmx import *
 import logging
 
@@ -33,7 +33,12 @@ class TiledRenderer(object):
         self.sprites = []   # container for tiles
         self.o_sprites = []
         self.generate_sprites()
-        #self.clock_display = pyglet.clock.ClockDisplay()
+        osystem = platform.system()
+        if osystem == "Linux":
+            pass
+            #self.clock_display = pyglet.clock.ClockDisplay()
+        elif osystem == "Windows":
+            self.clock_display = pyglet.clock.ClockDisplay() 
 
     def draw_rect(self, color, rect, width):
         pass

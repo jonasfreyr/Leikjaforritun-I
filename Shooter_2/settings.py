@@ -24,7 +24,7 @@ TILESIZE = 64
 
 MAP = "map2.tmx"
 
-HOST = '192.168.1.188'
+HOST = '127.0.0.1'
 PORT = 65432
 MY_PORT = 65433
 
