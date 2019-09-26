@@ -108,7 +108,7 @@ class Game(pyglet.window.Window):
     def load(self):
         osystem = platform.system()
 
-        if osystem == "Linux":
+        if osystem == "Linux" or osystem == "Darwin":
             game_folder = os.getcwd()
             res_folder = game_folder + "/res"
             img_folder = res_folder + "/img"
