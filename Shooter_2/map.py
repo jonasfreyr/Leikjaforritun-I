@@ -34,7 +34,7 @@ class TiledRenderer(object):
         self.o_sprites = []
         self.generate_sprites()
         osystem = platform.system()
-        if osystem == "Linux":
+        if osystem == "Linux" or osystem == "Darwin":
             pass
             #self.clock_display = pyglet.clock.ClockDisplay()
         elif osystem == "Windows":
