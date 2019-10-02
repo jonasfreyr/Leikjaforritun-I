@@ -5,7 +5,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys, platform
+import _thread, socket, site, os, sys, platform, base64
 
 HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
@@ -38,6 +38,7 @@ def remove_user(id):
 
 def new_client(conn, addr, id):
     conn.sendall(str(id).encode())
+    conn.sendall(str(MAP).encode())
 
     while True:
         try:
@@ -47,6 +48,12 @@ def new_client(conn, addr, id):
             print("Connection ended with: \n id: ", id, "\n TCP address: ", addr, "\n UDP address: ", connsUDP[id])
             remove_user(id)
             break
+
+        if data == "get map":
+            with open("./res/maps/" + MAP, "rb") as r:
+                m = base64.b64encode(r.read())
+
+            conn.sendall(m)
 
         if (data == ""):
             print("Connection ended with: \n id: ", id, "\n TCP address: ", addr, "\n UDP address: ", connsUDP[id])

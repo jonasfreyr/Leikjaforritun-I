@@ -6,7 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys, platform, random
+import _thread, socket, site, os, sys, platform, random, base64
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -472,6 +472,14 @@ g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 tcp_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_s.connect((HOST, PORT))
 ID = int(tcp_s.recv(1024).decode())
+MAP = str(tcp_s.recv(1024).decode())
+
+if not os.path.isfile("./res/maps/" + MAP):
+    tcp_s.sendall(b"get map")
+    m = tcp_s.recv(20000)
+
+    with open("./res/maps" + MAP, "wb") as r:
+        r.write(base64.b64decode(m))
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     # s.connect((HOST, PORT))
