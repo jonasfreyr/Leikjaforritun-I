@@ -51,7 +51,7 @@ def new_client(conn, addr, id):
 
         if data == "get map":
             with open("./res/maps/" + MAP, "rb") as r:
-                m = base64.b64encode(r.read())
+                m = r.read()
 
             conn.sendall(m)
 

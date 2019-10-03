@@ -476,10 +476,10 @@ MAP = str(tcp_s.recv(1024).decode())
 
 if not os.path.isfile("./res/maps/" + MAP):
     tcp_s.sendall(b"get map")
-    m = tcp_s.recv(20000)
+    m = tcp_s.recv(20000).decode()
 
-    with open("./res/maps" + MAP, "wb") as r:
-        r.write(base64.b64decode(m))
+    with open("./res/maps/" + MAP, "w") as r:
+        r.write(str(m))
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     # s.connect((HOST, PORT))
