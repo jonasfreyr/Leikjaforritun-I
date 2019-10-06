@@ -1,3 +1,4 @@
+# iput = input
 from map import *
 from os import path
 from objs import *
@@ -5,13 +6,14 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys, platform, base64
+import _thread, socket, site, os, sys, platform
 
 HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
 connsUDP = {}
+TCPaddress = {}
 
 players = {}
 bullets = {}
@@ -22,12 +24,34 @@ ct_players = []
 
 id = 1
 
+def command_log(*args):
+    with open("./res/log.txt", "r") as r:
+        print(r.read())
+
+def command_conns(*args):
+    for id in players:
+        if args:
+            if str(id) in args:
+                print("Connection with: \n id: ", id, "\n TCP address: ",
+                      TCPaddress[id], "\n UDP address: ", connsUDP[id])
+
+        else:
+            print("Connection with: \n id: ", id, "\n TCP address: ",
+              TCPaddress[id], "\n UDP address: ", connsUDP[id])
+
+def command_disconnect(*args):
+    for id in args:
+        pass
+
+commands = {"log": command_log, "conns": command_conns}
+
 def remove_user(id):
     del connsUDP[id]
     del conns[id]
     del players[id]
     del bullets[id]
     del grenades[id]
+    del TCPaddress[id]
 
     if id in t_players:
         t_players.remove(id)
@@ -35,6 +59,32 @@ def remove_user(id):
         ct_players.remove(id)
 
     # ui.remove_user()
+
+def console():
+    with open("./res/log.txt", "w") as r:
+        r.write("Server Started! \n")
+        r.write("")
+
+    while True:
+        c = input(">> ")
+
+        command = c.split(" ")
+        expressions = command[1:]
+
+        if command[0] in commands:
+            commands[command[0]](*expressions)
+
+        else:
+            try:
+                exec(c)
+
+            except (NameError, SyntaxError) as e:
+                print(e)
+
+def log(text):
+    with open("./res/log.txt", "a") as r:
+        r.write(str(text))
+        r.write("\n")
 
 def new_client(conn, addr, id):
     conn.sendall(str(id).encode())
@@ -45,7 +95,7 @@ def new_client(conn, addr, id):
             data = conn.recv(1024).decode()
 
         except:
-            print("Connection ended with: \n id: ", id, "\n TCP address: ", addr, "\n UDP address: ", connsUDP[id])
+            log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(connsUDP[id]))
             remove_user(id)
             break
 
@@ -56,7 +106,7 @@ def new_client(conn, addr, id):
             conn.sendall(m)
 
         if (data == ""):
-            print("Connection ended with: \n id: ", id, "\n TCP address: ", addr, "\n UDP address: ", connsUDP[id])
+            log("Connection ended with: \n id: " + id + "\n TCP address: " + addr + "\n UDP address: " + connsUDP[id])
             remove_user(id)
             break
 
@@ -79,10 +129,12 @@ def socket_func_TCP():
 
             conns[id] = conn
 
+            TCPaddress[id] = addr
+
             bullets[id] = []
             grenades[id] = []
 
-            print(addr)
+            log(addr)
 
             # ui.update_user(id)
             _thread.start_new_thread(new_client, (conn, addr, id))
@@ -427,6 +479,7 @@ g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 g.load()
 g.new()
 
+_thread.start_new_thread(console, ())
 _thread.start_new_thread(socket_func, ())
 _thread.start_new_thread(socket_func_TCP, ())
 

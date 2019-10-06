@@ -2,7 +2,7 @@ import pytmx
 import platform
 from pytmx.util_pyglet import load_pyglet
 import pyglet
-from pyglet import *
+from pyglet import image
 from pyglet.sprite import Sprite
 from settings import *
 from vector import Vector

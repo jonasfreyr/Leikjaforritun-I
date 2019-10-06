@@ -6,7 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys, platform, random, base64
+import _thread, socket, site, os, sys, platform, random
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
