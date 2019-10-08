@@ -93,6 +93,28 @@ class Bullet:
 
         return False
 
+    def check_player(self, player):
+        if player.hit_box.x + player.hit_box.width > self.pos.x > player.hit_box.x and player.hit_box.y + player.hit_box.height > self.pos.y > player.hit_box.y:
+            return True
+
+        if lineLine(player.hit_box.x, player.hit_box.y, player.hit_box.x, player.hit_box.y + player.hit_box.height, self.pos.x, self.pos.y,
+                    self.prev_pos.x, self.prev_pos.y):
+            return True
+
+        if lineLine(player.hit_box.x, player.hit_box.y, player.hit_box.x + player.hit_box.width, player.hit_box.y, self.pos.x, self.pos.y,
+                    self.prev_pos.x, self.prev_pos.y):
+            return True
+
+        if lineLine(player.hit_box.x + player.hit_box.width, player.hit_box.y, player.hit_box.x + player.hit_box.width, player.hit_box.y + player.hit_box.height, self.pos.x,
+                    self.pos.y, self.prev_pos.x, self.prev_pos.y):
+            return True
+
+        if lineLine(player.hit_box.x + player.hit_box.width, player.hit_box.y + player.hit_box.height, player.hit_box.x, player.hit_box.y + player.hit_box.height, self.pos.x,
+                    self.pos.y, self.prev_pos.x, self.prev_pos.y):
+            return True
+
+        return False
+
     def update(self,dt):
         self.prev_pos = self.pos.copy()
 

@@ -113,7 +113,6 @@ class Player:
 
         return self.see_point(player, corner2)
 
-
     def see_point(self, player, point_1):
         o_point_1 = player.hit_box.copy()
         o_point_2 = Vector(player.hit_box.x, player.hit_box.y + player.hit_box.height)
@@ -281,7 +280,6 @@ class Player:
         self.sprite.y = self.hit_box.get_center().y
 
         self.weapon.update(dt)
-
 
     def draw_hit_box(self):
         glBegin(GL_LINES)

@@ -17,7 +17,7 @@ class Game(pyglet.window.Window):
         pyglet.clock.schedule_interval(self.update, self.frame_rate)
         # pyglet.clock.set_fps_limit(FPS)
 
-        self.set_location(0, 0)
+        self.set_location(20, 20)
 
         self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
 

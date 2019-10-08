@@ -26,7 +26,7 @@ MAP = "map2.tmx"
 
 HOST = '192.168.1.188'
 PORT = 65432
-MY_PORT = 65433
+MY_PORT = 65434
 
 # Hud
 FONT_SIZE = 30
@@ -116,8 +116,8 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'bullet_distance': 300,
                      'rate': 1.2,
                      'kickback': 800,
-                     'spread': 20,
-                     'damage': 5,
+                     'spread': 10,
+                     'damage': 10,
                      'bullet_size': 0.010,
                      'ammo_clip': 8,
                      'ammo_max': 16,

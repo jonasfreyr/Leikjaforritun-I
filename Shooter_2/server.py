@@ -46,16 +46,22 @@ def command_disconnect(*args):
 commands = {"log": command_log, "conns": command_conns}
 
 def remove_user(id):
-    del connsUDP[id]
-    del conns[id]
-    del players[id]
-    del bullets[id]
-    del grenades[id]
-    del TCPaddress[id]
+    if id in connsUDP:
+        del connsUDP[id]
+    if id in conns:
+        del conns[id]
+    if id in players:
+        del players[id]
+    if id in bullets:
+        del bullets[id]
+    if id in grenades:
+        del grenades[id]
+    if id in TCPaddress:
+        del TCPaddress[id]
 
     if id in t_players:
         t_players.remove(id)
-    else:
+    elif id in ct_players:
         ct_players.remove(id)
 
     # ui.remove_user()
@@ -85,6 +91,7 @@ def log(text):
     with open("./res/log.txt", "a") as r:
         r.write(str(text))
         r.write("\n")
+        r.write("\n")
 
 def new_client(conn, addr, id):
     conn.sendall(str(id).encode())
@@ -106,8 +113,14 @@ def new_client(conn, addr, id):
             conn.sendall(m)
 
         if (data == ""):
-            log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(
-                connsUDP[id]))
+            try:
+                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(
+                    connsUDP[id]))
+
+            except:
+                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
+                    addr))
+
             remove_user(id)
             break
 
@@ -179,6 +192,8 @@ class Game(pyglet.window.Window):
 
         self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
 
+        self.buy_menu = False
+
     def on_key_press(self, symbol, modifiers):
         """
         When a key is pressed on
@@ -190,6 +205,7 @@ class Game(pyglet.window.Window):
         self.keys[symbol] = True
 
         if symbol == key.ESCAPE:
+            log("Server Stopped!")
             pyglet.app.exit()
 
     def on_key_release(self, symbol, modifiers):
@@ -396,7 +412,7 @@ class Game(pyglet.window.Window):
 
             if not player.dead:
                 for bullet in self.bullets:
-                    if player.hit_box.x + player.hit_box.width > bullet.pos.x > player.hit_box.x and player.hit_box.y + player.hit_box.height > bullet.pos.y > player.hit_box.y:
+                    if bullet.check_player(player):
                         player.health -= WEAPONS[bullet.weapon]["damage"]
                         self.bullets.remove(bullet)
 
