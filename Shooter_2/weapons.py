@@ -54,6 +54,7 @@ class O_Grenade:
 class Bullet:
     def __init__(self, x, y, rot, img, weapon, game, main=True, owner=None):
         self.o_pos = Vector(x, y)
+        self.prev_pos = Vector(x, y)
         self.pos = Vector(x, y)
         self.vector = Vector(WEAPONS[weapon]["bullet_speed"], 0).rotate(-rot)
 
@@ -78,9 +79,23 @@ class Bullet:
             if wall.pos.x + wall.width > self.pos.x > wall.pos.x and wall.pos.y + wall.height > self.pos.y > wall.pos.y:
                 return True
 
+            if lineLine(wall.pos.x, wall.pos.y, wall.pos.x, wall.pos.y + wall.height, self.pos.x, self.pos.y, self.prev_pos.x, self.prev_pos.y):
+                return True
+
+            if lineLine(wall.pos.x, wall.pos.y, wall.pos.x + wall.width, wall.pos.y, self.pos.x, self.pos.y, self.prev_pos.x, self.prev_pos.y):
+                return True
+
+            if lineLine(wall.pos.x + wall.width, wall.pos.y, wall.pos.x + wall.width, wall.pos.y + wall.height, self.pos.x, self.pos.y, self.prev_pos.x, self.prev_pos.y):
+                return True
+
+            if lineLine(wall.pos.x + wall.width, wall.pos.y + wall.height, wall.pos.x, wall.pos.y + wall.height, self.pos.x, self.pos.y, self.prev_pos.x, self.prev_pos.y):
+                return True
+
         return False
 
     def update(self,dt):
+        self.prev_pos = self.pos.copy()
+
         self.pos.x += self.vector.x  * dt
         self.pos.y += self.vector.y * dt
 
