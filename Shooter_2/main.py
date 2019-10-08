@@ -65,8 +65,7 @@ class Game(pyglet.window.Window):
                     self.buy_menu = not self.buy_menu
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        if not self.buy_menu:
-            self.mouse.update(dx, dy)
+        self.mouse.update(dx, dy)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == 1 and not self.buy_menu:
@@ -83,7 +82,7 @@ class Game(pyglet.window.Window):
 
                 else:
                     for box in self.buy_menu_items:
-                        if x > box.x - box.content_width / 2 and x < box.x + box.content_width / 2 and y > box.y - box.content_height / 2 and y < box.y + box.content_height / 2:
+                        if self.mouse.pos.x > box.x - box.content_width / 2 and self.mouse.pos.x < box.x + box.content_width / 2 and self.mouse.pos.y > box.y - box.content_height / 2 and self.mouse.pos.y < box.y + box.content_height / 2:
                             if self.player.other_weapon is None:
                                 self.player.other_weapon = self.player.weapon
 
@@ -91,7 +90,7 @@ class Game(pyglet.window.Window):
                             break
 
             else:
-                if x < WINDOW_WIDTH / 2:
+                if self.mouse.pos.x < WINDOW_WIDTH / 2:
                     SIDE = "T"
 
                 else:
@@ -102,8 +101,7 @@ class Game(pyglet.window.Window):
                 self.picked = True
 
     def on_mouse_motion(self, x, y, dx, dy):
-        if not self.buy_menu:
-            self.mouse.update(dx, dy)
+        self.mouse.update(dx, dy)
 
     def load(self):
         osystem = platform.system()

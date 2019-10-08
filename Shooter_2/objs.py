@@ -272,7 +272,8 @@ class Player:
         if self.last_shot > 0:
             self.last_shot -= dt
 
-        self.rotate_to_mouse()
+        if not self.game.buy_menu:
+            self.rotate_to_mouse()
 
         self.sprite.update(rotation=self.rot)
 

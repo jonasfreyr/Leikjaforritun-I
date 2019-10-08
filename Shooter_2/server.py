@@ -106,7 +106,8 @@ def new_client(conn, addr, id):
             conn.sendall(m)
 
         if (data == ""):
-            log("Connection ended with: \n id: " + id + "\n TCP address: " + addr + "\n UDP address: " + connsUDP[id])
+            log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(
+                connsUDP[id]))
             remove_user(id)
             break
 
@@ -134,7 +135,7 @@ def socket_func_TCP():
             bullets[id] = []
             grenades[id] = []
 
-            log(addr)
+            log("Connection Started with: " + str(addr))
 
             # ui.update_user(id)
             _thread.start_new_thread(new_client, (conn, addr, id))
