@@ -334,7 +334,7 @@ class Grenade:
             self.sprite.x = self.pos.x
             self.sprite.y = self.pos.y
 
-            self.distance += self.vel.magnitude()
+            self.distance += self.vel.magnitude() * dt
 
         else:
             if self.explode is False:
