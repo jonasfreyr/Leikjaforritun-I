@@ -275,7 +275,6 @@ class Game(pyglet.window.Window):
         # smoke_seq = pyglet.image.ImageGrid(smoke, 6, 12, item_width=341, item_height=280)
         # self.smoke_anim = pyglet.image.Animation.from_image_sequence(smoke_seq[0:], SMOKE_DURATION, loop=False)
 
-
     def new(self):
         self.main_batch = pyglet.graphics.Batch()
         self.bullet_batch = pyglet.graphics.Batch()
@@ -412,7 +411,9 @@ class Game(pyglet.window.Window):
 
             if not player.dead:
                 for bullet in self.bullets:
-                    if bullet.check_player(player):
+                    t = bullet.check_player(player)
+                    # print(t)
+                    if t:
                         player.health -= WEAPONS[bullet.weapon]["damage"]
                         self.bullets.remove(bullet)
 

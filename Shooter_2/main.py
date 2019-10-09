@@ -481,7 +481,6 @@ if not os.path.isfile("./res/maps/" + MAP):
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     # s.connect((HOST, PORT))
-    s.settimeout(2.0)
 
     s.bind(('', MY_PORT))
 

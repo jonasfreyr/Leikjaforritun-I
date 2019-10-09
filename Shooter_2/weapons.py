@@ -54,7 +54,7 @@ class O_Grenade:
 class Bullet:
     def __init__(self, x, y, rot, img, weapon, game, main=True, owner=None):
         self.o_pos = Vector(x, y)
-        self.prev_pos = Vector(x, y)
+        self.prev_pos = Vector(x - 1, y - 1)
         self.pos = Vector(x, y)
         self.vector = Vector(WEAPONS[weapon]["bullet_speed"], 0).rotate(-rot)
 
@@ -97,10 +97,6 @@ class Bullet:
         if player.hit_box.x + player.hit_box.width > self.pos.x > player.hit_box.x and player.hit_box.y + player.hit_box.height > self.pos.y > player.hit_box.y:
             return True
 
-        if lineLine(player.hit_box.x, player.hit_box.y, player.hit_box.x, player.hit_box.y + player.hit_box.height, self.pos.x, self.pos.y,
-                    self.prev_pos.x, self.prev_pos.y):
-            return True
-
         if lineLine(player.hit_box.x, player.hit_box.y, player.hit_box.x + player.hit_box.width, player.hit_box.y, self.pos.x, self.pos.y,
                     self.prev_pos.x, self.prev_pos.y):
             return True
@@ -111,6 +107,10 @@ class Bullet:
 
         if lineLine(player.hit_box.x + player.hit_box.width, player.hit_box.y + player.hit_box.height, player.hit_box.x, player.hit_box.y + player.hit_box.height, self.pos.x,
                     self.pos.y, self.prev_pos.x, self.prev_pos.y):
+            return True
+
+        if lineLine(player.hit_box.x, player.hit_box.y + player.hit_box.height, player.hit_box.x, player.hit_box.y, self.pos.x, self.pos.y,
+                    self.prev_pos.x, self.prev_pos.y):
             return True
 
         return False
@@ -253,9 +253,9 @@ class Grenade:
         self.sent = False
 
     def throw(self, pos, vel, rot, o=False):
+        self.distance = 0
         self.pos = pos
         self.vel = vel.rotate(-rot)
-        self.slow = GRENADE_SLOWDOWN.copy().rotate(-rot)
 
         if self.type == "grenade":
             self.sprite = Sprite(self.game.granade_img, pos.x, pos.y, batch=self.game.main_batch)
@@ -290,7 +290,6 @@ class Grenade:
                         self.hit_box.x = wall.pos.x + wall.width
 
                     self.vel.x = -self.vel.x
-                    self.slow.x = -self.slow.x
 
         elif dir == "y":
             for wall in self.game.walls:
@@ -302,7 +301,6 @@ class Grenade:
                         self.hit_box.y = wall.pos.y + wall.height
 
                     self.vel.y = -self.vel.y
-                    self.slow.y = -self.slow.y
 
     def draw_hit_box(self):
         glBegin(GL_LINES)
@@ -322,10 +320,7 @@ class Grenade:
         glEnd()
 
     def update(self, dt):
-        if not self.vel.magnitude() <= 4 and self.tossed:
-            self.vel.x -= self.slow.x * dt
-            self.vel.y -= self.slow.y * dt
-
+        if self.distance <= GRENADE_DISTANCE and self.tossed:
             # check hit box collisions
             self.hit_box.x += self.vel.x * dt
             self.collide_with_walls("x")
@@ -338,6 +333,8 @@ class Grenade:
 
             self.sprite.x = self.pos.x
             self.sprite.y = self.pos.y
+
+            self.distance += self.vel.magnitude()
 
         else:
             if self.explode is False:
