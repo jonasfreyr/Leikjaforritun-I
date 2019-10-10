@@ -19,7 +19,7 @@ class Game(pyglet.window.Window):
 
         self.set_location(20, 20)
 
-        self.keys = {key.A: False, key.W: False, key.D: False, key.S: False}
+        self.keys = {key.A: False, key.W: False, key.D: False, key.S: False, key.TAB: False}
 
         # self.set_exclusive_mouse(True)
 
@@ -48,6 +48,9 @@ class Game(pyglet.window.Window):
 
         elif symbol == key.G:
             self.player.throw(self.dt)
+
+        elif symbol == key.TAB:
+            tcp_s.sendall(b"get stats")
 
     def on_key_release(self, symbol, modifiers):
         self.keys[symbol] = False
@@ -192,6 +195,8 @@ class Game(pyglet.window.Window):
 
     def new(self):
         _thread.start_new_thread(self.receive_data, (s, 2))
+        _thread.start_new_thread(self.recive_dataTCP, (tcp_s, 2))
+
         self.s = s
 
         self.main_batch = pyglet.graphics.Batch()
@@ -258,18 +263,33 @@ class Game(pyglet.window.Window):
 
             y_pos += BUY_MENU_FONT_SIZE + BUY_MENU_PADDING
 
+        self.stat_label = pyglet.text.Label("", x=WINDOW_WIDTH / 2, y=y_pos)
+        self.stat_label.anchor_y = "top"
+
+        self.stats = ""
+
         self.target = self.player
 
         self.picked = True
 
+    def recive_dataTCP(self, conn, i):
+        print("Starting TCP Receive function")
+        while True:
+            data = conn.recv(2048).decode()
+
+            data = eval(data)
+
+            if data[0] == "stats":
+                pass
+                # self.stat_label.text = " asd"
+                self.stats = data[1]
+
     def receive_data(self, conn, i):
-        print("Starting Receive function")
+        print("Starting UDP Receive function")
         while True:
             data, address = conn.recvfrom(262144)
 
             data = eval(data.decode())
-
-            print(data)
 
             i_ids = []
             # print(data)
@@ -316,6 +336,7 @@ class Game(pyglet.window.Window):
         # print(self.new_grenades)
         # print(self.player.pos)
         # print(self.player.other_weapon)
+        # print(self.stats)
         if self.picked:
             self.can_buy = False
             if self.player.health <= 0:
@@ -369,6 +390,8 @@ class Game(pyglet.window.Window):
                     smoke_pos.x = smoke_pos.x - SMOKE_LOGO_SIZE.x
 
             self.hud_logos.append(Logo(WEAPONS[self.player.weapon.name]["logo_pos"], Sprite(self.weapon_logos[self.player.weapon.name], batch=self.hud_batch), self))
+
+            update_stats(self.stats, self.stat_label)
 
             self.dt = dt
 
@@ -439,7 +462,7 @@ class Game(pyglet.window.Window):
             if self.player.health > 0:
                 self.player.draw()
 
-            for player in self.o_players:
+            for          player in self.o_players:
                 if not player.dead:
                     if self.player.see_player(player) or self.player.health <= 0:
                         player.sprite.draw()
@@ -457,6 +480,9 @@ class Game(pyglet.window.Window):
 
             if self.buy_menu:
                 self.buy_menu_batch.draw()
+
+            elif self.keys[key.TAB]:
+                self.stat_label.draw()
 
         else:
             self.pick_sprite.draw()

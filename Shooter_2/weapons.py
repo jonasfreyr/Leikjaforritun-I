@@ -238,7 +238,7 @@ class Animation(pyglet.sprite.Sprite):
         self.deleted = True
 
 class Grenade:
-    def __init__(self, game, type):
+    def __init__(self, game, type, owner=False):
         self.game = game
 
         self.type = type
@@ -251,6 +251,8 @@ class Grenade:
         self.opacity = 255
 
         self.sent = False
+
+        self.owner = owner
 
     def throw(self, pos, vel, rot, o=False):
         self.distance = 0

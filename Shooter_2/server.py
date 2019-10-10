@@ -8,7 +8,7 @@ from hud import *
 from weapons import *
 import _thread, socket, site, os, sys, platform
 
-HOST = '192.168.1.235'   # Standard loopback interface address (localhost)
+HOST = '192.168.1.188'   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
@@ -21,6 +21,8 @@ grenades = {}
 
 t_players = []
 ct_players = []
+
+stats = {}
 
 id = 1
 
@@ -40,10 +42,20 @@ def command_conns(*args):
               TCPaddress[id], "\n UDP address: ", connsUDP[id])
 
 def command_disconnect(*args):
-    for id in args:
-        pass
+    pass
 
-commands = {"log": command_log, "conns": command_conns}
+def command_stats(*args):
+    for id in stats:
+        if args:
+            if str(id) in args:
+                print("Player: \n id: ", id, "\n Kills: ",
+                      stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
+
+        else:
+            print("Player: \n id: ", id, "\n Kills: ",
+                  stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
+
+commands = {"log": command_log, "conns": command_conns, "stats": command_stats}
 
 def remove_user(id):
     if id in connsUDP:
@@ -58,6 +70,8 @@ def remove_user(id):
         del grenades[id]
     if id in TCPaddress:
         del TCPaddress[id]
+    if id in stats:
+        del stats[id]
 
     if id in t_players:
         t_players.remove(id)
@@ -69,7 +83,7 @@ def remove_user(id):
 def console():
     with open("./res/log.txt", "w") as r:
         r.write("Server Started! \n")
-        r.write("")
+        r.write("\n")
 
     while True:
         c = input(">> ")
@@ -102,7 +116,13 @@ def new_client(conn, addr, id):
             data = conn.recv(1024).decode()
 
         except:
-            log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(connsUDP[id]))
+            try:
+                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(
+                    connsUDP[id]))
+
+            except:
+                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
+                    addr))
             remove_user(id)
             break
 
@@ -111,6 +131,9 @@ def new_client(conn, addr, id):
                 m = r.read()
 
             conn.sendall(m)
+
+        if data == "get stats":
+            conn.sendall(str(["stats", stats]).encode())
 
         if (data == ""):
             try:
@@ -147,6 +170,11 @@ def socket_func_TCP():
 
             bullets[id] = []
             grenades[id] = []
+
+            stats[id] = {
+                "kills": 0,
+                "deaths": 0
+            }
 
             log("Connection Started with: " + str(addr))
 
@@ -354,14 +382,14 @@ class Game(pyglet.window.Window):
         temp = bullets
         for num in temp:
             for bullet in temp[num]:
-                self.bullets.append(Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], self.bullet_img, bullet["weapon"], self, False))
+                self.bullets.append(Bullet(bullet["pos"]["x"], bullet["pos"]["y"], bullet["rot"], self.bullet_img, bullet["weapon"], self, False, num))
                 self.effects.append(MuzzleFlash(Vector(bullet["pos"]["x"], bullet["pos"]["y"]), bullet["rot"], self))
                 bullets[num].remove(bullet)
 
         temp = grenades
         for id in temp:
             for grenade in temp[id]:
-                Grenade(self, grenade["type"]).throw(Vector(grenade["pos"]["x"], grenade["pos"]["y"]),
+                Grenade(self, grenade["type"], id).throw(Vector(grenade["pos"]["x"], grenade["pos"]["y"]),
                                                      Vector(grenade["vel"]["x"], grenade["vel"]["y"]), grenade["rot"],
                                                      True)
                 grenades[id].remove(grenade)
@@ -415,6 +443,9 @@ class Game(pyglet.window.Window):
                     # print(t)
                     if t:
                         player.health -= WEAPONS[bullet.weapon]["damage"]
+                        if player.health <= 0:
+                            stats[bullet.id]["kills"] += 1
+                            stats[player.id]["deaths"] += 1
                         self.bullets.remove(bullet)
 
                 for grenade in self.grenades:
@@ -426,6 +457,10 @@ class Game(pyglet.window.Window):
                             print(dmg)
                             print("----------")
                             player.health -= dmg
+
+                            if player.health <= 0:
+                                stats[grenade.id]["kills"] += 1
+                                stats[player.id]["deaths"] += 1
 
 
         tempB = []

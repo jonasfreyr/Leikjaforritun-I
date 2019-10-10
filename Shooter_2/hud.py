@@ -30,3 +30,13 @@ class Logo:
 
     def update(self):
         pass
+
+def update_stats(stat, label):
+    print(label)
+    text = ""
+    text += "Ids  Kills  Deaths \n"
+    for id in stat:
+        text += str(id) + "  " + str(stat[id]["kills"]) + "  " + str(stat[id]["deaths"]) + "\n"
+
+    print(text)
+    label.text = text
