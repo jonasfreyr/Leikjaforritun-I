@@ -193,6 +193,8 @@ class Game(pyglet.window.Window):
 
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
+        self.new_players = []
+
     def new(self):
         _thread.start_new_thread(self.receive_data, (s, 2))
         _thread.start_new_thread(self.recive_dataTCP, (tcp_s, 2))
@@ -304,10 +306,11 @@ class Game(pyglet.window.Window):
                         break
 
                 else:
-                    self.o_players.append(Oplayers(ids, Vector(data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["y"]), data["players"][ids]["rot"], data["players"][ids]["weapon"], self))
+                    self.new_players.append([ids, data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["y"], data["players"][ids]["rot"], data["players"][ids]["weapon"]])
 
             for player in self.o_players:
                 if player.id not in i_ids:
+                    player.sprite.delete()
                     self.o_players.remove(player)
 
             self.new_bullets = data["bullets"]
@@ -447,6 +450,12 @@ class Game(pyglet.window.Window):
 
             if self.respawn:
                 self.respawn = False
+
+        if len(self.new_players) != 0:
+            for player in self.new_players:
+                self.o_players.append(Oplayers(player[0], Vector(player[1], player[2]), player[3], player[4], self))
+
+            self.new_players = []
 
     def on_draw(self):
         pyglet.clock.tick()
