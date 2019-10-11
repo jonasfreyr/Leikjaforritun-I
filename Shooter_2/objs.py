@@ -348,7 +348,6 @@ class Mouse:
         self.sprite.x = self.pos.x - self.sprite.width / 2
         self.sprite.y = self.pos.y - self.sprite.height / 2
 
-
     def draw(self):
         self.sprite.draw()
 

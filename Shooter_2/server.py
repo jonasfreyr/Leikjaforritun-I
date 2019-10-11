@@ -396,7 +396,6 @@ class Game(pyglet.window.Window):
 
         self.dt = dt
 
-
         self.player.vel.multiply(0)
 
         if self.keys[key.W]:
@@ -410,7 +409,6 @@ class Game(pyglet.window.Window):
 
         if self.keys[key.A]:
             self.player.vel.x += -PLAYER_SPEED
-            # print("yay")
 
         for bullet in self.bullets:
             bullet.update(dt)
@@ -444,7 +442,7 @@ class Game(pyglet.window.Window):
                     if t:
                         player.health -= WEAPONS[bullet.weapon]["damage"]
                         if player.health <= 0:
-                            stats[bullet.id]["kills"] += 1
+                            stats[bullet.owner]["kills"] += 1
                             stats[player.id]["deaths"] += 1
                         self.bullets.remove(bullet)
 
@@ -459,7 +457,7 @@ class Game(pyglet.window.Window):
                             player.health -= dmg
 
                             if player.health <= 0:
-                                stats[grenade.id]["kills"] += 1
+                                stats[grenade.owner]["kills"] += 1
                                 stats[player.id]["deaths"] += 1
 
 

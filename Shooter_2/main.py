@@ -206,6 +206,7 @@ class Game(pyglet.window.Window):
         self.hud_logo_batch = pyglet.graphics.Batch()
         self.o_players_batch = pyglet.graphics.Batch()
         self.buy_menu_batch = pyglet.graphics.Batch()
+        self.stats_batch = pyglet.graphics.Batch()
 
         self.map = TiledRenderer((self.map_folder + "/" + MAP))
 
@@ -218,6 +219,7 @@ class Game(pyglet.window.Window):
         self.new_bullets = []
         self.new_grenades = []
         self.o_grenades = []
+        self.stats_list = []
 
         # self.s_bullets = []
         # self.s_grenades = []
@@ -263,9 +265,6 @@ class Game(pyglet.window.Window):
 
             y_pos += BUY_MENU_FONT_SIZE + BUY_MENU_PADDING
 
-        self.stat_label = pyglet.text.Label("", x=WINDOW_WIDTH / 2, y=y_pos)
-        self.stat_label.anchor_y = "top"
-
         self.stats = ""
 
         self.target = self.player
@@ -275,7 +274,7 @@ class Game(pyglet.window.Window):
     def recive_dataTCP(self, conn, i):
         print("Starting TCP Receive function")
         while True:
-            data = conn.recv(2048).decode()
+            data = conn.recv(204888).decode()
 
             data = eval(data)
 
@@ -391,7 +390,7 @@ class Game(pyglet.window.Window):
 
             self.hud_logos.append(Logo(WEAPONS[self.player.weapon.name]["logo_pos"], Sprite(self.weapon_logos[self.player.weapon.name], batch=self.hud_batch), self))
 
-            update_stats(self.stats, self.stat_label)
+            update_stats(self.stats, self)
 
             self.dt = dt
 
@@ -482,7 +481,7 @@ class Game(pyglet.window.Window):
                 self.buy_menu_batch.draw()
 
             elif self.keys[key.TAB]:
-                self.stat_label.draw()
+                self.stats_batch.draw()
 
         else:
             self.pick_sprite.draw()
