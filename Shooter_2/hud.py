@@ -34,7 +34,7 @@ class Logo:
     def update(self):
         pass
 
-def update_stats(stat, game):
+def update_stats(stat, game, ID):
     for label in game.stats_list:
         label.delete()
 
@@ -44,9 +44,19 @@ def update_stats(stat, game):
     l = pyglet.text.Label("Id  Kills  Deaths", x=WINDOW_WIDTH / 2, y=y, batch=game.stats_batch)
     l.anchor_x = "center"
     game.stats_list.append(l)
-    for id in stat:
+    try:
         y -= STATS_PADDING
-        text = str(id) + "  " + str(stat[id]["kills"]) + "  " + str(stat[id]["deaths"])
+        text = str(ID) + "  " + str(stat[ID]["kills"]) + "  " + str(stat[ID]["deaths"])
         l = pyglet.text.Label(text, x=WINDOW_WIDTH / 2, y=y, batch=game.stats_batch)
         l.anchor_x = "center"
         game.stats_list.append(l)
+    except:
+        pass
+
+    for id in stat:
+        if id != ID:
+            y -= STATS_PADDING
+            text = str(id) + "  " + str(stat[id]["kills"]) + "  " + str(stat[id]["deaths"])
+            l = pyglet.text.Label(text, x=WINDOW_WIDTH / 2, y=y, batch=game.stats_batch)
+            l.anchor_x = "center"
+            game.stats_list.append(l)

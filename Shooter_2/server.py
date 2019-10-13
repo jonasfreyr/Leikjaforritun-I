@@ -194,7 +194,6 @@ def socket_func():
             data, address = s.recvfrom(262144)
 
             data = eval(data.decode())
-
             connsUDP[data["id"]] = address
             players[data["id"]] = data["player"]
             for bullet in data["bullets"]:

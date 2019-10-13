@@ -393,7 +393,7 @@ class Game(pyglet.window.Window):
 
             self.hud_logos.append(Logo(WEAPONS[self.player.weapon.name]["logo_pos"], Sprite(self.weapon_logos[self.player.weapon.name], batch=self.hud_batch), self))
 
-            update_stats(self.stats, self)
+            update_stats(self.stats, self, ID)
 
             self.dt = dt
 

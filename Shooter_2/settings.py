@@ -26,7 +26,7 @@ MAP = "map2.tmx"
 
 HOST = '192.168.1.188'
 PORT = 65432
-MY_PORT = 65435
+MY_PORT = 65436
 
 # Hud
 FONT_SIZE = 30
