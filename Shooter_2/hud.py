@@ -8,7 +8,7 @@ class AmmoText:
         self.label = label
 
     def update(self):
-        self.label.text = str(self.game.player.weapon.ammo_in_mag) + "/" + str(self.game.player.weapon.extra_ammo)
+        self.label.text = str(self.game.player.weapons[self.game.player.num].ammo_in_mag) + "/" + str(self.game.player.weapons[self.game.player.num].extra_ammo)
 
 class Health:
     def __init__(self, game, label):

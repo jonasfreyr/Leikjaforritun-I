@@ -110,7 +110,8 @@ WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'img_offset': Vector(5, 5),
                      'logo_img': "pistol_logo.png",
                      'logo_pos': Vector(WINDOW_WIDTH -130, 0),
-                     'logo_size': Vector(70, 40)
+                     'logo_size': Vector(70, 40),
+                     'primary': False
                      }
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
@@ -129,7 +130,8 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'img_offset': Vector(10, 5),
                      'logo_img': "shotgun_logo.png",
                      'logo_pos': Vector(WINDOW_WIDTH -100, -25),
-                     'logo_size': Vector(170, 110)
+                     'logo_size': Vector(170, 110),
+                     'primary': True
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
@@ -149,5 +151,6 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'recovery_time': 1,
                      'logo_img': "ak47_logo.png",
                      'logo_pos': Vector(WINDOW_WIDTH -130, 0),
-                     'logo_size': Vector(140, 40)
+                     'logo_size': Vector(140, 40),
+                     'primary': True
                     }

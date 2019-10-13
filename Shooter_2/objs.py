@@ -77,14 +77,7 @@ class Player:
 
         self.game = game
 
-        if weapon != 'None':
-            self.weapon = Weapon(weapon)
-            self.other_weapon = Weapon("pistol")
-
-        else:
-            self.weapon = Weapon("pistol")
-            self.other_weapon = None
-
+        self.weapons = [None, Weapon("pistol")]
 
         self.grenades = [Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke")]
         self.grenade_num = 0
@@ -97,16 +90,16 @@ class Player:
 
         self.o = Vector(self.pos.x, self.pos.y)
 
-        self.main_weap_bool = True
-
         self.health = PLAYER_HEALTH
 
-        self.sprite = Sprite(game.player_images[self.weapon.name])
+        self.num = 1
+
+        self.sprite = Sprite(game.player_images[self.weapons[self.num].name])
         self.width = self.sprite.width
         self.height = self.sprite.height
 
-        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapon.name]['img_offset'].x
-        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapon.name]['img_offset'].y
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].y
 
     def see_player(self, player):
         corner2 = Vector(self.hit_box.x + self.hit_box.width / 2, self.hit_box.y + self.hit_box.height / 2)
@@ -167,10 +160,14 @@ class Player:
         return False
 
     def switch(self):
-        if self.other_weapon != None:
-            s = self.weapon
-            self.weapon = self.other_weapon
-            self.other_weapon = s
+
+        self.num += 1
+
+        if len(self.weapons)-1 < self.num:
+            self.num = 0
+
+        if self.weapons[self.num] is None:
+            self.switch()
 
     def get_rotation(self, point1, point2):
         return math.degrees(math.atan2(point1.x - point2.x, point1.y - point2.y))
@@ -186,9 +183,12 @@ class Player:
         if self.last_shot <= 0 < self.health:
             rot = self.get_rotation(self.o, self.game.mouse.get_map_pos()) + 90
 
-            self.weapon.shoot(self.o, self.pos, rot,self.game)
+            if abs(self.rot) - abs(rot) > 10 or abs(rot) - abs(self.rot) > 10:
+                rot = self.rot
 
-            self.last_shot = WEAPONS[self.weapon.name]["rate"]
+            self.weapons[self.num].shoot(self.o, self.pos, rot, self.game)
+
+            self.last_shot = WEAPONS[self.weapons[self.num].name]["rate"]
 
     def rotate_to_mouse(self):
         '''
@@ -242,12 +242,12 @@ class Player:
                         self.vel.y = 0
 
     def update(self, dt, server=False):
-        self.sprite = Sprite(self.game.player_images[self.weapon.name])
+        self.sprite = Sprite(self.game.player_images[self.weapons[self.num].name])
         self.width = self.sprite.width
         self.height = self.sprite.height
 
-        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapon.name]['img_offset'].x
-        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapon.name]['img_offset'].y
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].y
 
         # check hit box collisions
         self.hit_box.x += self.vel.x * dt
@@ -261,7 +261,7 @@ class Player:
         self.pos.x = self.hit_box.x + self.hit_box.width / 2
         self.pos.y = self.hit_box.y + self.hit_box.height / 2
 
-        o = WEAPONS[self.weapon.name]['offset'].copy().rotate(-self.rot)
+        o = WEAPONS[self.weapons[self.num].name]['offset'].copy().rotate(-self.rot)
 
         self.o = Vector(self.pos.x, self.pos.y)
 
@@ -279,7 +279,7 @@ class Player:
         self.sprite.x = self.hit_box.get_center().x
         self.sprite.y = self.hit_box.get_center().y
 
-        self.weapon.update(dt)
+        self.weapons[self.num].update(dt)
 
     def draw_hit_box(self):
         glBegin(GL_LINES)

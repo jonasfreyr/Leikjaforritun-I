@@ -44,7 +44,7 @@ class Game(pyglet.window.Window):
             pyglet.app.exit()
 
         elif symbol == key.R:
-            self.player.weapon.reload()
+            self.player.weapons[self.player.num].reload()
 
         elif symbol == key.G:
             self.player.throw(self.dt)
@@ -81,15 +81,17 @@ class Game(pyglet.window.Window):
 
             if self.picked:
                 if not self.buy_menu:
-                    self.player.weapon.reset()
+                    self.player.weapons[self.player.num].reset()
 
                 else:
                     for box in self.buy_menu_items:
                         if self.mouse.pos.x > box.x - box.content_width / 2 and self.mouse.pos.x < box.x + box.content_width / 2 and self.mouse.pos.y > box.y - box.content_height / 2 and self.mouse.pos.y < box.y + box.content_height / 2:
-                            if self.player.other_weapon is None:
-                                self.player.other_weapon = self.player.weapon
+                            if WEAPONS[box.text]["primary"]:
+                                self.player.weapons[0] = Weapon(box.text)
 
-                            self.player.weapon = Weapon(box.text)
+                            else:
+                                self.player.weapons[1] = Weapon(box.text)
+
                             break
 
             else:
@@ -322,10 +324,8 @@ class Game(pyglet.window.Window):
         self.player.hit_box.x = self.r_pos.x
         self.player.hit_box.y = self.r_pos.y
 
-
-        self.player.weapon = Weapon(self.r_wep)
-
-        self.player.other_weapon = None
+        self.player.weapons = [None, Weapon(self.r_wep)]
+        self.player.num = 1
 
         self.player.grenades = [Grenade(self, "smoke"),Grenade(self, "grenade"),Grenade(self, "smoke"),Grenade(self, "grenade"),Grenade(self, "smoke")]
 
@@ -391,7 +391,7 @@ class Game(pyglet.window.Window):
 
                     smoke_pos.x = smoke_pos.x - SMOKE_LOGO_SIZE.x
 
-            self.hud_logos.append(Logo(WEAPONS[self.player.weapon.name]["logo_pos"], Sprite(self.weapon_logos[self.player.weapon.name], batch=self.hud_batch), self))
+            self.hud_logos.append(Logo(WEAPONS[self.player.weapons[self.player.num].name]["logo_pos"], Sprite(self.weapon_logos[self.player.weapons[self.player.num].name], batch=self.hud_batch), self))
 
             update_stats(self.stats, self, ID)
 
@@ -433,7 +433,7 @@ class Game(pyglet.window.Window):
                 self.reset()
 
             data = {"id": ID, "player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
-                               "weapon": self.player.weapon.name, "respawn": self.respawn}, "bullets": [],
+                               "weapon": self.player.weapons[self.player.num].name, "respawn": self.respawn}, "bullets": [],
                     "grenades": []}
 
             tempB = list(self.o_bullets)
