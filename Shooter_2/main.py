@@ -7,6 +7,19 @@ from pyglet.window import key
 from hud import *
 from weapons import *
 import _thread, socket, site, os, sys, platform, random
+from pyglet.gl import *
+
+def draw_rect(x, y, width, height, color):
+    x = int(x)
+    y = int(y)
+    width = int(width)
+    height = int(height)
+
+    quad = pyglet.graphics.vertex_list(4,
+   ('v2i', (x, y, x + width, y, x + width, y + height, x, y + height)),
+   ('c4B', (*color, *color, *color, *color)))
+
+    quad.draw(GL_QUADS)
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -29,6 +42,11 @@ class Game(pyglet.window.Window):
 
         self.picked = False
         self.buy_menu = False
+
+        glEnableClientState(GL_VERTEX_ARRAY)
+
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
     def on_key_press(self, symbol, modifiers):
         """
@@ -470,7 +488,7 @@ class Game(pyglet.window.Window):
             if self.player.health > 0:
                 self.player.draw()
 
-            for          player in self.o_players:
+            for player in self.o_players:
                 if not player.dead:
                     if self.player.see_player(player) or self.player.health <= 0:
                         player.sprite.draw()
@@ -481,6 +499,9 @@ class Game(pyglet.window.Window):
 
             for wall in self.walls:
                 wall.draw()
+
+            draw_rect(0, 0, self.map.size[0], self.map.size[1], (0, 0, 0, 245))
+            draw_rect(self.player.pos.x, self.player.pos.y, 20, 20, (255, 255, 255, 100))
 
             pyglet.gl.glPopMatrix()
 
