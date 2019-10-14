@@ -470,7 +470,7 @@ class Game(pyglet.window.Window):
             if self.player.health > 0:
                 self.player.draw()
 
-            for          player in self.o_players:
+            for player in self.o_players:
                 if not player.dead:
                     if self.player.see_player(player) or self.player.health <= 0:
                         player.sprite.draw()
