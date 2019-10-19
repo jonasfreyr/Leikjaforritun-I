@@ -36,6 +36,9 @@ class Vector:
     def copy(self):
         return Vector(self.x, self.y)
 
+    def get_tuple(self):
+        return self.x, self.y
+
     def rotate(self, degrees):
         a = math.radians(degrees)
 

@@ -9,17 +9,6 @@ from weapons import *
 import _thread, socket, site, os, sys, platform, random
 from pyglet.gl import *
 
-def draw_rect(x, y, width, height, color):
-    x = int(x)
-    y = int(y)
-    width = int(width)
-    height = int(height)
-
-    quad = pyglet.graphics.vertex_list(4,
-   ('v2i', (x, y, x + width, y, x + width, y + height, x, y + height)),
-   ('c4B', (*color, *color, *color, *color)))
-
-    quad.draw(GL_QUADS)
 
 class Game(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
@@ -37,16 +26,10 @@ class Game(pyglet.window.Window):
         # self.set_exclusive_mouse(True)
 
         self.mouse_down = False
-
         self.respawn = False
 
         self.picked = False
         self.buy_menu = False
-
-        glEnableClientState(GL_VERTEX_ARRAY)
-
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
     def on_key_press(self, symbol, modifiers):
         """
@@ -76,7 +59,7 @@ class Game(pyglet.window.Window):
         if self.picked:
             if self.buy_menu is False:
                 if symbol == key.SPACE:
-                    self.respawn = True
+                    tcp_s.sendall(b"respawn")
 
                 elif symbol == key.Q:
                     self.player.switch()
@@ -106,6 +89,9 @@ class Game(pyglet.window.Window):
                         if self.mouse.pos.x > box.x - box.content_width / 2 and self.mouse.pos.x < box.x + box.content_width / 2 and self.mouse.pos.y > box.y - box.content_height / 2 and self.mouse.pos.y < box.y + box.content_height / 2:
                             if WEAPONS[box.text]["primary"]:
                                 self.player.weapons[0] = Weapon(box.text)
+
+                                if self.player.num == 1:
+                                    self.player.num = 0
 
                             else:
                                 self.player.weapons[1] = Weapon(box.text)
@@ -258,7 +244,6 @@ class Game(pyglet.window.Window):
                 if tile_object.type == SIDE.lower():
                     self.buy_menu_area = Rect(pos.x - tile_object.width / 2, pos.y - tile_object.height / 2, tile_object.width, tile_object.height)
                     self.player = Player(pos.x, pos.y, self, 'None')
-                    self.r_pos = pos.copy()
 
         self.bullets = []
 
@@ -298,12 +283,15 @@ class Game(pyglet.window.Window):
         while True:
             data = conn.recv(204888).decode()
 
+            print(data)
+
             data = eval(data)
 
             if data[0] == "stats":
-                pass
-                # self.stat_label.text = " asd"
                 self.stats = data[1]
+
+            elif data[0] == "reset":
+                self.reset(data[1])
 
     def receive_data(self, conn, i):
         print("Starting UDP Receive function")
@@ -338,9 +326,9 @@ class Game(pyglet.window.Window):
 
             self.player.health = data["health"]
 
-    def reset(self):
-        self.player.hit_box.x = self.r_pos.x
-        self.player.hit_box.y = self.r_pos.y
+    def reset(self, pos):
+        self.player.hit_box.x = pos[0]
+        self.player.hit_box.y = pos[1]
 
         self.player.weapons = [None, Weapon(self.r_wep)]
         self.player.num = 1
@@ -352,18 +340,21 @@ class Game(pyglet.window.Window):
         # print(len(self.bullets))
         # print(len(self.effects))
         # print(len(self.grenades))
-        # print(len(self.o_players))
+
         # print(self.new_grenades)
         # print(self.player.pos)
         # print(self.player.other_weapon)
         # print(self.stats)
         if self.picked:
+            # print(len(self.o_players))
             self.can_buy = False
             if self.player.health <= 0:
-                try:
-                    self.target = self.o_players[0]
 
-                except:
+                for player in self.o_players:
+                    if not player.dead:
+                        self.target = player
+                        break
+                else:
                     self.target = self.player
 
             else:
@@ -447,11 +438,8 @@ class Game(pyglet.window.Window):
             for player in self.o_players:
                 player.update()
 
-            if self.respawn:
-                self.reset()
-
             data = {"id": ID, "player": {"pos": {"x": self.player.pos.x, "y": self.player.pos.y}, "rot": self.player.rot,
-                               "weapon": self.player.weapons[self.player.num].name, "respawn": self.respawn}, "bullets": [],
+                               "weapon": self.player.weapons[self.player.num].name}, "bullets": [],
                     "grenades": []}
 
             tempB = list(self.o_bullets)
@@ -466,12 +454,12 @@ class Game(pyglet.window.Window):
 
             self.s.sendto(str(data).encode(), addr)
 
-            if self.respawn:
-                self.respawn = False
-
         if len(self.new_players) != 0:
+            print(self.new_players)
             for player in self.new_players:
-                self.o_players.append(Oplayers(player[0], Vector(player[1], player[2]), player[3], player[4], self))
+                pl = [p for p in self.o_players if player.id != player.id]
+                if not pl:
+                    self.o_players.append(Oplayers(player[0], Vector(player[1], player[2]), player[3], player[4], self))
 
             self.new_players = []
 
@@ -500,9 +488,6 @@ class Game(pyglet.window.Window):
             for wall in self.walls:
                 wall.draw()
 
-            draw_rect(0, 0, self.map.size[0], self.map.size[1], (0, 0, 0, 245))
-            draw_rect(self.player.pos.x, self.player.pos.y, 20, 20, (255, 255, 255, 100))
-
             pyglet.gl.glPopMatrix()
 
             self.hud_batch.draw()
@@ -520,7 +505,6 @@ class Game(pyglet.window.Window):
 
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
-
 
 tcp_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_s.connect((HOST, PORT))
@@ -542,6 +526,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     addr = (HOST, PORT)
 
     g.load()
-    #g.new()
 
     pyglet.app.run()

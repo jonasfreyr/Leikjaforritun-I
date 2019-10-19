@@ -107,53 +107,6 @@ def log(text):
         r.write("\n")
         r.write("\n")
 
-def new_client(conn, addr, id):
-    conn.sendall(str(id).encode())
-    conn.sendall(str(MAP).encode())
-
-    while True:
-        try:
-            data = conn.recv(1024).decode()
-
-        except:
-            try:
-                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(
-                    connsUDP[id]))
-
-            except:
-                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
-                    addr))
-            remove_user(id)
-            break
-
-        if data == "get map":
-            with open("./res/maps/" + MAP, "rb") as r:
-                m = r.read()
-
-            conn.sendall(m)
-
-        if data == "get stats":
-            conn.sendall(str(["stats", stats]).encode())
-
-        if (data == ""):
-            try:
-                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(addr) + "\n UDP address: " + str(
-                    connsUDP[id]))
-
-            except:
-                log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
-                    addr))
-
-            remove_user(id)
-            break
-
-        if data == "CT" and id not in ct_players and id not in t_players:
-            ct_players.append(id)
-
-        if data == "T" and id not in ct_players and id not in t_players:
-            t_players.append(id)
-
-
 def socket_func_TCP():
     global id
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -179,7 +132,7 @@ def socket_func_TCP():
             log("Connection Started with: " + str(addr))
 
             # ui.update_user(id)
-            _thread.start_new_thread(new_client, (conn, addr, id))
+            _thread.start_new_thread(g.new_client, (conn, addr, id))
 
             id += 1
 
@@ -237,6 +190,66 @@ class Game(pyglet.window.Window):
 
     def on_key_release(self, symbol, modifiers):
         self.keys[symbol] = False
+
+    def new_client(self, conn, addr, id):
+        conn.sendall(str(id).encode())
+        conn.sendall(str(MAP).encode())
+
+        while True:
+            try:
+                data = conn.recv(1024).decode()
+
+            except:
+                try:
+                    log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
+                        addr) + "\n UDP address: " + str(
+                        connsUDP[id]))
+
+                except:
+                    log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
+                        addr))
+                remove_user(id)
+                break
+
+            if data == "get map":
+                with open("./res/maps/" + MAP, "rb") as r:
+                    m = r.read()
+
+                conn.sendall(m)
+
+            elif data == "respawn":
+                for player in self.o_players:
+                    if id == player.id:
+                        player.health = PLAYER_HEALTH
+                        player.dead = False
+
+                        if id in ct_players:
+                            conn.sendall(str(["reset", self.sides["ct"].get_tuple()]).encode())
+
+                        elif id in t_players:
+                            conn.sendall(str(["reset", self.sides["t"].get_tuple()]).encode())
+
+            elif data == "get stats":
+                conn.sendall(str(["stats", stats]).encode())
+
+            elif data == "":
+                try:
+                    log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
+                        addr) + "\n UDP address: " + str(
+                        connsUDP[id]))
+
+                except:
+                    log("Connection ended with: \n id: " + str(id) + "\n TCP address: " + str(
+                        addr))
+
+                remove_user(id)
+                break
+
+            elif data == "CT" and id not in ct_players and id not in t_players:
+                ct_players.append(id)
+
+            elif data == "T" and id not in ct_players and id not in t_players:
+                t_players.append(id)
 
     def load(self):
         osystem = platform.system()
@@ -323,6 +336,8 @@ class Game(pyglet.window.Window):
         self.new_grenades = []
         self.o_grenades = []
 
+        self.sides = {}
+
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
             pos.x = pos.x + tile_object.width / 2
@@ -332,6 +347,9 @@ class Game(pyglet.window.Window):
 
             elif tile_object.name == "Player":
                 self.player = Player(pos.x, pos.y, self, tile_object.type)
+
+            elif tile_object.name == "Spawn":
+                self.sides[tile_object.type] = pos.copy()
 
         self.bullets = []
 
@@ -364,9 +382,6 @@ class Game(pyglet.window.Window):
                     player.pos.x = players[id]["pos"]["x"]
                     player.pos.y = players[id]["pos"]["y"]
                     player.weapon = players[id]["weapon"]
-                    if players[id]["respawn"]:
-                        player.health = PLAYER_HEALTH
-                        player.dead = False
                     break
 
             else:
@@ -438,27 +453,26 @@ class Game(pyglet.window.Window):
                 for bullet in self.bullets:
                     t = bullet.check_player(player)
                     # print(t)
-                    if t:
+                    if t and player.health > 0:
                         player.health -= WEAPONS[bullet.weapon]["damage"]
                         if player.health <= 0:
                             stats[bullet.owner]["kills"] += 1
                             stats[player.id]["deaths"] += 1
+                            log(str(bullet.owner) + " killed " + str(player.id) + " with " + bullet.weapon)
+
                         self.bullets.remove(bullet)
 
                 for grenade in self.grenades:
                     if grenade.explode and not grenade.sent and grenade.type == "grenade":
                         mag = (player.pos - grenade.pos).magnitude()
-                        if  mag <= GRENADE_DAMAGE_RADIUS:
-                            dmg = round(GRENADE_DAMAGE / (mag / 32))
-                            print(mag)
-                            print(dmg)
-                            print("----------")
+                        if  mag <= GRENADE_DAMAGE_RADIUS and player.health > 0:
+                            dmg = round(GRENADE_DAMAGE / (mag / 37))
                             player.health -= dmg
 
                             if player.health <= 0:
                                 stats[grenade.owner]["kills"] += 1
                                 stats[player.id]["deaths"] += 1
-
+                                log(str(grenade.owner) + " killed " + str(player.id) + " with grenade")
 
         tempB = []
         for bullet in self.bullets:

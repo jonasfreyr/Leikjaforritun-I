@@ -31,7 +31,6 @@ class TiledRenderer(object):
         self.tmx_data = tm
         self.batches = []   # list of batches, e.g. layers
         self.sprites = []   # container for tiles
-        self.o_sprites = []
         self.generate_sprites()
 
     def draw_rect(self, color, rect, width):
@@ -98,9 +97,6 @@ class TiledRenderer(object):
                         layer.image, batch=batch, x=x, y=y
                     )
                     self.sprites.append(sprite)
-
-        for sprite in self.sprites:
-            self.o_sprites.append(Vector(sprite.x, sprite.y))
 
     def draw(self):
         for b in self.batches:
