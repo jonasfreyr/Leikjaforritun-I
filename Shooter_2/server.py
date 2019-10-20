@@ -61,7 +61,7 @@ def command_stats(*args):
             print("Player: \n id: ", id, "\n Kills: ",
                   stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
 
-commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect}
+commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban}
 
 def remove_user(id):
     if id in connsUDP:

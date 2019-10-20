@@ -466,6 +466,7 @@ class Game(pyglet.window.Window):
                 pl = [p for p in self.o_players if player[0] != p.id]
                 print(pl)
                 if len(pl) == 0:
+                    print(player[0])
                     self.o_players.append(Oplayers(player[0], Vector(player[1], player[2]), player[3], player[4], self))
 
             self.new_players = []

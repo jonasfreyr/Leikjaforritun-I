@@ -1,0 +1,16 @@
+[O] - Still todo
+[N] - Still needs some work
+[X] - Done
+
+More Weapons - [O]
+
+Mobs - [O]
+ Pathfinding - [O]
+
+Connection UI - [O]
+
+More Server Commands - [O]
+ DC Command - [X]
+ Ban Command - [O]
+ 
+
