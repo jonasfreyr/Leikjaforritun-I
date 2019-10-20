@@ -26,6 +26,8 @@ stats = {}
 
 id = 1
 
+ban_list = []
+
 def command_log(*args):
     with open("./res/log.txt", "r") as r:
         print(r.read())
@@ -42,6 +44,10 @@ def command_conns(*args):
               TCPaddress[id], "\n UDP address: ", connsUDP[id])
 
 def command_disconnect(*args):
+    for id in args:
+        conns[int(id)].sendall(b"dc")
+
+def command_ban(*args):
     pass
 
 def command_stats(*args):
@@ -55,7 +61,7 @@ def command_stats(*args):
             print("Player: \n id: ", id, "\n Kills: ",
                   stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
 
-commands = {"log": command_log, "conns": command_conns, "stats": command_stats}
+commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect}
 
 def remove_user(id):
     if id in connsUDP:
@@ -487,13 +493,17 @@ class Game(pyglet.window.Window):
 
         playersC = dict(players)
         for player in self.o_players:
-            playersC[player.id]["health"] = player.health
-            if player.health <= 0:
-                playersC[player.id]["dead"] = True
-                player.dead = True
+            try:
+                playersC[player.id]["health"] = player.health
+                if player.health <= 0:
+                    playersC[player.id]["dead"] = True
+                    player.dead = True
 
-            else:
-                playersC[player.id]["dead"] = False
+                else:
+                    playersC[player.id]["dead"] = False
+
+            except:
+                pass
 
         try:
             tempC = dict(connsUDP)

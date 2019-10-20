@@ -31,6 +31,8 @@ class Game(pyglet.window.Window):
         self.picked = False
         self.buy_menu = False
 
+        self.dc = False
+
     def on_key_press(self, symbol, modifiers):
         """
         When a key is pressed on
@@ -283,7 +285,11 @@ class Game(pyglet.window.Window):
         while True:
             data = conn.recv(204888).decode()
 
-            print(data)
+            # print(data)
+
+            if data == "dc":
+                self.dc = True
+                break
 
             data = eval(data)
 
@@ -457,11 +463,15 @@ class Game(pyglet.window.Window):
         if len(self.new_players) != 0:
             print(self.new_players)
             for player in self.new_players:
-                pl = [p for p in self.o_players if player.id != player.id]
-                if not pl:
+                pl = [p for p in self.o_players if player[0] != p.id]
+                print(pl)
+                if len(pl) == 0:
                     self.o_players.append(Oplayers(player[0], Vector(player[1], player[2]), player[3], player[4], self))
 
             self.new_players = []
+
+        if self.dc:
+            sys.exit()
 
     def on_draw(self):
         pyglet.clock.tick()
