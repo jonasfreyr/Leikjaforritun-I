@@ -101,6 +101,8 @@ class Player:
         self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].x
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].y
 
+        self.knock_back = Vector(0, 0)
+
     def see_player(self, player):
         corner2 = Vector(self.hit_box.x + self.hit_box.width / 2, self.hit_box.y + self.hit_box.height / 2)
 
@@ -186,6 +188,9 @@ class Player:
             if abs(self.rot) - abs(rot) > 10 or abs(rot) - abs(self.rot) > 10:
                 rot = self.rot
 
+            if self.weapons[self.num].ammo_in_mag > 0:
+                self.knock_back = WEAPONS[self.weapons[self.num].name]["knock_back"].rotate(self.rot)
+
             self.weapons[self.num].shoot(self.o, self.pos, rot, self.game)
 
             self.last_shot = WEAPONS[self.weapons[self.num].name]["rate"]
@@ -249,6 +254,9 @@ class Player:
         self.sprite.image.anchor_x = self.sprite.image.width / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].x
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - WEAPONS[self.weapons[self.num].name]['img_offset'].y
 
+        self.vel.x -= self.knock_back.x
+        self.vel.y += self.knock_back.y
+
         # check hit box collisions
         self.hit_box.x += self.vel.x * dt
         if not server:
@@ -257,6 +265,8 @@ class Player:
         self.hit_box.y += self.vel.y * dt
         if not server:
             self.collide_with_walls("y")
+
+        self.knock_back.multiply(0)
 
         self.pos.x = self.hit_box.x + self.hit_box.width / 2
         self.pos.y = self.hit_box.y + self.hit_box.height / 2

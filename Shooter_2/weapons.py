@@ -129,7 +129,7 @@ class Bullet:
 class Weapon:
     def __init__(self, weapon):
         self.name = weapon
-        self.type = WEAPONS_TYPES[weapon]
+        self.type = WEAPONS[weapon]["type"]
 
         self.ammo_in_mag = WEAPONS[weapon]["ammo_clip"]
         self.extra_ammo = WEAPONS[weapon]["ammo_max"]

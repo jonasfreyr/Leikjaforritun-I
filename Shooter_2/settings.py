@@ -37,7 +37,6 @@ STATS_PADDING = 20
 
 # Player
 PLAYER_SPEED = 300
-PLAYER_IMAGES = {'pistol': "pistol.png", 'shotgun': "shotgun.png", 'rifle': "rifle.png"}
 PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 PLAYER_HEALTH = 100
 
@@ -88,11 +87,6 @@ MUZZLE_FLASH_LIFESPAWN = 0.05
 MUZZLE_FLASH_SIZE = Vector(80, 40)
 MUZZLE_OFFSET = Vector(-5, -10)
 
-ITEM_IMAGES = {"rifle": "rifle_item.png", "shotgun": "shotgun_item.png", "smoke": "smoke_item.png", "grenade": "grenade_item.png"}
-ITEM_SIZES = {"rifle": "rifle_item.png", "shotgun": "shotgun_item.png", "smoke": "smoke_item.png", "grenade": "grenade_item.png"}
-
-WEAPONS_TYPES = {"shotgun": "shotgun", "rifle": "auto", "pistol": "semi-auto"}
-
 WEAPONS = {}
 WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'bullet_distance': 420,
@@ -111,7 +105,10 @@ WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'logo_img': "pistol_logo.png",
                      'logo_pos': Vector(WINDOW_WIDTH -130, 0),
                      'logo_size': Vector(70, 40),
-                     'primary': False
+                     'primary': False,
+                     'knock_back': Vector(500, 0),
+                     'type': 'semi-auto',
+                     'player_image': 'pistol.png'
                      }
 
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
@@ -131,7 +128,10 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'logo_img': "shotgun_logo.png",
                      'logo_pos': Vector(WINDOW_WIDTH -100, -25),
                      'logo_size': Vector(170, 110),
-                     'primary': True
+                     'primary': True,
+                     'knock_back': Vector(800, 0),
+                     'type': 'shotgun',
+                     'player_image': 'shotgun.png'
                     }
 
 WEAPONS['rifle'] = {'bullet_speed': 2000,
@@ -152,5 +152,8 @@ WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'logo_img': "ak47_logo.png",
                      'logo_pos': Vector(WINDOW_WIDTH -130, 0),
                      'logo_size': Vector(140, 40),
-                     'primary': True
+                     'primary': True,
+                     'knock_back': Vector(600, 0),
+                     'type': 'auto',
+                     'player_image': 'rifle.png'
                     }

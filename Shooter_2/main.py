@@ -129,13 +129,6 @@ class Game(pyglet.window.Window):
             self.map_folder = path.join(res_folder, "maps")
 
         self.player_images = {}
-        for a in PLAYER_IMAGES:
-            p = preload_img(PLAYER_IMAGES[a])
-            texture = p.get_texture()
-            texture.width = WEAPONS[a]["img_size"].x
-            texture.height = WEAPONS[a]["img_size"].y
-
-            self.player_images[a] = p
 
         self.crosshair_img = preload_img(CROSSHAIR_IMG)
 
@@ -192,6 +185,13 @@ class Game(pyglet.window.Window):
             texture.width = size.x
             texture.height = size.y
             self.weapon_logos[weapon] = logo
+
+            p = preload_img(WEAPONS[weapon]["player_image"])
+            texture = p.get_texture()
+            texture.width = WEAPONS[weapon]["img_size"].x
+            texture.height = WEAPONS[weapon]["img_size"].y
+
+            self.player_images[weapon] = p
 
         pick_img = preload_img(PICK_IMG)
         texture = pick_img.get_texture()

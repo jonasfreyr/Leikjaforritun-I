@@ -12,5 +12,8 @@ Connection UI - [O]
 More Server Commands - [O]
  DC Command - [X]
  Ban Command - [O]
- 
+
+Knockback - [X]
+
+
 
