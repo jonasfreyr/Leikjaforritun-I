@@ -28,6 +28,8 @@ id = 1
 
 ban_list = []
 
+EXIT = False
+
 def command_log(*args):
     with open("./res/log.txt", "r") as r:
         print(r.read())
@@ -50,6 +52,14 @@ def command_disconnect(*args):
 def command_ban(*args):
     pass
 
+def shutdown(*args):
+    global EXIT
+
+    for id in conns:
+        conns[id].sendall(b"dc")
+
+    EXIT = True
+
 def command_stats(*args):
     for id in stats:
         if args:
@@ -61,7 +71,7 @@ def command_stats(*args):
             print("Player: \n id: ", id, "\n Kills: ",
                   stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
 
-commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban}
+commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban, "shutdown": shutdown}
 
 def remove_user(id):
     if id in connsUDP:
@@ -272,8 +282,8 @@ class Game(pyglet.window.Window):
             self.map_folder = path.join(res_folder, "maps")
 
         self.player_images = {}
-        for a in PLAYER_IMAGES:
-            p = preload_img(PLAYER_IMAGES[a])
+        for a in WEAPONS:
+            p = preload_img(WEAPONS[a]["player_image"])
             texture = p.get_texture()
             texture.width = WEAPONS[a]["img_size"].x
             texture.height = WEAPONS[a]["img_size"].y
@@ -520,6 +530,9 @@ class Game(pyglet.window.Window):
 
         except:
             pass
+
+        if EXIT:
+            sys.exit()
 
     def on_draw(self):
         pyglet.clock.tick()
