@@ -16,5 +16,9 @@ More Server Commands - [O]
 
 Knockback - [X]
 
+Better Spectation - [O]
+
+Fixa heimska buggið - [O]
+
 
 

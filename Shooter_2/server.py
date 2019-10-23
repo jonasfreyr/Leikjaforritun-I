@@ -47,7 +47,11 @@ def command_conns(*args):
 
 def command_disconnect(*args):
     for id in args:
-        conns[int(id)].sendall(b"dc")
+        if id in conns:
+            conns[int(id)].sendall(b"dc")
+
+        else:
+            print("Invalid id")
 
 def command_ban(*args):
     pass

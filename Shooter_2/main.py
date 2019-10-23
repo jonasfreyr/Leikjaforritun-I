@@ -307,7 +307,7 @@ class Game(pyglet.window.Window):
             data = eval(data.decode())
 
             i_ids = []
-            # print(data)
+            print(data)
             for ids in data["players"]:
                 i_ids.append(ids)
                 for player in self.o_players:
@@ -320,6 +320,7 @@ class Game(pyglet.window.Window):
                         break
 
                 else:
+                    # print(ids)
                     self.new_players.append([ids, data["players"][ids]["pos"]["x"], data["players"][ids]["pos"]["y"], data["players"][ids]["rot"], data["players"][ids]["weapon"]])
 
             for player in self.o_players:
@@ -463,6 +464,7 @@ class Game(pyglet.window.Window):
         if len(self.new_players) != 0:
             print(self.new_players)
             for player in self.new_players:
+                print(self.o_players)
                 pl = [p for p in self.o_players if player[0] != p.id]
                 print(pl)
                 if len(pl) == 0:
