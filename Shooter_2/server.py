@@ -60,6 +60,10 @@ def command_shutdown(*args):
 
     EXIT = True
 
+def command_list_commands(*args):
+    for command in commands:
+        print(command)
+
 def command_stats(*args):
     for id in stats:
         if args:
@@ -71,7 +75,33 @@ def command_stats(*args):
             print("Player: \n id: ", id, "\n Kills: ",
                   stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
 
-commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban, "shutdown": command_shutdown}
+def command_man(*args):
+    for command in args:
+        if command in man_commands:
+            print(command + ":", man_commands[command])
+        else:
+            print(command + ":", "Invalid command")
+        print("\n")
+commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban, "shutdown": command_shutdown, "ls": command_list_commands, "man": command_man}
+
+man_commands = {
+    "log": "Reads out the log file \n"
+           "Takes in nothing",
+    "conns": "Prints outs active connections \n"
+             "Takes in nothing",
+    "stats": "Prints out the stats for active players \n"
+             "Takes in nothing",
+    "dc": "Disconnects the provided players \n"
+          "Takes in players ids",
+    "ban": "Bans provided address \n"
+           "Takes in ip address",
+    "shutdown": "Shutdowns the server \n"
+                "Takes in nothing",
+    "ls": "Lists all commands \n"
+          "Takes in nothing",
+    "man": "Shows what a command does \n"
+           "Takes in commands"
+}
 
 def remove_user(id):
     if id in connsUDP:
