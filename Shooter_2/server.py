@@ -6,7 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-import _thread, socket, site, os, sys, platform
+import _thread, socket, site, os, sys, platform, datetime
 
 HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
 PORT = 65432
@@ -52,7 +52,7 @@ def command_disconnect(*args):
 def command_ban(*args):
     pass
 
-def shutdown(*args):
+def command_shutdown(*args):
     global EXIT
 
     for id in conns:
@@ -71,7 +71,7 @@ def command_stats(*args):
             print("Player: \n id: ", id, "\n Kills: ",
                   stats[id]["kills"], "\n Deaths: ", stats[id]["deaths"])
 
-commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban, "shutdown": shutdown}
+commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban, "shutdown": command_shutdown}
 
 def remove_user(id):
     if id in connsUDP:
@@ -98,6 +98,8 @@ def remove_user(id):
 
 def console():
     with open("./res/log.txt", "w") as r:
+        r.write(str(datetime.datetime.now()))
+        r.write("\n")
         r.write("Server Started! \n")
         r.write("\n")
 
@@ -119,6 +121,8 @@ def console():
 
 def log(text):
     with open("./res/log.txt", "a") as r:
+        r.write(str(datetime.datetime.now()))
+        r.write("\n")
         r.write(str(text))
         r.write("\n")
         r.write("\n")
