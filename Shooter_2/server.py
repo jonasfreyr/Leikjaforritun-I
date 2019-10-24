@@ -54,7 +54,18 @@ def command_disconnect(*args):
             print("Invalid id")
 
 def command_ban(*args):
-    pass
+    for ban in args:
+        ban_list.append(ban)
+
+def command_print_ban_list(*args):
+    print(ban_list)
+
+def command_unban(*args):
+    for address in args:
+        if address in ban_list:
+            ban_list.remove(address)
+        else:
+            print(address + ":", "Invalid address")
 
 def command_shutdown(*args):
     global EXIT
@@ -83,15 +94,28 @@ def command_man(*args):
     for command in args:
         if command in man_commands:
             print(command + ":", man_commands[command])
+        elif command in commands:
+            print(command + ":", "Has no man page")
         else:
             print(command + ":", "Invalid command")
+
         print("\n")
-commands = {"log": command_log, "conns": command_conns, "stats": command_stats, "dc": command_disconnect, "ban": command_ban, "shutdown": command_shutdown, "ls": command_list_commands, "man": command_man}
+commands = {"log": command_log,
+            "conns": command_conns,
+            "stats": command_stats,
+            "dc": command_disconnect,
+            "ban": command_ban,
+            "shutdown": command_shutdown,
+            "lc": command_list_commands,
+            "man": command_man,
+            "lb": command_print_ban_list,
+            "unban": command_unban
+            }
 
 man_commands = {
     "log": "Reads out the log file \n"
            "Takes in nothing",
-    "conns": "Prints outs active connections \n"
+    "conns": "Prints out active connections \n"
              "Takes in nothing",
     "stats": "Prints out the stats for active players \n"
              "Takes in nothing",
@@ -101,10 +125,14 @@ man_commands = {
            "Takes in ip address",
     "shutdown": "Shutdowns the server \n"
                 "Takes in nothing",
-    "ls": "Lists all commands \n"
+    "lc": "Lists all commands \n"
           "Takes in nothing",
     "man": "Shows what a command does \n"
-           "Takes in commands"
+           "Takes in commands",
+    "lb": "Prints out ban list \n"
+          "Takes in nothing",
+    "unban": "Unbans provided address \n"
+             "Takes in ip address"
 }
 
 def remove_user(id):
@@ -171,24 +199,28 @@ def socket_func_TCP():
         while True:
             conn, addr = s.accept()
 
-            conns[id] = conn
+            if addr[0] in ban_list:
+                conn.close()
 
-            TCPaddress[id] = addr
+            else:
+                conns[id] = conn
 
-            bullets[id] = []
-            grenades[id] = []
+                TCPaddress[id] = addr
 
-            stats[id] = {
-                "kills": 0,
-                "deaths": 0
-            }
+                bullets[id] = []
+                grenades[id] = []
 
-            log("Connection Started with: " + str(addr))
+                stats[id] = {
+                    "kills": 0,
+                    "deaths": 0
+                }
 
-            # ui.update_user(id)
-            _thread.start_new_thread(g.new_client, (conn, addr, id))
+                log("Connection Started with: " + str(addr))
 
-            id += 1
+                # ui.update_user(id)
+                _thread.start_new_thread(g.new_client, (conn, addr, id))
+
+                id += 1
 
 def socket_func():
     global id, s
@@ -200,15 +232,16 @@ def socket_func():
         try:
             data, address = s.recvfrom(262144)
 
-            data = eval(data.decode())
-            connsUDP[data["id"]] = address
-            players[data["id"]] = data["player"]
-            for bullet in data["bullets"]:
-                # print(bullet)
-                bullets[data["id"]].append(bullet)
+            if address[0] not in ban_list:
+                data = eval(data.decode())
+                connsUDP[data["id"]] = address
+                players[data["id"]] = data["player"]
+                for bullet in data["bullets"]:
+                    # print(bullet)
+                    bullets[data["id"]].append(bullet)
 
-            for grenade in data["grenades"]:
-                grenades[data["id"]].append(grenade)
+                for grenade in data["grenades"]:
+                    grenades[data["id"]].append(grenade)
 
         except ConnectionResetError:
             pass
