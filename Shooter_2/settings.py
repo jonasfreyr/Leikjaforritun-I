@@ -40,6 +40,10 @@ PLAYER_SPEED = 300
 PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 PLAYER_HEALTH = 100
 
+# Mob
+MOB_IMAGE = "zombie.png"
+MOB_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
+
 # Misc
 SIDE = "ct"
 PICK_IMG = "pick.png"

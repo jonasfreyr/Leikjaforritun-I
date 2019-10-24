@@ -68,6 +68,20 @@ class Oplayers:
 
         glEnd()
 
+class Mob:
+    def __init__(self, x, y, game):
+        self.pos = Vector(x, y)
+        self.vel = Vector(0, 0)
+
+        self.game = game
+
+        self.rot = 0
+
+        self.hit_box = MOB_HIT_BOX.copy()
+
+    def update(self, dt):
+        pass
+
 class Player:
     def __init__(self, x, y, game, weapon):
         self.pos = Vector(x, y)

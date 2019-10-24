@@ -100,6 +100,7 @@ def command_man(*args):
             print(command + ":", "Invalid command")
 
         print("\n")
+
 commands = {"log": command_log,
             "conns": command_conns,
             "stats": command_stats,
