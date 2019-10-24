@@ -149,7 +149,7 @@ class Game(pyglet.window.Window):
         texture.height = GRENADE_SIZE.y
 
         explosion = preload_img(EXPLOSION_IMG)
-        explosion_seq = pyglet.image.ImageGrid(explosion, 4, 5, item_width=96, item_height=96)
+        explosion_seq = pyglet.image.ImageGrid(explosion, 4, 5, item_width=EXPLOSION_ITEM_SIZE.x, item_height=EXPLOSION_ITEM_SIZE.y)
         self.explosion_anim = pyglet.image.Animation.from_image_sequence(explosion_seq[0:], EXPLOSION_DURATION, loop=False)
 
         self.smoke_img = preload_img(SMOKE_GRENADE_IMG)
@@ -307,7 +307,7 @@ class Game(pyglet.window.Window):
             data = eval(data.decode())
 
             i_ids = []
-            print(data)
+            # print(data)
             for ids in data["players"]:
                 i_ids.append(ids)
                 for player in self.o_players:
@@ -465,7 +465,7 @@ class Game(pyglet.window.Window):
             print(self.new_players)
             for player in self.new_players:
                 print(self.o_players)
-                pl = [p for p in self.o_players if player[0] != p.id]
+                pl = [p for p in self.o_players if player[0] == p.id]
                 print(pl)
                 if len(pl) == 0:
                     print(player[0])
