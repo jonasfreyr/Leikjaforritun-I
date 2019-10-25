@@ -26,7 +26,7 @@ MAP = "map2.tmx"
 
 HOST = '127.0.0.1'
 PORT = 65432
-MY_PORT = 65438
+MY_PORT = 65439
 
 # Hud
 FONT_SIZE = 30
@@ -38,14 +38,13 @@ STATS_PADDING = 20
 # Player
 PLAYER_SPEED = 300
 PLAYER_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
-PLAYER_HEALTH = 100
+PLAYER_HEALTH = 0
 
 # Mob
 MOB_IMAGE = "zombie.png"
 MOB_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 
 # Misc
-SIDE = "ct"
 PICK_IMG = "pick.png"
 TEAM_DAMAGE_REDUCE = 0.5
 

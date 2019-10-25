@@ -202,7 +202,7 @@ class Player:
             if abs(self.rot) - abs(rot) > 10 or abs(rot) - abs(self.rot) > 10:
                 rot = self.rot
 
-            if self.weapons[self.num].ammo_in_mag > 0:
+            if self.weapons[self.num].ammo_in_mag > 0 and not self.weapons[self.num].fired:
                 self.knock_back = WEAPONS[self.weapons[self.num].name]["knock_back"].rotate(self.rot)
 
             self.weapons[self.num].shoot(self.o, self.pos, rot, self.game)

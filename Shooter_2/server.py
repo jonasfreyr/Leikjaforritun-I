@@ -19,9 +19,6 @@ players = {}
 bullets = {}
 grenades = {}
 
-t_players = []
-ct_players = []
-
 stats = {}
 
 id = 1
@@ -152,13 +149,6 @@ def remove_user(id):
     if id in stats:
         del stats[id]
 
-    if id in t_players:
-        t_players.remove(id)
-    elif id in ct_players:
-        ct_players.remove(id)
-
-    # ui.remove_user()
-
 def console():
     with open("./res/log.txt", "w") as r:
         r.write(str(datetime.datetime.now()))
@@ -274,7 +264,7 @@ class Game(pyglet.window.Window):
 
         if symbol == key.ESCAPE:
             log("Server Stopped!")
-            pyglet.app.exit()
+            command_shutdown()
 
     def on_key_release(self, symbol, modifiers):
         self.keys[symbol] = False
@@ -311,11 +301,7 @@ class Game(pyglet.window.Window):
                         player.health = PLAYER_HEALTH
                         player.dead = False
 
-                        if id in ct_players:
-                            conn.sendall(str(["reset", self.sides["ct"].get_tuple()]).encode())
-
-                        elif id in t_players:
-                            conn.sendall(str(["reset", self.sides["t"].get_tuple()]).encode())
+                        conn.sendall(str(["reset", self.spawn.get_tuple()]).encode())
 
             elif data == "get stats":
                 conn.sendall(str(["stats", stats]).encode())
@@ -332,12 +318,6 @@ class Game(pyglet.window.Window):
 
                 remove_user(id)
                 break
-
-            elif data == "CT" and id not in ct_players and id not in t_players:
-                ct_players.append(id)
-
-            elif data == "T" and id not in ct_players and id not in t_players:
-                t_players.append(id)
 
     def load(self):
         osystem = platform.system()
@@ -424,8 +404,6 @@ class Game(pyglet.window.Window):
         self.new_grenades = []
         self.o_grenades = []
 
-        self.sides = {}
-
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
             pos.x = pos.x + tile_object.width / 2
@@ -437,7 +415,7 @@ class Game(pyglet.window.Window):
                 self.player = Player(pos.x, pos.y, self, tile_object.type)
 
             elif tile_object.name == "Spawn":
-                self.sides[tile_object.type] = pos.copy()
+                self.spawn = pos.copy()
 
         self.bullets = []
 

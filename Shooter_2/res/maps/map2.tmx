@@ -156,8 +156,7 @@
   <object id="27" name="Wall" x="1024" y="1600" width="128" height="16"/>
   <object id="28" name="Wall" x="448" y="704" width="16" height="64"/>
   <object id="29" name="Player" type="None" x="832" y="768" width="64" height="64"/>
-  <object id="30" name="Spawn" type="ct" x="48" y="320" width="112" height="320"/>
-  <object id="31" name="Spawn" type="t" x="1536" y="576" width="192" height="256"/>
+  <object id="30" name="Spawn" x="48" y="320" width="112" height="320"/>
   <object id="32" name="Wall" x="192" y="512" width="16" height="192"/>
  </objectgroup>
 </map>
