@@ -184,6 +184,10 @@ class Game(pyglet.window.Window):
         texture.width = MOB_IMAGE_SIZE.x
         texture.height = MOB_IMAGE_SIZE.y
 
+        self.light_image = preload_img(LIGHT_IMAGE)
+        # texture = self.light_image.get_texture()
+        self.light_sprite = Sprite(self.light_image)
+
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
         self.new_players = []
@@ -493,6 +497,8 @@ class Game(pyglet.window.Window):
         for wall in self.walls:
             wall.draw()
 
+
+        self.light_sprite.draw()
 
         pyglet.gl.glPopMatrix()
 

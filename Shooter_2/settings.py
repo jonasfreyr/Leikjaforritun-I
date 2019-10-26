@@ -49,6 +49,7 @@ MOB_HEALTH = 100
 # Misc
 PICK_IMG = "pick.png"
 TEAM_DAMAGE_REDUCE = 0.5
+LIGHT_IMAGE = "light_350_med.png"
 
 # Crosshair
 CROSSHAIR_IMG = "crosshair.png"
