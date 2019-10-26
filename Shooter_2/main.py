@@ -8,7 +8,6 @@ from hud import *
 from weapons import *
 import _thread, socket, site, os, sys, platform, random
 from pyglet.gl import *
-import lightvolume
 
 
 class Game(pyglet.window.Window):
@@ -180,11 +179,10 @@ class Game(pyglet.window.Window):
 
             self.player_images[weapon] = p
 
-        pick_img = preload_img(PICK_IMG)
-        texture = pick_img.get_texture()
-        texture.width = WINDOW_WIDTH
-        texture.height = WINDOW_HEIGHT
-        self.pick_sprite = Sprite(pick_img)
+        self.mob_image = preload_img(MOB_IMAGE)
+        texture = self.mob_image.get_texture()
+        texture.width = MOB_IMAGE_SIZE.x
+        texture.height = MOB_IMAGE_SIZE.y
 
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
@@ -204,6 +202,7 @@ class Game(pyglet.window.Window):
         self.o_players_batch = pyglet.graphics.Batch()
         self.buy_menu_batch = pyglet.graphics.Batch()
         self.stats_batch = pyglet.graphics.Batch()
+        self.mob_batch = pyglet.graphics.Batch()
 
         self.map = TiledRenderer((self.map_folder + "/" + MAP))
 
@@ -217,23 +216,22 @@ class Game(pyglet.window.Window):
         self.new_grenades = []
         self.o_grenades = []
         self.stats_list = []
+        self.mobs = []
 
         # self.s_bullets = []
         # self.s_grenades = []
         # x1, x2, y1, y2
-        self.objects = [lightvolume.rect(0, self.map.size[0], 0, self.map.size[1]),
-                        #lightvolume.rect(20, 30, 10, 20)
 
-                        ]
-
+        tel = 0
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
             pos.x = pos.x + tile_object.width / 2
             pos.y = pos.y + tile_object.height / 2
             if tile_object.name == "Wall":
                 self.walls.append(Wall(tile_object.x, pos.y - tile_object.height / 2, tile_object.width, tile_object.height))
-                self.objects.append(lightvolume.rect(tile_object.x,tile_object.x + tile_object.width, pos.y - tile_object.height / 2, pos.y + tile_object.height / 2))
-
+                if tel == 0:
+                    # self.objects.append(lightvolume.rect(tile_object.x,tile_object.x + tile_object.width, pos.y - tile_object.height / 2, pos.y + tile_object.height / 2))
+                    tel += 1
             elif tile_object.name == "Spawn":
                 self.r_wep = "pistol"
 
@@ -486,6 +484,8 @@ class Game(pyglet.window.Window):
                 if self.player.see_player(player) or self.player.health <= 0:
                     player.sprite.draw()
 
+        self.mob_batch.draw()
+
         self.bullet_batch.draw()
 
         self.effects_batch.draw()
@@ -493,8 +493,6 @@ class Game(pyglet.window.Window):
         for wall in self.walls:
             wall.draw()
 
-        light = self.player.pos.x, self.player.pos.y
-        lightvolume.draw_light(light, self.objects)
 
         pyglet.gl.glPopMatrix()
 

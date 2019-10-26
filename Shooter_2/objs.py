@@ -79,8 +79,55 @@ class Mob:
 
         self.hit_box = MOB_HIT_BOX.copy()
 
+        self.sprite = Sprite(game.mob_image, batch=game.mob_batch)
+        self.width = self.sprite.width
+        self.height = self.sprite.height
+
+        self.sprite.image.anchor_x = self.sprite.image.width / 2
+        self.sprite.image.anchor_y = self.sprite.image.height / 2
+
+        self.sprite.x = x
+        self.sprite.y = y
+
+        self.health = MOB_HEALTH
+
+    def collide_with_walls(self, dir):
+        if self.health > 0:
+            if dir == "x":
+                for wall in self.game.walls:
+                    if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
+                        if wall.center.x > self.hit_box.get_center().x:
+                            self.hit_box.x = wall.pos.x - self.hit_box.width
+
+                        elif wall.center.x < self.hit_box.get_center().x:
+                            self.hit_box.x = wall.pos.x + wall.width
+
+                        self.vel.x = 0
+
+            elif dir == "y":
+                for wall in self.game.walls:
+                    if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
+                        if wall.center.y > self.hit_box.get_center().y:
+                            self.hit_box.y = wall.pos.y - self.hit_box.height
+
+                        elif wall.center.y < self.hit_box.get_center().y:
+                            self.hit_box.y = wall.pos.y + wall.height
+
+                        self.vel.y = 0
+
     def update(self, dt):
-        pass
+        self.hit_box.x += self.vel.x * dt
+        self.collide_with_walls("x")
+
+        self.hit_box.y += self.vel.y * dt
+        self.collide_with_walls("y")
+
+        self.pos.x = self.hit_box.x + self.hit_box.width / 2
+        self.pos.y = self.hit_box.y + self.hit_box.height / 2
+
+        self.sprite.update(rotation=self.rot)
+        self.sprite.x = self.hit_box.get_center().x
+        self.sprite.y = self.hit_box.get_center().y
 
 class Player:
     def __init__(self, x, y, game, weapon):

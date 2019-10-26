@@ -27,6 +27,8 @@ ban_list = []
 
 EXIT = False
 
+start = datetime.datetime.now()
+
 def command_log(*args):
     with open("./res/log.txt", "r") as r:
         print(r.read())
@@ -98,6 +100,15 @@ def command_man(*args):
 
         print("\n")
 
+def command_uptime(*args):
+    date = datetime.datetime.now()
+
+    print(date - start)
+
+def command_restart(*args):
+    command_disconnect(*conns)
+    print("Not yet implemented")
+
 commands = {"log": command_log,
             "conns": command_conns,
             "stats": command_stats,
@@ -107,7 +118,9 @@ commands = {"log": command_log,
             "lc": command_list_commands,
             "man": command_man,
             "lb": command_print_ban_list,
-            "unban": command_unban
+            "unban": command_unban,
+            "uptime": command_uptime,
+            "restart": command_restart
             }
 
 man_commands = {
@@ -129,7 +142,7 @@ man_commands = {
            "Takes in commands",
     "lb": "Prints out ban list \n"
           "Takes in nothing",
-    "unban": "Unbans provided address \n"
+    "unban": "Un-bans provided address \n"
              "Takes in ip address"
 }
 
@@ -380,6 +393,11 @@ class Game(pyglet.window.Window):
         texture.width = SMOKE_SIZE.x
         texture.height = SMOKE_SIZE.y
 
+        self.mob_image = preload_img(MOB_IMAGE)
+        texture = self.mob_image.get_texture()
+        texture.width = MOB_IMAGE_SIZE.x
+        texture.height = MOB_IMAGE_SIZE.y
+
         # smoke_seq = pyglet.image.ImageGrid(smoke, 6, 12, item_width=341, item_height=280)
         # self.smoke_anim = pyglet.image.Animation.from_image_sequence(smoke_seq[0:], SMOKE_DURATION, loop=False)
 
@@ -390,6 +408,7 @@ class Game(pyglet.window.Window):
         self.hud_batch = pyglet.graphics.Batch()
         self.hud_logo_batch = pyglet.graphics.Batch()
         self.o_players_batch = pyglet.graphics.Batch()
+        self.mob_batch = pyglet.graphics.Batch()
 
         self.map = TiledRenderer((self.map_folder + "/" + MAP))
 
@@ -403,6 +422,7 @@ class Game(pyglet.window.Window):
         self.new_bullets = []
         self.new_grenades = []
         self.o_grenades = []
+        self.mobs = []
 
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
@@ -416,6 +436,9 @@ class Game(pyglet.window.Window):
 
             elif tile_object.name == "Spawn":
                 self.spawn = pos.copy()
+
+            elif tile_object.name == "Mob":
+                self.mobs.append(Mob(pos.x, pos.y, self))
 
         self.bullets = []
 
@@ -598,6 +621,8 @@ class Game(pyglet.window.Window):
             if not player.dead:
                 player.sprite.draw()
                 player.draw_hit_box()
+
+        self.mob_batch.draw()
 
         self.bullet_batch.draw()
         self.effects_batch.draw()
