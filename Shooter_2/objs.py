@@ -150,7 +150,7 @@ class Mob:
             if dist is None:
                 dist = new_dist
 
-            elif new_dist < dist:
+            elif new_dist.magnitude() < dist.magnitude():
                 dist = new_dist
 
         if dist is not None:
