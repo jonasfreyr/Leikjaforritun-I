@@ -563,6 +563,9 @@ class Game(pyglet.window.Window):
                                 stats[player.id]["deaths"] += 1
                                 log(str(grenade.owner) + " killed " + str(player.id) + " with grenade")
 
+        for mob in self.mobs:
+            mob.update(dt)
+
         tempB = []
         for bullet in self.bullets:
             tempB.append({"pos": {"x": bullet.pos.x, "y": bullet.pos.y}, "rot": bullet.rot, "weapon": bullet.weapon})
@@ -624,6 +627,9 @@ class Game(pyglet.window.Window):
 
         self.mob_batch.draw()
 
+        for mob in self.mobs:
+            mob.draw_hit_box()
+
         self.bullet_batch.draw()
         self.effects_batch.draw()
 
@@ -636,7 +642,7 @@ class Game(pyglet.window.Window):
         pyglet.gl.glPopMatrix()
 
 
-g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
+g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2 Server", resizable=False)
 
 g.load()
 g.new()

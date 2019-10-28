@@ -114,6 +114,9 @@ class Game(pyglet.window.Window):
             img_folder = path.join(res_folder, "img")
             self.map_folder = path.join(res_folder, "maps")
 
+        self.map_image = pyglet.image.load("res/maps/map2.png")
+        self.map_texture = self.map_image.get_texture()
+
         self.player_images = {}
 
         self.crosshair_img = preload_img(CROSSHAIR_IMG)
@@ -185,8 +188,9 @@ class Game(pyglet.window.Window):
         texture.height = MOB_IMAGE_SIZE.y
 
         self.light_image = preload_img(LIGHT_IMAGE)
+        self.black = preload_img("black.png")
         # texture = self.light_image.get_texture()
-        self.light_sprite = Sprite(self.light_image)
+        # self.light_sprite = Sprite(self.light_image)
 
         self.mouse = Mouse(Sprite(self.crosshair_img), self)
 
@@ -471,6 +475,29 @@ class Game(pyglet.window.Window):
         if self.dc:
             sys.exit()
 
+    def multiply(self):
+        glActiveTexture(GL_TEXTURE0)
+        glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, self.map_texture.id)
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
+
+        texture2 = self.black.get_texture()
+        glActiveTexture(GL_TEXTURE1)
+        glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, texture2.id)
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE)
+
+        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE)
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS)
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE)
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR)
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR)
+
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS)
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE)
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA)
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA)
+
     def on_draw(self):
         pyglet.clock.tick()
 
@@ -478,7 +505,8 @@ class Game(pyglet.window.Window):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         pyglet.gl.glPushMatrix()
         self.camera.draw(self.target)
-        self.map.draw()
+        # self.map.draw()
+        self.map_image.blit(0, 0)
         self.main_batch.draw()
         if self.player.health > 0:
             self.player.draw()
@@ -497,12 +525,9 @@ class Game(pyglet.window.Window):
         for wall in self.walls:
             wall.draw()
 
-
-        self.light_sprite.draw()
+        # self.multiply()
 
         pyglet.gl.glPopMatrix()
-
-        # objects = [lightvolume.rect(100, 100, 100 ,100), lightvolume.rect(200, 200, 200 ,200)]
 
         self.hud_batch.draw()
 

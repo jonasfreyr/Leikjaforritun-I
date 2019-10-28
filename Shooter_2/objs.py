@@ -72,6 +72,7 @@ class Mob:
     def __init__(self, x, y, game):
         self.pos = Vector(x, y)
         self.vel = Vector(0, 0)
+        self.acc = Vector(0, 0)
 
         self.game = game
 
@@ -90,6 +91,11 @@ class Mob:
         self.sprite.y = y
 
         self.health = MOB_HEALTH
+
+        self.hit_box.x = self.pos.x - self.hit_box.width / 2
+        self.hit_box.y = self.pos.y - self.hit_box.height / 2
+
+        self.target = None
 
     def collide_with_walls(self, dir):
         if self.health > 0:
@@ -115,7 +121,41 @@ class Mob:
 
                         self.vel.y = 0
 
+    def rot_towards_target(self, target_dist):
+        rotT = target_dist.get_angle() - 90
+
+        angle = math.atan2(-target_dist.x, -target_dist.y)/math.pi * 180.0
+
+        diff = (angle - self.rot - 90) % 360
+
+        if 175 < int(diff) < 183:
+            rot = rotT
+
+        elif diff > 180:
+            rot = self.rot + MOB_ROTATION_SPEED
+
+        else:
+            rot = self.rot - MOB_ROTATION_SPEED
+
+        return rot
+
+    def move(self):
+        dist = self.target - self.pos
+
     def update(self, dt):
+        dist = None
+        for player in self.game.o_players:
+            new_dist = player.pos - self.pos
+
+            if dist is None:
+                dist = new_dist
+
+            elif new_dist < dist:
+                dist = new_dist
+
+        if dist is not None:
+            self.rot = self.rot_towards_target(dist)
+
         self.hit_box.x += self.vel.x * dt
         self.collide_with_walls("x")
 
@@ -128,6 +168,23 @@ class Mob:
         self.sprite.update(rotation=self.rot)
         self.sprite.x = self.hit_box.get_center().x
         self.sprite.y = self.hit_box.get_center().y
+
+    def draw_hit_box(self):
+        glBegin(GL_LINES)
+
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y + self.hit_box.height))
+
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y + self.hit_box.height))
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y + self.hit_box.height))
+
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y + self.hit_box.height))
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y))
+
+        glVertex2i(int(self.hit_box.x + self.hit_box.width), int(self.hit_box.y))
+        glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
+
+        glEnd()
 
 class Player:
     def __init__(self, x, y, game, weapon):

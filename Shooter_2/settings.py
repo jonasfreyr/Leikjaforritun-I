@@ -45,6 +45,7 @@ MOB_IMAGE = "zombie.png"
 MOB_IMAGE_SIZE = Vector(TILESIZE * 1.2, TILESIZE * 1.2)
 MOB_HIT_BOX = Rect(0, 0, TILESIZE * 0.6, TILESIZE * 0.6)
 MOB_HEALTH = 100
+MOB_ROTATION_SPEED = 5
 
 # Misc
 PICK_IMG = "pick.png"

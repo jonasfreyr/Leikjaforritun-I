@@ -56,3 +56,34 @@ class Vector:
 
     def magnitude(self):
         return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
+
+    def get_angle(self):
+        return math.atan2(self.x, self.y)*180/math.pi
+
+    def angle_to(self, vector):
+        upper = self.x * vector.x + self.y * vector.y
+        lower = self.magnitude() * vector.magnitude()
+
+        s = upper / lower
+
+        return math.acos(s)*180/math.pi
+
+    def set_length(self, length):
+        s = Vector(1, 0)
+
+        a = s.get_angle() - self.get_angle()
+
+        s = s.rotate(a)
+
+        s.multiply(length)
+
+        self.x = s.x
+        self.y = s.y
+s = Vector(0, 5)
+print(s.angle_to(Vector(1, 0)))
+s = Vector(5, 5)
+print(s.angle_to(Vector(1, 0)))
+s = Vector(5, 0)
+print(s.angle_to(Vector(1, 0)))
+s = Vector(0, -5)
+print(s.angle_to(Vector(1, 0)))
