@@ -42,7 +42,7 @@ class Queue:
         self.game = game
 
     def put(self, node, index=None):
-        if index is not Node:
+        if index is not None:
             self.list.insert(index, node)
 
         else:
@@ -79,22 +79,22 @@ class Queue:
 
                 elif (Vector(nearest.x, nearest.y) - pos).magnitude() > (Vector(node.x, node.y) - pos).magnitude():
                     nearest = node
-
+        print(nearest)
         return nearest
 
     def get(self):
         return self.list[len(self.list)-1]
 
     def test(self):
-        pos = Vector(300, 300)
-        goal = Vector(1200, 1200)
+        pos = Vector(1696.0, 160.0)
+        goal = Vector(104.0, 1312.0)
         
         self.find_path(self.get_nearest(pos), self.get_nearest(goal))
 
     def find_path(self, start, goal):
         self.put(start)
 
-        came_from = {}
+        came_from = dict()
         came_from[start] = None
 
         while True:
@@ -107,3 +107,5 @@ class Queue:
                 if next not in came_from:
                     self.put(next)
                     came_from[next] = curr
+
+        print(self.list)

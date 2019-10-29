@@ -447,11 +447,12 @@ class Game(pyglet.window.Window):
 
         for node in self.nodes:
             node.connect(self.nodes, self)
-
+        '''
         for node in self.nodes:
             print("X:", node.x, "Y:", node.y)
             print("NX:", node.neighbors[0].x, "NY:", node.neighbors[0].y)
             print(node.neighbors)
+        '''
 
         self.bullets = []
 
@@ -468,6 +469,10 @@ class Game(pyglet.window.Window):
         self.hud_labels.append(AmmoText(self, l))
 
         self.target = self.player
+
+        q = Queue(self)
+
+        q.test()
 
     def update(self, dt):
         # print(len(self.bullets))
