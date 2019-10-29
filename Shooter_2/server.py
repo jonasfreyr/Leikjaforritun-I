@@ -6,6 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
+from nodes import *
 import _thread, socket, site, os, sys, platform, datetime
 
 HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
@@ -423,6 +424,7 @@ class Game(pyglet.window.Window):
         self.new_grenades = []
         self.o_grenades = []
         self.mobs = []
+        self.nodes = []
 
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
@@ -439,6 +441,17 @@ class Game(pyglet.window.Window):
 
             elif tile_object.name == "Mob":
                 self.mobs.append(Mob(pos.x, pos.y, self))
+
+            elif tile_object.name == "Node":
+                self.nodes.append(Node(pos.x, pos.y))
+
+        for node in self.nodes:
+            node.connect(self.nodes, self)
+
+        for node in self.nodes:
+            print("X:", node.x, "Y:", node.y)
+            print("NX:", node.neighbors[0].x, "NY:", node.neighbors[0].y)
+            print(node.neighbors)
 
         self.bullets = []
 

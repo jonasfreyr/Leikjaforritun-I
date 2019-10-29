@@ -1,3 +1,6 @@
+from vector import Vector
+from settings import *
+
 class Node:
     def __init__(self, x, y):
         self.x = x
@@ -26,8 +29,10 @@ class Node:
 
         return False
 
-    def connect(self, nodes):
-        pass
+    def connect(self, nodes, game):
+        for node in nodes:
+            if not self.line_collide(game, Vector(node.x, node.y), Vector(self.x, self.y)):
+                self.neighbors.append(node)
 
 
 class Queue:

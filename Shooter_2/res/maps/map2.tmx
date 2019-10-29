@@ -155,10 +155,10 @@
   <object id="26" name="Wall" x="1024" y="1456" width="128" height="16"/>
   <object id="27" name="Wall" x="1024" y="1600" width="128" height="16"/>
   <object id="28" name="Wall" x="448" y="704" width="16" height="64"/>
-  <object id="29" name="Player" type="None" x="832" y="768" width="64" height="64"/>
+  <object id="29" name="Player" type="None" x="1600" y="1600" width="64" height="64"/>
   <object id="30" name="Spawn" x="48" y="320" width="112" height="320"/>
   <object id="32" name="Wall" x="192" y="512" width="16" height="192"/>
-  <object id="34" name="Mob" type="None" x="256" y="448" width="64" height="64"/>
+  <object id="34" name="Mob" type="None" x="1664" y="1600" width="64" height="64"/>
   <object id="61" name="Node" type="None" x="432" y="768" width="64" height="64"/>
   <object id="62" name="Node" type="None" x="384" y="128" width="64" height="64"/>
   <object id="63" name="Node" type="None" x="1408" y="128" width="64" height="64"/>
