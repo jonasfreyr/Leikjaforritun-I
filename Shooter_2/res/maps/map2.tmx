@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-up" width="28" height="28" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="42">
+<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-up" width="28" height="28" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="81">
  <tileset firstgid="1" source="../img/spritesheet_tiles.tsx"/>
  <layer id="6" name="Ground" width="28" height="28">
   <data encoding="csv">
@@ -158,14 +158,26 @@
   <object id="29" name="Player" type="None" x="832" y="768" width="64" height="64"/>
   <object id="30" name="Spawn" x="48" y="320" width="112" height="320"/>
   <object id="32" name="Wall" x="192" y="512" width="16" height="192"/>
-  <object id="33" name="Mob" type="None" x="928" y="768" width="64" height="64"/>
-  <object id="34" name="Mob" type="None" x="896" y="720" width="64" height="64"/>
-  <object id="35" name="Mob" type="None" x="896" y="816" width="64" height="64"/>
-  <object id="36" name="Mob" type="None" x="848" y="704" width="64" height="64"/>
-  <object id="37" name="Mob" type="None" x="784" y="704" width="64" height="64"/>
-  <object id="38" name="Mob" type="None" x="768" y="736" width="64" height="64"/>
-  <object id="39" name="Mob" type="None" x="752" y="800" width="64" height="64"/>
-  <object id="40" name="Mob" type="None" x="784" y="832" width="64" height="64"/>
-  <object id="41" name="Mob" type="None" x="832" y="832" width="64" height="64"/>
+  <object id="34" name="Mob" type="None" x="256" y="448" width="64" height="64"/>
+  <object id="61" name="Node" type="None" x="432" y="768" width="64" height="64"/>
+  <object id="62" name="Node" type="None" x="384" y="128" width="64" height="64"/>
+  <object id="63" name="Node" type="None" x="1408" y="128" width="64" height="64"/>
+  <object id="64" name="Node" type="None" x="1408" y="704" width="64" height="64"/>
+  <object id="65" name="Node" type="None" x="1536" y="832" width="64" height="64"/>
+  <object id="66" name="Node" type="None" x="544" y="864" width="64" height="64"/>
+  <object id="67" name="Node" type="None" x="1536" y="1280" width="64" height="64"/>
+  <object id="68" name="Node" type="None" x="1152" y="1504" width="64" height="64"/>
+  <object id="69" name="Node" type="None" x="992" y="1504" width="64" height="64"/>
+  <object id="70" name="Node" type="None" x="624" y="1632" width="64" height="64"/>
+  <object id="71" name="Node" type="None" x="480" y="1632" width="64" height="64"/>
+  <object id="72" name="Node" type="None" x="224" y="1392" width="64" height="64"/>
+  <object id="73" name="Node" type="None" x="608" y="1312" width="64" height="64"/>
+  <object id="74" name="Node" type="None" x="512" y="1312" width="64" height="64"/>
+  <object id="75" name="Node" type="None" x="1056" y="1248" width="64" height="64"/>
+  <object id="76" name="Node" type="None" x="992" y="1344" width="64" height="64"/>
+  <object id="77" name="Node" type="None" x="800" y="1440" width="64" height="64"/>
+  <object id="78" name="Node" type="None" x="912" y="768" width="64" height="64"/>
+  <object id="79" name="Node" type="None" x="176" y="448" width="64" height="64"/>
+  <object id="80" name="Node" type="None" x="288" y="672" width="64" height="64"/>
  </objectgroup>
 </map>
