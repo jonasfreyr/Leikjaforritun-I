@@ -472,7 +472,7 @@ class Game(pyglet.window.Window):
 
         q = Queue(self)
 
-        q.test()
+        # q.test()
 
     def update(self, dt):
         # print(len(self.bullets))
@@ -656,6 +656,9 @@ class Game(pyglet.window.Window):
 
         for grenade in self.grenades:
             grenade.draw_hit_box()
+
+        for node in self.nodes:
+            node.draw()
 
         pyglet.gl.glPopMatrix()
 

@@ -1,5 +1,7 @@
 from vector import Vector
 from settings import *
+import math
+from pyglet.gl import *
 
 class Node:
     def __init__(self, x, y):
@@ -31,8 +33,46 @@ class Node:
 
     def connect(self, nodes, game):
         for node in nodes:
-            if not self.line_collide(game, Vector(node.x, node.y), Vector(self.x, self.y)):
-                self.neighbors.append(node)
+            if node != self:
+                if not self.line_collide(game, Vector(node.x, node.y), Vector(self.x, self.y)):
+                    self.neighbors.append(node)
+
+    def draw(self):
+        circle(self.x, self.y, 10)
+
+        glBegin(GL_LINES)
+        for node in self.neighbors:
+
+
+            glVertex2i(int(self.x), int(self.y))
+            glVertex2i(int(node.x), int(node.y))
+
+
+        glEnd()
+
+def circle(x, y, radius):
+    """
+    We want a pixel perfect circle. To get one,
+    we have to approximate it densely with triangles.
+    Each triangle thinner than a pixel is enough
+    to do it. Sin and cosine are calculated once
+    and then used repeatedly to rotate the vector.
+    I dropped 10 iterations intentionally for fun.
+    """
+    iterations = int(2*radius*math.pi)
+    s = math.sin(2*math.pi / iterations)
+    c = math.cos(2*math.pi / iterations)
+
+    dx, dy = radius, 0
+
+    glBegin(GL_TRIANGLE_FAN)
+    glVertex2f(x, y)
+    for i in range(iterations+1):
+        glVertex2f(x+dx, y+dy)
+        dx, dy = (dx*c - dy*s), (dy*c + dx*s)
+    glEnd()
+
+
 
 
 class Queue:
@@ -71,8 +111,7 @@ class Queue:
 
     def get_nearest(self, pos):
         nearest = None
-        for node in self.list:
-
+        for node in self.game.nodes:
             if not self.line_collide(self.game, Vector(node.x, node.y), pos):
                 if nearest is None:
                     nearest = node
