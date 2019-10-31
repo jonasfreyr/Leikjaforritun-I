@@ -1,14 +1,24 @@
 from vector import Vector
 from settings import *
 import math
+import pyglet
 from pyglet.gl import *
 
 class Node:
-    def __init__(self, x, y):
+    def __init__(self, x, y, id):
         self.x = x
         self.y = y
 
         self.neighbors = []
+        self.id = id
+
+        self.s = pyglet.text.Label(str(id), x=x, y=y)
+        self.s.anchor_x = "center"
+        self.s.anchor_y = "center"
+        self.s.color = (0, 0, 0, 255)
+
+    def __str__(self):
+        return str(self.id)
 
     def line_collide(self, game, pos, o):
         for wall in game.walls:
@@ -17,10 +27,10 @@ class Node:
 
             bottomleft = [wall.pos.x, wall.pos.y]
             bottomright = [wall.pos.x + wall.width, wall.pos.y]
+            # x1, y1, x2, y2, x3, y3, x4, y4
+            left = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], bottomleft[0], bottomleft[1])
 
-            left = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topleft[0], bottomleft[1])
-
-            right = lineLine(pos.x, pos.y, o.x, o.y, topright[0], topright[1], topright[0], bottomright[1])
+            right = lineLine(pos.x, pos.y, o.x, o.y, topright[0], topright[1], bottomright[0], bottomright[1])
 
             top = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topright[0], topright[1])
 
@@ -34,7 +44,7 @@ class Node:
     def connect(self, nodes, game):
         for node in nodes:
             if node != self:
-                if not self.line_collide(game, Vector(node.x, node.y), Vector(self.x, self.y)):
+                if not self.line_collide(game, Vector(self.x, self.y), Vector(node.x, node.y)):
                     self.neighbors.append(node)
 
     def draw(self):
@@ -49,6 +59,8 @@ class Node:
 
 
         glEnd()
+
+        self.s.draw()
 
 def circle(x, y, radius):
     """
@@ -72,9 +84,6 @@ def circle(x, y, radius):
         dx, dy = (dx*c - dy*s), (dy*c + dx*s)
     glEnd()
 
-
-
-
 class Queue:
     def __init__(self, game):
         self.list = []
@@ -96,9 +105,9 @@ class Queue:
             bottomleft = [wall.pos.x, wall.pos.y]
             bottomright = [wall.pos.x + wall.width, wall.pos.y]
 
-            left = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topleft[0], bottomleft[1])
+            left = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], bottomleft[0], bottomleft[1])
 
-            right = lineLine(pos.x, pos.y, o.x, o.y, topright[0], topright[1], topright[0], bottomright[1])
+            right = lineLine(pos.x, pos.y, o.x, o.y, topright[0], topright[1], bottomright[0], bottomright[1])
 
             top = lineLine(pos.x, pos.y, o.x, o.y, topleft[0], topleft[1], topright[0], topright[1])
 
@@ -118,25 +127,27 @@ class Queue:
 
                 elif (Vector(nearest.x, nearest.y) - pos).magnitude() > (Vector(node.x, node.y) - pos).magnitude():
                     nearest = node
-        print(nearest)
         return nearest
 
     def get(self):
         return self.list[len(self.list)-1]
 
     def test(self):
-        pos = Vector(1696.0, 160.0)
-        goal = Vector(104.0, 1312.0)
+        self.pos = Vector(1696.0, 160.0)
+        self.goal = Vector(104.0, 1312.0)
         
-        self.find_path(self.get_nearest(pos), self.get_nearest(goal))
+        # self.find_path(self.get_nearest(self.pos), self.get_nearest(self.goal))
+
+    def draw(self):
+        circle(self.pos.x, self.pos.y, 10)
+        circle(self.goal.x, self.goal.y, 10)
 
     def find_path(self, start, goal):
         self.put(start)
 
         came_from = dict()
         came_from[start] = None
-
-        while True:
+        while goal is not None and start is not None:
             curr = self.get()
 
             if curr == goal:
@@ -146,5 +157,6 @@ class Queue:
                 if next not in came_from:
                     self.put(next)
                     came_from[next] = curr
-
+        else:
+            print("Goal and Start cannot be none")
         print(self.list)

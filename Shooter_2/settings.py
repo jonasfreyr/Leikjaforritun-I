@@ -13,7 +13,7 @@ def lineLine(x1, y1, x2, y2, x3, y3, x4, y4):
             return False
 
     except ZeroDivisionError:
-        return True
+        return False
 
 # Game
 FPS = 120

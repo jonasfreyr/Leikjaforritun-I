@@ -6,7 +6,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from hud import *
 from weapons import *
-from nodes import *
+from Nodes import *
 import _thread, socket, site, os, sys, platform, datetime
 
 HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
@@ -266,6 +266,8 @@ class Game(pyglet.window.Window):
 
         self.buy_menu = False
 
+        self.q = None
+
     def on_key_press(self, symbol, modifiers):
         """
         When a key is pressed on
@@ -426,6 +428,7 @@ class Game(pyglet.window.Window):
         self.mobs = []
         self.nodes = []
 
+        node_counter = 0
         for tile_object in self.map.tmx_data.objects:
             pos = Vector(tile_object.x, (self.map.size[1] - tile_object.y - tile_object.height))
             pos.x = pos.x + tile_object.width / 2
@@ -443,7 +446,8 @@ class Game(pyglet.window.Window):
                 self.mobs.append(Mob(pos.x, pos.y, self))
 
             elif tile_object.name == "Node":
-                self.nodes.append(Node(pos.x, pos.y))
+                self.nodes.append(Node(pos.x, pos.y, node_counter))
+                node_counter += 1
 
         for node in self.nodes:
             node.connect(self.nodes, self)
@@ -470,9 +474,9 @@ class Game(pyglet.window.Window):
 
         self.target = self.player
 
-        q = Queue(self)
+        self.q = Queue(self)
 
-        # q.test()
+        self.q.test()
 
     def update(self, dt):
         # print(len(self.bullets))
@@ -659,6 +663,8 @@ class Game(pyglet.window.Window):
 
         for node in self.nodes:
             node.draw()
+
+        self.q.draw()
 
         pyglet.gl.glPopMatrix()
 
