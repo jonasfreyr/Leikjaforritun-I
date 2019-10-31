@@ -25,7 +25,7 @@ TILESIZE = 64
 MAP = "map2.tmx"
 
 HOST = '127.0.0.1'
-PORT = 65432
+PORT = 65433
 MY_PORT = 65439
 
 # Hud

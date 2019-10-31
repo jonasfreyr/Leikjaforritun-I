@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-up" width="28" height="28" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="90">
+<map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-up" width="28" height="28" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="90">
  <tileset firstgid="1" source="../img/spritesheet_tiles.tsx"/>
  <layer id="6" name="Ground" width="28" height="28">
   <data encoding="csv">
@@ -182,7 +182,7 @@
   <object id="81" name="Node" type="1" x="848" y="96" width="64" height="64"/>
   <object id="82" name="Node" type="1" x="1616" y="1072" width="64" height="64"/>
   <object id="83" name="Node" type="1" x="1472" y="384" width="64" height="64"/>
-  <object id="84" name="Node" type="3" x="80" y="448" width="64" height="64"/>
+  <object id="84" name="Node" type="3" x="128" y="448" width="64" height="64"/>
   <object id="85" name="Node" type="10" x="1056" y="1120" width="64" height="64"/>
  </objectgroup>
 </map>

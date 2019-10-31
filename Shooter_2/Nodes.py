@@ -90,6 +90,9 @@ class Queue:
 
         self.game = game
 
+        self.goal_line = None
+        self.start_line = None
+
     def put(self, node, index=None):
         if index is not None:
             self.list.insert(index, node)
@@ -130,25 +133,47 @@ class Queue:
         return nearest
 
     def get(self):
-        return self.list[len(self.list)-1]
+        p = self.list[len(self.list)-1]
+        self.list.remove(p)
+        return p
 
     def test(self):
         self.pos = Vector(1696.0, 160.0)
         self.goal = Vector(104.0, 1312.0)
-        
-        # self.find_path(self.get_nearest(self.pos), self.get_nearest(self.goal))
+
+        nearest_goal = self.get_nearest(self.goal)
+        nearest_start = self.get_nearest(self.pos)
+
+        self.goal_line = [self.goal.x, self.goal.y, nearest_goal.x, nearest_goal.y]
+        self.start_line = [self.pos.x, self.pos.y, nearest_start.x, nearest_start.y]
+
+        s = self.find_path(self.get_nearest(self.pos), self.get_nearest(self.goal))
+
+        for node in s:
+            print(node)
 
     def draw(self):
         circle(self.pos.x, self.pos.y, 10)
         circle(self.goal.x, self.goal.y, 10)
+
+        glBegin(GL_LINES)
+        glVertex2i(int(self.goal_line[0]), int(self.goal_line[1]))
+        glVertex2i(int(self.goal_line[2]), int(self.goal_line[3]))
+
+        glVertex2i(int(self.start_line[0]), int(self.start_line[1]))
+        glVertex2i(int(self.start_line[2]), int(self.start_line[3]))
+
+        glEnd()
 
     def find_path(self, start, goal):
         self.put(start)
 
         came_from = dict()
         came_from[start] = None
-        while goal is not None and start is not None:
+        while len(self.list) > 0:
             curr = self.get()
+
+            # print(self.list)
 
             if curr == goal:
                 break
@@ -159,4 +184,13 @@ class Queue:
                     came_from[next] = curr
         else:
             print("Goal and Start cannot be none")
-        print(self.list)
+
+        current = goal
+        path = []
+        while current != start:
+            path.append(current)
+            current = came_from[current]
+        path.append(start)  # optional
+        path.reverse()  # optional
+
+        return path
