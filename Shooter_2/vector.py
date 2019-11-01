@@ -79,11 +79,3 @@ class Vector:
 
         self.x = s.x
         self.y = s.y
-s = Vector(0, 5)
-print(s.angle_to(Vector(1, 0)))
-s = Vector(5, 5)
-print(s.angle_to(Vector(1, 0)))
-s = Vector(5, 0)
-print(s.angle_to(Vector(1, 0)))
-s = Vector(0, -5)
-print(s.angle_to(Vector(1, 0)))

@@ -86,19 +86,15 @@ def circle(x, y, radius):
 
 class Queue:
     def __init__(self, game):
-        self.list = []
+        self.list = {}
 
         self.game = game
 
         self.goal_line = None
         self.start_line = None
 
-    def put(self, node, index=None):
-        if index is not None:
-            self.list.insert(index, node)
-
-        else:
-            self.list.append(node)
+    def put(self, node, index=0):
+        self.list[index] = node
 
     def line_collide(self, game, pos, o):
         for wall in game.walls:
@@ -133,9 +129,13 @@ class Queue:
         return nearest
 
     def get(self):
-        p = self.list[len(self.list)-1]
-        self.list.remove(p)
-        return p
+        p = min(self.list)
+
+        c = self.list[p]
+
+        del self.list[p]
+
+        return c
 
     def test(self):
         self.pos = Vector(1696.0, 160.0)
@@ -149,8 +149,28 @@ class Queue:
 
         s = self.find_path(self.get_nearest(self.pos), self.get_nearest(self.goal))
 
-        for node in s:
-            print(node)
+        self.s = s
+
+    def draw_path(self, nodes, start, goal):
+        glBegin(GL_LINES)
+        glColor3f(1, 0, 0)
+
+        prev = nodes[0]
+
+        glVertex2i(int(prev.x), int(prev.y))
+        glVertex2i(int(start.x), int(start.y))
+
+        for node in nodes[1:]:
+            glVertex2i(int(prev.x), int(prev.y))
+            glVertex2i(int(node.x), int(node.y))
+
+            prev = node
+
+        glVertex2i(int(prev.x), int(prev.y))
+        glVertex2i(int(goal.x), int(goal.y))
+
+        glColor3f(1, 1, 1)
+        glEnd()
 
     def draw(self):
         circle(self.pos.x, self.pos.y, 10)
@@ -165,23 +185,44 @@ class Queue:
 
         glEnd()
 
+        self.draw_path(self.s, self.pos, self.goal)
+
+    def heuristic(self, a, b):
+        # Manhattan distance on a square grid
+        return abs(a.x - b.x) + abs(a.y - b.y)
+
+    def get_cost(self, node, node2):
+        return (Vector(node.x ,node.y) - Vector(node2.x, node2.y)).magnitude()
+
     def find_path(self, start, goal):
         self.put(start)
 
         came_from = dict()
+        cost_so_far = dict()
+
         came_from[start] = None
+        cost_so_far[start] = 0
+
         while len(self.list) > 0:
             curr = self.get()
 
-            # print(self.list)
+            print(curr)
 
             if curr == goal:
                 break
 
             for next in curr.neighbors:
-                if next not in came_from:
-                    self.put(next)
+                print(next)
+                new_cost = cost_so_far[curr] + self.get_cost(curr, next)
+                if next not in cost_so_far or new_cost < cost_so_far[next]:
+                    cost_so_far[next] = new_cost
+                    p = new_cost + self.heuristic(goal, next)
+                    # print(p)
+                    self.put(next, int(p))
                     came_from[next] = curr
+
+            print("-------")
+
         else:
             print("Goal and Start cannot be none")
 
