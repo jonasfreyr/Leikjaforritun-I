@@ -6,6 +6,7 @@ from pyglet.sprite import Sprite
 # import pygame as pg
 import math
 from weapons import *
+from Nodes import Queue
 
 class Oplayers:
     def __init__(self, id, pos, rot, weapon, game):
@@ -97,6 +98,8 @@ class Mob:
 
         self.target = None
 
+        self.q = Queue(self.game)
+
     def collide_with_walls(self, dir):
         if self.health > 0:
             if dir == "x":
@@ -144,17 +147,23 @@ class Mob:
 
     def update(self, dt):
         dist = None
+        player_pos = None
         for player in self.game.o_players:
             new_dist = player.pos - self.pos
 
             if dist is None:
                 dist = new_dist
+                player_pos = player
 
             elif new_dist.magnitude() < dist.magnitude():
                 dist = new_dist
+                player_pos = player
 
         if dist is not None:
             self.rot = self.rot_towards_target(dist)
+
+            if self.q.line_collide(self.game, player_pos.pos, self.pos):
+                self.q.find_path(self.pos, player_pos.pos.copy())
 
         self.hit_box.x += self.vel.x * dt
         self.collide_with_walls("x")
@@ -185,6 +194,8 @@ class Mob:
         glVertex2i(int(self.hit_box.x), int(self.hit_box.y))
 
         glEnd()
+
+        self.q.draw()
 
 class Player:
     def __init__(self, x, y, game, weapon):

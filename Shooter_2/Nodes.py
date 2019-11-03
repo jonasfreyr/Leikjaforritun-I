@@ -90,8 +90,7 @@ class Queue:
 
         self.game = game
 
-        self.goal_line = None
-        self.start_line = None
+        self.s = None
 
     def put(self, node, index=0):
         self.list[index] = node
@@ -128,6 +127,22 @@ class Queue:
                     nearest = node
         return nearest
 
+    def make_node(self, pos, id):
+        n = Node(pos.x, pos.y, id)
+
+        n.connect(self.game.nodes, self.game)
+
+        for next in n.neighbors:
+            next.neighbors.append(n)
+
+        return n
+
+    def del_node(self, node):
+        for next in node.neighbors:
+            next.neighbors.remove(node)
+
+        del node
+
     def get(self):
         p = min(self.list)
 
@@ -137,28 +152,11 @@ class Queue:
 
         return c
 
-    def test(self):
-        self.pos = Vector(1696.0, 160.0)
-        self.goal = Vector(104.0, 1312.0)
-
-        nearest_goal = self.get_nearest(self.goal)
-        nearest_start = self.get_nearest(self.pos)
-
-        self.goal_line = [self.goal.x, self.goal.y, nearest_goal.x, nearest_goal.y]
-        self.start_line = [self.pos.x, self.pos.y, nearest_start.x, nearest_start.y]
-
-        s = self.find_path(self.get_nearest(self.pos), self.get_nearest(self.goal))
-
-        self.s = s
-
-    def draw_path(self, nodes, start, goal):
+    def draw_path(self, nodes):
         glBegin(GL_LINES)
         glColor3f(1, 0, 0)
 
         prev = nodes[0]
-
-        glVertex2i(int(prev.x), int(prev.y))
-        glVertex2i(int(start.x), int(start.y))
 
         for node in nodes[1:]:
             glVertex2i(int(prev.x), int(prev.y))
@@ -166,26 +164,12 @@ class Queue:
 
             prev = node
 
-        glVertex2i(int(prev.x), int(prev.y))
-        glVertex2i(int(goal.x), int(goal.y))
-
         glColor3f(1, 1, 1)
         glEnd()
 
     def draw(self):
-        circle(self.pos.x, self.pos.y, 10)
-        circle(self.goal.x, self.goal.y, 10)
-
-        glBegin(GL_LINES)
-        glVertex2i(int(self.goal_line[0]), int(self.goal_line[1]))
-        glVertex2i(int(self.goal_line[2]), int(self.goal_line[3]))
-
-        glVertex2i(int(self.start_line[0]), int(self.start_line[1]))
-        glVertex2i(int(self.start_line[2]), int(self.start_line[3]))
-
-        glEnd()
-
-        self.draw_path(self.s, self.pos, self.goal)
+        if self.s is not None:
+            self.draw_path(self.s)
 
     def heuristic(self, a, b):
         # Manhattan distance on a square grid
@@ -195,6 +179,14 @@ class Queue:
         return (Vector(node.x ,node.y) - Vector(node2.x, node2.y)).magnitude()
 
     def find_path(self, start, goal):
+        self.goal = goal.copy()
+        self.pos = start.copy()
+
+        start = self.make_node(start, "start")
+        goal = self.make_node(goal, "goal")
+
+        self.list = {}
+
         self.put(start)
 
         came_from = dict()
@@ -206,13 +198,10 @@ class Queue:
         while len(self.list) > 0:
             curr = self.get()
 
-            print(curr)
-
             if curr == goal:
                 break
 
             for next in curr.neighbors:
-                print(next)
                 new_cost = cost_so_far[curr] + self.get_cost(curr, next)
                 if next not in cost_so_far or new_cost < cost_so_far[next]:
                     cost_so_far[next] = new_cost
@@ -220,8 +209,6 @@ class Queue:
                     # print(p)
                     self.put(next, int(p))
                     came_from[next] = curr
-
-            print("-------")
 
         else:
             print("Goal and Start cannot be none")
@@ -234,4 +221,7 @@ class Queue:
         path.append(start)  # optional
         path.reverse()  # optional
 
-        return path
+        self.del_node(start)
+        self.del_node(goal)
+
+        self.s = path

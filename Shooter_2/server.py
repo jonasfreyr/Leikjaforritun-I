@@ -106,6 +106,10 @@ def command_uptime(*args):
 
     print(date - start)
 
+def command_address(*args):
+    print("IP: ", HOST)
+    print("PORT: ", PORT)
+
 def command_restart(*args):
     command_disconnect(*conns)
     print("Not yet implemented")
@@ -121,7 +125,8 @@ commands = {"log": command_log,
             "lb": command_print_ban_list,
             "unban": command_unban,
             "uptime": command_uptime,
-            "restart": command_restart
+            "restart": command_restart,
+            "address": command_address
             }
 
 man_commands = {
@@ -474,10 +479,6 @@ class Game(pyglet.window.Window):
 
         self.target = self.player
 
-        self.q = Queue(self)
-
-        self.q.test()
-
     def update(self, dt):
         # print(len(self.bullets))
         # print(len(self.effects))
@@ -647,6 +648,9 @@ class Game(pyglet.window.Window):
                 player.sprite.draw()
                 player.draw_hit_box()
 
+        for node in self.nodes:
+            node.draw()
+
         self.mob_batch.draw()
 
         for mob in self.mobs:
@@ -660,11 +664,6 @@ class Game(pyglet.window.Window):
 
         for grenade in self.grenades:
             grenade.draw_hit_box()
-
-        for node in self.nodes:
-            node.draw()
-
-        self.q.draw()
 
         pyglet.gl.glPopMatrix()
 
