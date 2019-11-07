@@ -163,7 +163,9 @@ class Mob:
             self.rot = self.rot_towards_target(dist)
 
             if self.q.line_collide(self.game, player_pos.pos, self.pos):
-                self.q.find_path(self.pos, player_pos.pos.copy())
+                p = self.q.find_path(self.pos, player_pos.pos.copy())
+                for pa in p:
+                    print(pa)
 
         self.hit_box.x += self.vel.x * dt
         self.collide_with_walls("x")

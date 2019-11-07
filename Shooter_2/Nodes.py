@@ -225,3 +225,5 @@ class Queue:
         self.del_node(goal)
 
         self.s = path
+
+        return path
