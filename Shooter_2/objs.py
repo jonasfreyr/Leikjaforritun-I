@@ -113,6 +113,16 @@ class Mob:
 
                         self.vel.x = 0
 
+                for mob in self.game.mobs:
+                    if (self.hit_box.x + self.hit_box.width > mob.hit_box.x and self.hit_box.y + self.hit_box.height > mob.hit_box.y) and (self.hit_box.x < mob.hit_box.x + mob.hit_box.width and self.hit_box.y < mob.hit_box.y + mob.hit_box.height):
+                        if mob.hit_box.get_center().x > self.hit_box.get_center().x:
+                            self.hit_box.x = mob.hit_box.x - self.hit_box.width
+
+                        elif mob.hit_box.get_center().x < self.hit_box.get_center().x:
+                            self.hit_box.x = mob.hit_box.x + mob.hit_box.width
+
+                        self.vel.x = 0
+
             elif dir == "y":
                 for wall in self.game.walls:
                     if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
@@ -121,6 +131,16 @@ class Mob:
 
                         elif wall.center.y < self.hit_box.get_center().y:
                             self.hit_box.y = wall.pos.y + wall.height
+
+                        self.vel.y = 0
+
+                for mob in self.game.mobs:
+                    if (self.hit_box.x + self.hit_box.width > mob.hit_box.x and self.hit_box.y + self.hit_box.height > mob.hit_box.y) and (self.hit_box.x < mob.hit_box.x + mob.hit_box.width and self.hit_box.y < mob.hit_box.y + mob.hit_box.height):
+                        if mob.hit_box.get_center().y > self.hit_box.get_center().y:
+                            self.hit_box.y = mob.hit_box.y - self.hit_box.height
+
+                        elif mob.hit_box.get_center().y < self.hit_box.get_center().y:
+                            self.hit_box.y = mob.hit_box.y + mob.hit_box.height
 
                         self.vel.y = 0
 
@@ -142,10 +162,19 @@ class Mob:
 
         return rot
 
-    def move(self):
-        dist = self.target - self.pos
+    def move(self, target, player=False):
+        dist = Vector(target.x, target.y) - self.pos
 
-    def update(self, dt):
+        if dist.magnitude() <= MOB_NODE_DIST and player is False:
+            self.get_path()
+
+        dist.set_length(MOB_SPEED)
+
+        self.vel = dist
+
+        self.rot = self.rot_towards_target(dist)
+
+    def get_closest(self):
         dist = None
         player_pos = None
         for player in self.game.o_players:
@@ -159,13 +188,43 @@ class Mob:
                 dist = new_dist
                 player_pos = player
 
-        if dist is not None:
-            self.rot = self.rot_towards_target(dist)
+        return player_pos
 
+    def get_path(self):
+        player_pos = self.get_closest()
+
+        if player_pos is not None:
             if self.q.line_collide(self.game, player_pos.pos, self.pos):
-                p = self.q.find_path(self.pos, player_pos.pos.copy())
-                for pa in p:
-                    print(pa)
+                self.q.find_path(self.pos, player_pos.pos.copy())
+
+            else:
+                self.move(player_pos.pos, True)
+
+        else:
+            self.q.s = None
+            self.vel.multiply(0)
+
+    def update(self, dt):
+        if self.q.s is None:
+            self.get_path()
+
+        else:
+            pos = self.get_closest()
+            if pos is not None:
+                pos = pos.pos
+                if self.q.line_collide(self.game, pos, self.pos):
+                    self.move(self.q.s[0])
+
+                else:
+                    self.move(pos, True)
+                    self.q.s = None
+
+            else:
+                self.q.s = None
+
+        if self.q.s is not None:
+            for node in self.q.s:
+                print(node)
 
         self.hit_box.x += self.vel.x * dt
         self.collide_with_walls("x")
@@ -319,7 +378,7 @@ class Player:
             if abs(self.rot) - abs(rot) > 10 or abs(rot) - abs(self.rot) > 10:
                 rot = self.rot
 
-            if self.weapons[self.num].ammo_in_mag > 0 and not self.weapons[self.num].fired:
+            if self.weapons[self.num].ammo_in_mag > 0 and (not self.weapons[self.num].fired or self.weapons[self.num].type == "auto"):
                 self.knock_back = WEAPONS[self.weapons[self.num].name]["knock_back"].rotate(self.rot)
 
             self.weapons[self.num].shoot(self.o, self.pos, rot, self.game)

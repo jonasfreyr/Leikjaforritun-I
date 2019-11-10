@@ -218,7 +218,7 @@ class Queue:
         while current != start:
             path.append(current)
             current = came_from[current]
-        path.append(start)  # optional
+        # path.append(start)  # optional
         path.reverse()  # optional
 
         self.del_node(start)

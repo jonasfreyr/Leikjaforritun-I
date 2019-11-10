@@ -498,7 +498,7 @@ class Game(pyglet.window.Window):
 
             else:
                 self.o_players.append(
-                    Oplayers(id, Vector(players[id]["pos"]["x"], players[id]["pos"]["x"]),
+                    Oplayers(id, Vector(players[id]["pos"]["x"], players[id]["pos"]["y"]),
                              players[id]["rot"], players[id]["weapon"], self))
 
         for player in self.o_players:
