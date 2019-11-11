@@ -621,6 +621,10 @@ class Game(pyglet.window.Window):
             except:
                 pass
 
+        tempM = []
+        for mob in self.mobs:
+            tempM.append({"pos": {"x": mob.pos.x, "y": mob.pos.y}, "rot": mob.rot})
+
         try:
             tempC = dict(connsUDP)
             for id in tempC:
@@ -630,7 +634,7 @@ class Game(pyglet.window.Window):
 
                 del temp[id]
 
-                d = {"players": temp, "bullets": tempB, "grenades": tempG, "health": health}
+                d = {"players": temp, "bullets": tempB, "grenades": tempG, "health": health, "mobs": tempM}
                 # print(d)
                 s.sendto(str(d).encode(), tempC[id])
 

@@ -222,6 +222,7 @@ class Game(pyglet.window.Window):
         self.o_bullets = []
         self.new_bullets = []
         self.new_grenades = []
+        self.new_mobs = []
         self.o_grenades = []
         self.stats_list = []
         self.mobs = []
@@ -329,6 +330,7 @@ class Game(pyglet.window.Window):
 
             self.new_bullets = data["bullets"]
             self.new_grenades = data["grenades"]
+            self.new_mobs = data["mobs"]
 
             self.player.health = data["health"]
 
@@ -388,6 +390,10 @@ class Game(pyglet.window.Window):
                     g.sprite.opacity = grenade["opacity"]
 
             self.grenades.append(g)
+
+        self.mobs = []
+        for mob in self.new_mobs:
+            self.mobs.append(Omobs(mob["pos"]["x"], mob["pos"]["y"], mob["rot"], self))
 
         # print(self.bullets)
 

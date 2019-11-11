@@ -71,6 +71,17 @@ class Oplayers:
 
         glEnd()
 
+class Omobs:
+    def __init__(self, x, y, rot, game):
+        self.pos = Vector(x, y)
+
+        self.rot = rot
+
+        self.sprite = Sprite(game.mob_image, x, y, batch=game.mob_batch)
+        self.sprite.update(rotation=rot)
+        self.sprite.image.anchor_x = self.sprite.image.width / 2
+        self.sprite.image.anchor_y = self.sprite.image.height / 2
+
 class Mob:
     def __init__(self, x, y, game):
         self.pos = Vector(x, y)
