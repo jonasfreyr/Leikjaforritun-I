@@ -240,7 +240,7 @@ class Game(pyglet.window.Window):
                 if tel == 0:
                     # self.objects.append(lightvolume.rect(tile_object.x,tile_object.x + tile_object.width, pos.y - tile_object.height / 2, pos.y + tile_object.height / 2))
                     tel += 1
-            elif tile_object.name == "Spawn":
+            elif tile_object.name == "Spawn" and tile_object.type == "Player":
                 self.r_wep = "pistol"
 
                 self.buy_menu_area = Rect(pos.x - tile_object.width / 2, pos.y - tile_object.height / 2, tile_object.width, tile_object.height)
@@ -461,13 +461,9 @@ class Game(pyglet.window.Window):
         self.s.sendto(str(data).encode(), addr)
 
         if len(self.new_players) != 0:
-            print(self.new_players)
             for player in self.new_players:
-                print(self.o_players)
                 pl = [p for p in self.o_players if player[0] == p.id]
-                print(pl)
                 if len(pl) == 0:
-                    print(player[0])
                     self.o_players.append(Oplayers(player[0], Vector(player[1], player[2]), player[3], player[4], self))
 
             self.new_players = []

@@ -432,6 +432,7 @@ class Game(pyglet.window.Window):
         self.o_grenades = []
         self.mobs = []
         self.nodes = []
+        self.mob_spawns = []
 
         node_counter = 0
         for tile_object in self.map.tmx_data.objects:
@@ -444,8 +445,11 @@ class Game(pyglet.window.Window):
             elif tile_object.name == "Player":
                 self.player = Player(pos.x, pos.y, self, tile_object.type)
 
-            elif tile_object.name == "Spawn":
+            elif tile_object.name == "Spawn" and tile_object.type == "Player":
                 self.spawn = pos.copy()
+
+            elif tile_object.name == "Spawn" and tile_object.type == "Mob":
+                self.mob_spawns.append(Mob_Spawn(tile_object.x, pos.y - tile_object.height / 2, tile_object.width, tile_object.height))
 
             elif tile_object.name == "Mob":
                 self.mobs.append(Mob(pos.x, pos.y, self))
@@ -585,6 +589,9 @@ class Game(pyglet.window.Window):
                                 stats[grenade.owner]["kills"] += 1
                                 stats[player.id]["deaths"] += 1
                                 log(str(grenade.owner) + " killed " + str(player.id) + " with grenade")
+
+        for spawn in self.mob_spawns:
+            spawn.update(self)
 
         for mob in self.mobs:
             mob.update(dt)

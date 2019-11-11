@@ -1,5 +1,5 @@
 import pyglet
-from vector import Vector
+from vector import Vector, Rect
 from settings import *
 from pyglet.gl import *
 from pyglet.sprite import Sprite
@@ -7,6 +7,8 @@ from pyglet.sprite import Sprite
 import math
 from weapons import *
 from Nodes import Queue
+from datetime import datetime
+from random import randint
 
 class Oplayers:
     def __init__(self, id, pos, rot, weapon, game):
@@ -221,10 +223,6 @@ class Mob:
 
             else:
                 self.q.s = None
-
-        if self.q.s is not None:
-            for node in self.q.s:
-                print(node)
 
         self.hit_box.x += self.vel.x * dt
         self.collide_with_walls("x")
@@ -590,3 +588,16 @@ class Item:
 
         self.sprite.x = x
         self.sprite.y = y
+
+class Mob_Spawn:
+    def __init__(self, x, y, width, height):
+        self.box = Rect(x, y, width, height)
+
+        self.last_spawn = datetime.now()
+
+        self.spawn_time = randint(MOB_SPAWN_TIME[0], MOB_SPAWN_TIME[1])
+
+    def update(self, game):
+        if (datetime.now() - self.last_spawn).seconds > self.spawn_time:
+            self.last_spawn = datetime.now()
+            game.mobs.append(Mob(randint(self.box.x, self.box.x + self.box.width), randint(self.box.y, self.box.y + self.box.height), game))

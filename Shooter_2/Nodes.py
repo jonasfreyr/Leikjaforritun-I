@@ -178,12 +178,12 @@ class Queue:
     def get_cost(self, node, node2):
         return (Vector(node.x ,node.y) - Vector(node2.x, node2.y)).magnitude()
 
-    def find_path(self, start, goal):
-        self.goal = goal.copy()
-        self.pos = start.copy()
+    def find_path(self, ss, gg):
+        self.goal = gg.copy()
+        self.pos = ss.copy()
 
-        start = self.make_node(start, "start")
-        goal = self.make_node(goal, "goal")
+        start = self.make_node(ss, "start")
+        goal = self.make_node(gg, "goal")
 
         self.list = {}
 
@@ -215,15 +215,19 @@ class Queue:
 
         current = goal
         path = []
-        while current != start:
-            path.append(current)
-            current = came_from[current]
-        # path.append(start)  # optional
-        path.reverse()  # optional
+        try:
+            while current != start:
+                path.append(current)
+                current = came_from[current]
+            # path.append(start)  # optional
+            path.reverse()  # optional
 
-        self.del_node(start)
-        self.del_node(goal)
+            self.del_node(start)
+            self.del_node(goal)
 
-        self.s = path
+            self.s = path
 
-        return path
+            return path
+
+        except:
+            return self.find_path(ss, gg)

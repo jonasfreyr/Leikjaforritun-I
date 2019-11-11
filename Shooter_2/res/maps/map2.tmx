@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-up" width="28" height="28" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="100">
+<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-up" width="28" height="28" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="114">
  <tileset firstgid="1" source="../img/spritesheet_tiles.tsx"/>
  <layer id="6" name="Ground" width="28" height="28">
   <data encoding="csv">
@@ -156,7 +156,7 @@
   <object id="27" name="Wall" x="1024" y="1600" width="128" height="16"/>
   <object id="28" name="Wall" x="448" y="704" width="16" height="64"/>
   <object id="29" name="Player" type="None" x="896" y="1504" width="64" height="64"/>
-  <object id="30" name="Spawn" x="48" y="320" width="112" height="320"/>
+  <object id="30" name="Spawn" type="Player" x="48" y="320" width="112" height="320"/>
   <object id="32" name="Wall" x="192" y="512" width="16" height="192"/>
   <object id="61" name="Node" type="5" x="432" y="768" width="64" height="64"/>
   <object id="62" name="Node" type="1" x="384" y="128" width="64" height="64"/>
@@ -166,29 +166,24 @@
   <object id="66" name="Node" type="9" x="544" y="864" width="64" height="64"/>
   <object id="67" name="Node" type="11" x="1536" y="1280" width="64" height="64"/>
   <object id="68" name="Node" type="17" x="1152" y="1504" width="64" height="64"/>
-  <object id="69" name="Node" type="16" x="976" y="1504" width="64" height="64"/>
-  <object id="70" name="Node" type="19" x="624" y="1632" width="64" height="64"/>
+  <object id="69" name="Node" type="16" x="960" y="1504" width="64" height="64"/>
+  <object id="70" name="Node" type="19" x="640" y="1632" width="64" height="64"/>
   <object id="71" name="Node" type="18" x="480" y="1632" width="64" height="64"/>
   <object id="72" name="Node" type="20" x="224" y="1392" width="64" height="64"/>
-  <object id="73" name="Node" type="13" x="608" y="1312" width="64" height="64"/>
+  <object id="73" name="Node" type="13" x="640" y="1312" width="64" height="64"/>
   <object id="74" name="Node" type="12" x="512" y="1312" width="64" height="64"/>
   <object id="75" name="Node" type="10" x="1056" y="1248" width="64" height="64"/>
-  <object id="76" name="Node" type="14" x="992" y="1344" width="64" height="64"/>
+  <object id="76" name="Node" type="14" x="960" y="1344" width="64" height="64"/>
   <object id="77" name="Node" type="15" x="800" y="1440" width="64" height="64"/>
   <object id="78" name="Node" type="6" x="912" y="768" width="64" height="64"/>
   <object id="79" name="Node" type="3" x="176" y="448" width="64" height="64"/>
-  <object id="80" name="Node" type="4" x="288" y="672" width="64" height="64"/>
-  <object id="81" name="Node" type="1" x="848" y="96" width="64" height="64"/>
-  <object id="82" name="Node" type="1" x="1616" y="1072" width="64" height="64"/>
-  <object id="83" name="Node" type="1" x="1472" y="384" width="64" height="64"/>
+  <object id="80" name="Node" type="4" x="288" y="736" width="64" height="64"/>
   <object id="84" name="Node" type="3" x="128" y="448" width="64" height="64"/>
   <object id="85" name="Node" type="10" x="1056" y="1184" width="64" height="64"/>
   <object id="90" name="Node" type="18" x="368" y="1488" width="64" height="64"/>
-  <object id="93" name="Mob" type="None" x="1280" y="1664" width="64" height="64"/>
   <object id="94" name="Node" type="16" x="960" y="1616" width="64" height="64"/>
-  <object id="96" name="Mob" type="None" x="1280" y="1536" width="64" height="64"/>
-  <object id="97" name="Mob" type="None" x="1264" y="1424" width="64" height="64"/>
-  <object id="98" name="Mob" type="None" x="1216" y="1536" width="64" height="64"/>
-  <object id="99" name="Mob" type="None" x="1216" y="1632" width="64" height="64"/>
+  <object id="110" name="Spawn" type="Mob" x="1472" y="64" width="256" height="320"/>
+  <object id="111" name="Spawn" type="Mob" x="1216" y="1344" width="512" height="384"/>
+  <object id="112" name="Spawn" type="Mob" x="64" y="64" width="192" height="128"/>
  </objectgroup>
 </map>
