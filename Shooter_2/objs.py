@@ -81,9 +81,9 @@ class Omobs:
 
         self.sprite = Sprite(game.mob_image, x, y, batch=game.mob_batch)
         self.sprite.update(rotation=rot)
-        self.sprite.image.anchor_x = self.sprite.image.width / 2
-        self.sprite.image.anchor_y = self.sprite.image.height / 2
 
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - MOB_IMAGE_OFFSET.x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - MOB_IMAGE_OFFSET.y
 
 class Mob:
     def __init__(self, x, y, game):
@@ -101,8 +101,8 @@ class Mob:
         self.width = self.sprite.width
         self.height = self.sprite.height
 
-        self.sprite.image.anchor_x = self.sprite.image.width / 2
-        self.sprite.image.anchor_y = self.sprite.image.height / 2
+        self.sprite.image.anchor_x = self.sprite.image.width / 2 - MOB_IMAGE_OFFSET.x
+        self.sprite.image.anchor_y = self.sprite.image.height / 2 - MOB_IMAGE_OFFSET.y
 
         self.sprite.x = x
         self.sprite.y = y
@@ -208,11 +208,21 @@ class Mob:
 
         return player_pos
 
+    def see_player(self, player):
+        if self.q.line_collide(self.game, Vector(player.hit_box.x, player.hit_box.y), self.pos) \
+        or self.q.line_collide(self.game, Vector(player.hit_box.x + player.hit_box.width, player.hit_box.y), self.pos) \
+        or self.q.line_collide(self.game, Vector(player.hit_box.x + player.hit_box.width, player.hit_box.y + player.hit_box.height), self.pos) \
+        or self.q.line_collide(self.game, Vector(player.hit_box.x, player.hit_box.y + player.hit_box.height), self.pos):
+            return False
+
+        else:
+            return True
+
     def get_path(self):
         player_pos = self.get_closest()
 
         if player_pos is not None:
-            if self.q.line_collide(self.game, player_pos.pos, self.pos):
+            if not self.see_player(player_pos):
                 self.q.find_path(self.pos, player_pos.pos.copy())
 
             else:

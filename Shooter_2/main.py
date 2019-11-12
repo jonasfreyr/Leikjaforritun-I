@@ -3,7 +3,7 @@ from map import *
 from os import path
 from objs import *
 from pyglet.sprite import Sprite
-from pyglet.window import key
+from pyglet.window import key, FPSDisplay
 from hud import *
 from weapons import *
 import _thread, socket, site, os, sys, platform, random
@@ -31,6 +31,10 @@ class Game(pyglet.window.Window):
         self.buy_menu = False
 
         self.dc = False
+
+        self.fps_draw = FPSDisplay(self)
+        self.fps_draw.label.font_size = 50
+        self.fps_draw.label.y = 800 - 50 - 10
 
     def on_key_press(self, symbol, modifiers):
         """
@@ -540,6 +544,8 @@ class Game(pyglet.window.Window):
             self.stats_batch.draw()
 
         self.mouse.draw()
+
+        self.fps_draw.draw()
 
 g = Game(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter 2", resizable=False)
 
