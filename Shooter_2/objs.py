@@ -10,6 +10,7 @@ from Nodes import Queue
 from datetime import datetime
 from random import randint
 
+
 class Oplayers:
     def __init__(self, id, pos, rot, weapon, game):
         self.id = id
@@ -71,6 +72,7 @@ class Oplayers:
 
         glEnd()
 
+
 class Omobs:
     def __init__(self, x, y, rot, game):
         self.pos = Vector(x, y)
@@ -81,6 +83,7 @@ class Omobs:
         self.sprite.update(rotation=rot)
         self.sprite.image.anchor_x = self.sprite.image.width / 2
         self.sprite.image.anchor_y = self.sprite.image.height / 2
+
 
 class Mob:
     def __init__(self, x, y, game):
@@ -112,6 +115,8 @@ class Mob:
         self.target = None
 
         self.q = Queue(self.game)
+
+        self.id = game.new_mob_id()
 
     def collide_with_walls(self, dir):
         if self.health > 0:
@@ -266,6 +271,7 @@ class Mob:
         glEnd()
 
         self.q.draw()
+
 
 class Player:
     def __init__(self, x, y, game, weapon):
@@ -524,6 +530,7 @@ class Player:
         self.draw_hit_box()
         self.sprite.draw()
 
+
 class Mouse:
     def __init__(self, sprite, game):
         self.pos = Vector(0, 0)
@@ -560,6 +567,7 @@ class Mouse:
     def draw(self):
         self.sprite.draw()
 
+
 class Wall:
     def __init__(self, x, y, width, height):
         self.pos = Vector(x, y)
@@ -588,6 +596,7 @@ class Wall:
 
         glEnd()
 
+
 class Item:
     def __init__(self, x, y, item):
         self.pos = Vector(x, y)
@@ -599,6 +608,7 @@ class Item:
 
         self.sprite.x = x
         self.sprite.y = y
+
 
 class Mob_Spawn:
     def __init__(self, x, y, width, height):

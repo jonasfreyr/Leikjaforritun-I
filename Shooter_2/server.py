@@ -340,6 +340,11 @@ class Game(pyglet.window.Window):
                 remove_user(id)
                 break
 
+    def new_mob_id(self):
+        self.mob_id += 1
+
+        return self.mob_id
+
     def load(self):
         osystem = platform.system()
 
@@ -433,6 +438,7 @@ class Game(pyglet.window.Window):
         self.mobs = []
         self.nodes = []
         self.mob_spawns = []
+        self.mob_id = -1
 
         node_counter = 0
         for tile_object in self.map.tmx_data.objects:
@@ -572,7 +578,7 @@ class Game(pyglet.window.Window):
                     if t and player.health > 0:
                         player.health -= WEAPONS[bullet.weapon]["damage"]
                         if player.health <= 0:
-                            stats[bullet.owner]["kills"] += 1
+                            stats[bullet.owner]["kills"] -= 1
                             stats[player.id]["deaths"] += 1
                             log(str(bullet.owner) + " killed " + str(player.id) + " with " + bullet.weapon)
 
@@ -581,12 +587,12 @@ class Game(pyglet.window.Window):
                 for grenade in self.grenades:
                     if grenade.explode and not grenade.sent and grenade.type == "grenade":
                         mag = (player.pos - grenade.pos).magnitude()
-                        if  mag <= GRENADE_DAMAGE_RADIUS and player.health > 0:
+                        if mag <= GRENADE_DAMAGE_RADIUS and player.health > 0:
                             dmg = round(GRENADE_DAMAGE / (mag / 37))
                             player.health -= dmg
 
                             if player.health <= 0:
-                                stats[grenade.owner]["kills"] += 1
+                                stats[grenade.owner]["kills"] -= 1
                                 stats[player.id]["deaths"] += 1
                                 log(str(grenade.owner) + " killed " + str(player.id) + " with grenade")
 
@@ -595,6 +601,35 @@ class Game(pyglet.window.Window):
 
         for mob in self.mobs:
             mob.update(dt)
+
+            for bullet in self.bullets:
+                if bullet.check_player(mob):
+                    mob.health -= WEAPONS[bullet.weapon]["damage"]
+
+                    self.bullets.remove(bullet)
+
+                    if mob.health <= 0:
+                        stats[bullet.owner]["kills"] += 1
+                        log(str(bullet.owner) + " killed mob " + str(mob.id) + " with " + bullet.weapon)
+
+                        mob.sprite.delete()
+                        self.mobs.remove(mob)
+                        break
+
+            for grenade in self.grenades:
+                if grenade.explode and not grenade.sent and grenade.type == "grenade":
+                    mag = (mob.pos - grenade.pos).magnitude()
+                    if mag <= GRENADE_DAMAGE_RADIUS:
+                        dmg = round(GRENADE_DAMAGE / (mag / 37))
+                        mob.health -= dmg
+
+                        if mob.health <= 0:
+                            stats[grenade.owner]["kills"] -= 1
+                            log(str(grenade.owner) + " killed mob " + str(mob.id) + " with grenade")
+
+                            mob.sprite.delete()
+                            self.mobs.remove(mob)
+                            break
 
         tempB = []
         for bullet in self.bullets:
