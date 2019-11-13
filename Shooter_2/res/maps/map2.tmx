@@ -176,8 +176,8 @@
   <object id="76" name="Node" type="14" x="960" y="1344" width="64" height="64"/>
   <object id="77" name="Node" type="15" x="800" y="1440" width="64" height="64"/>
   <object id="78" name="Node" type="6" x="912" y="768" width="64" height="64"/>
-  <object id="79" name="Node" type="3" x="176" y="448" width="64" height="64"/>
-  <object id="80" name="Node" type="4" x="288" y="736" width="64" height="64"/>
+  <object id="79" name="Node" type="3" x="224" y="448" width="64" height="64"/>
+  <object id="80" name="Node" type="4" x="288" y="768" width="64" height="64"/>
   <object id="84" name="Node" type="3" x="128" y="448" width="64" height="64"/>
   <object id="85" name="Node" type="10" x="1056" y="1184" width="64" height="64"/>
   <object id="90" name="Node" type="18" x="368" y="1488" width="64" height="64"/>
@@ -186,6 +186,5 @@
   <object id="111" name="Spawn" type="Mob" x="1216" y="1344" width="512" height="384"/>
   <object id="112" name="Spawn" type="Mob" x="64" y="64" width="192" height="128"/>
   <object id="114" name="Spawn" type="Mob" x="64" y="1472" width="320" height="256"/>
-  <object id="115" name="Mob" x="704" y="1504" width="64" height="64"/>
  </objectgroup>
 </map>

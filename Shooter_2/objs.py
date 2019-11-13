@@ -85,6 +85,11 @@ class Omobs:
         self.sprite.image.anchor_x = self.sprite.image.width / 2 - MOB_IMAGE_OFFSET.x
         self.sprite.image.anchor_y = self.sprite.image.height / 2 - MOB_IMAGE_OFFSET.y
 
+        self.hit_box = MOB_HIT_BOX.copy()
+
+        self.hit_box.x = self.pos.x - self.hit_box.width / 2
+        self.hit_box.y = self.pos.y - self.hit_box.height / 2
+
 class Mob:
     def __init__(self, x, y, game):
         self.pos = Vector(x, y)
@@ -141,6 +146,16 @@ class Mob:
 
                         self.vel.x = 0
 
+                for player in self.game.o_players:
+                    if (self.hit_box.x + self.hit_box.width > player.hit_box.x and self.hit_box.y + self.hit_box.height > player.hit_box.y) and (self.hit_box.x < player.hit_box.x + player.hit_box.width and self.hit_box.y < player.hit_box.y + player.hit_box.height):
+                        if player.hit_box.get_center().x > self.hit_box.get_center().x:
+                            self.hit_box.x = player.hit_box.x - self.hit_box.width
+
+                        elif player.hit_box.get_center().x < self.hit_box.get_center().x:
+                            self.hit_box.x = player.hit_box.x + player.hit_box.width
+
+                        self.vel.x = 0
+
             elif dir == "y":
                 for wall in self.game.walls:
                     if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
@@ -159,6 +174,16 @@ class Mob:
 
                         elif mob.hit_box.get_center().y < self.hit_box.get_center().y:
                             self.hit_box.y = mob.hit_box.y + mob.hit_box.height
+
+                        self.vel.y = 0
+
+                for player in self.game.o_players:
+                    if (self.hit_box.x + self.hit_box.width > player.hit_box.x and self.hit_box.y + self.hit_box.height > player.hit_box.y) and (self.hit_box.x < player.hit_box.x + player.hit_box.width and self.hit_box.y < player.hit_box.y + player.hit_box.height):
+                        if player.hit_box.get_center().y > self.hit_box.get_center().y:
+                            self.hit_box.y = player.hit_box.y - self.hit_box.height
+
+                        elif player.hit_box.get_center().y < self.hit_box.get_center().y:
+                            self.hit_box.y = player.hit_box.y + player.hit_box.height
 
                         self.vel.y = 0
 
@@ -294,7 +319,7 @@ class Player:
 
         self.weapons = [None, Weapon("pistol")]
 
-        self.grenades = [Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke"),Grenade(self.game, "grenade"),Grenade(self.game, "smoke")]
+        self.grenades = [Grenade(self.game, "grenade"),Grenade(self.game, "grenade"),Grenade(self.game, "grenade"),Grenade(self.game, "grenade"),Grenade(self.game, "grenade")]
         self.grenade_num = 0
 
         self.last_shot = 0
@@ -450,6 +475,16 @@ class Player:
 
                         self.vel.x = 0
 
+                for mob in self.game.mobs:
+                    if (self.hit_box.x + self.hit_box.width > mob.hit_box.x and self.hit_box.y + self.hit_box.height > mob.hit_box.y) and (self.hit_box.x < mob.hit_box.x + mob.hit_box.width and self.hit_box.y < mob.hit_box.y + mob.hit_box.height):
+                        if mob.hit_box.get_center().x > self.hit_box.get_center().x:
+                            self.hit_box.x = mob.hit_box.x - self.hit_box.width
+
+                        elif mob.hit_box.get_center().x < self.hit_box.get_center().x:
+                            self.hit_box.x = mob.hit_box.x + mob.hit_box.width
+
+                        self.vel.x = 0
+
             elif dir == "y":
                 for wall in self.game.walls:
                     if (self.hit_box.x + self.hit_box.width > wall.pos.x and self.hit_box.y + self.hit_box.height > wall.pos.y) and (self.hit_box.x < wall.pos.x + wall.width and self.hit_box.y < wall.pos.y + wall.height):
@@ -458,6 +493,16 @@ class Player:
 
                         elif wall.center.y < self.hit_box.get_center().y:
                             self.hit_box.y = wall.pos.y + wall.height
+
+                        self.vel.y = 0
+
+                for mob in self.game.mobs:
+                    if (self.hit_box.x + self.hit_box.width > mob.hit_box.x and self.hit_box.y + self.hit_box.height > mob.hit_box.y) and (self.hit_box.x < mob.hit_box.x + mob.hit_box.width and self.hit_box.y < mob.hit_box.y + mob.hit_box.height):
+                        if mob.hit_box.get_center().y > self.hit_box.get_center().y:
+                            self.hit_box.y = mob.hit_box.y - self.hit_box.height
+
+                        elif mob.hit_box.get_center().y < self.hit_box.get_center().y:
+                            self.hit_box.y = mob.hit_box.y + mob.hit_box.height
 
                         self.vel.y = 0
 
@@ -629,6 +674,6 @@ class Mob_Spawn:
         self.spawn_time = randint(MOB_SPAWN_TIME[0], MOB_SPAWN_TIME[1])
 
     def update(self, game):
-        if (datetime.now() - self.last_spawn).seconds > self.spawn_time:
+        if (datetime.now() - self.last_spawn).seconds > self.spawn_time and len(game.mobs) < MOB_MAX:
             self.last_spawn = datetime.now()
             game.mobs.append(Mob(randint(self.box.x, self.box.x + self.box.width), randint(self.box.y, self.box.y + self.box.height), game))

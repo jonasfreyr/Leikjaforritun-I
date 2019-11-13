@@ -46,10 +46,11 @@ MOB_IMAGE_SIZE = Vector(TILESIZE * 1.2, TILESIZE * 1.2)
 MOB_HIT_BOX = Rect(0, 0, TILESIZE * 0.5, TILESIZE * 0.5)
 MOB_HEALTH = 100
 MOB_ROTATION_SPEED = 5
-MOB_SPEED = 100
+MOB_SPEED = 200
 MOB_NODE_DIST = 10
-MOB_SPAWN_TIME = [20, 40]
+MOB_SPAWN_TIME = [7, 15]
 MOB_IMAGE_OFFSET = Vector(5, 3)
+MOB_MAX = 20
 
 # Misc
 PICK_IMG = "pick.png"
@@ -68,7 +69,8 @@ GRENADE_STARTING_VEL = Vector(300, 0)
 GRENADE_DISTANCE = 300
 GRENADE_HIT_BOX = Rect(0, 0, GRENADE_SIZE.x * 0.6, GRENADE_SIZE.y * 0.6)
 GRENADE_DAMAGE_RADIUS = 100
-GRENADE_DAMAGE = 65
+GRENADE_DAMAGE = 160
+GRENADE_SLOWDOWN = 0.40
 
 GRENADE_LOGO = "grenade_logo.png"
 GRENADE_LOGO_SIZE = Vector(50, 50)
@@ -104,7 +106,7 @@ WEAPONS = {}
 WEAPONS["pistol"] = {'bullet_speed': 2000,
                      'bullet_distance': 420,
                      'rate': 0.5,
-                     'kickback': 200,
+                     'slowdown': 0.95,
                      'spread': 2,
                      'damage': 15,
                      'bullet_size': 0.010,
@@ -127,7 +129,7 @@ WEAPONS["pistol"] = {'bullet_speed': 2000,
 WEAPONS['shotgun'] = {'bullet_speed': 2000,
                      'bullet_distance': 300,
                      'rate': 1.2,
-                     'kickback': 800,
+                     'slowdown': 0.80,
                      'spread': 10,
                      'damage': 10,
                      'bullet_size': 0.010,
@@ -150,7 +152,7 @@ WEAPONS['shotgun'] = {'bullet_speed': 2000,
 WEAPONS['rifle'] = {'bullet_speed': 2000,
                      'bullet_distance': 800,
                      'rate': 0.15,
-                     'kickback': 500,
+                     'slowdown': 0.85,
                      'spread': [0, 1, -2, 5, 10, 7, 5, 3, 0, -3, -6, -10, -6, -4, 2, 0, 0, 0, 5, 10, 7, 5, 3, 0, -3, -6, -10, -6, -4, 2],
                      'damage': 20,
                      'bullet_size': 0.010,
