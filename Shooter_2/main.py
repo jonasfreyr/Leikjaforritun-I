@@ -34,7 +34,8 @@ class Game(pyglet.window.Window):
 
         self.fps_draw = FPSDisplay(self)
         self.fps_draw.label.font_size = 50
-        self.fps_draw.label.y = 800 - 50 - 10
+        self.fps_draw.label.anchor_y = "top"
+        self.fps_draw.label.y = WINDOW_HEIGHT
 
     def on_key_press(self, symbol, modifiers):
         """
