@@ -230,5 +230,4 @@ class Queue:
             return path
 
         except:
-            print("no.")
             return self.find_path(ss, gg)

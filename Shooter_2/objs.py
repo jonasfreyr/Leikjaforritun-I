@@ -72,7 +72,6 @@ class Oplayers:
 
         glEnd()
 
-
 class Omobs:
     def __init__(self, x, y, rot, game):
         self.pos = Vector(x, y)
@@ -123,6 +122,8 @@ class Mob:
 
         self.id = game.new_mob_id()
 
+        self.last_hit = datetime.now()
+
     def collide_with_walls(self, dir):
         if self.health > 0:
             if dir == "x":
@@ -155,6 +156,7 @@ class Mob:
                             self.hit_box.x = player.hit_box.x + player.hit_box.width
 
                         self.vel.x = 0
+                        self.hit(player)
 
             elif dir == "y":
                 for wall in self.game.walls:
@@ -186,6 +188,12 @@ class Mob:
                             self.hit_box.y = player.hit_box.y + player.hit_box.height
 
                         self.vel.y = 0
+                        self.hit(player)
+
+    def hit(self, player):
+        if (datetime.now() - self.last_hit).seconds > MOB_DAMGAGE_RATE:
+            player.health -= MOB_DAMAGE
+            self.last_hit = datetime.now()
 
     def rot_towards_target(self, target_dist):
         rotT = target_dist.get_angle() - 90
@@ -221,15 +229,16 @@ class Mob:
         dist = None
         player_pos = None
         for player in self.game.o_players:
-            new_dist = player.pos - self.pos
+            if not player.dead:
+                new_dist = player.pos - self.pos
 
-            if dist is None:
-                dist = new_dist
-                player_pos = player
+                if dist is None:
+                    dist = new_dist
+                    player_pos = player
 
-            elif new_dist.magnitude() < dist.magnitude():
-                dist = new_dist
-                player_pos = player
+                elif new_dist.magnitude() < dist.magnitude():
+                    dist = new_dist
+                    player_pos = player
 
         return player_pos
 

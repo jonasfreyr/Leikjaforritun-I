@@ -588,7 +588,6 @@ class Game(pyglet.window.Window):
                     if grenade.explode and not grenade.sent and grenade.type == "grenade":
                         mag = (player.pos - grenade.pos).magnitude()
                         if mag <= GRENADE_DAMAGE_RADIUS and player.health > 0:
-                            print((GRENADE_DAMAGE - mag))
                             player.health -= (GRENADE_DAMAGE - mag)
 
                             if player.health <= 0:
@@ -625,7 +624,6 @@ class Game(pyglet.window.Window):
                     if mag <= GRENADE_DAMAGE_RADIUS:
                         # dmg = round(GRENADE_DAMAGE / (mag / 37))
                         mob.health -= (GRENADE_DAMAGE - mag)
-                        print((GRENADE_DAMAGE - mag))
 
                         if mob.health <= 0:
                             stats[grenade.owner]["kills"] -= 1
