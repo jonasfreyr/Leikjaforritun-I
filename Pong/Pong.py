@@ -1,117 +1,131 @@
-import pygame, random
+from obj import *
 
 class game:
     def __init__(self):
-        self.wW = 1200
-        self.wH = 900
-
-        self.screen = pygame.display.set_mode((self.wW, self.wH))
-        self.Scolor = (255, 255, 255)
-
-        self.color = (0, 0, 0)
+        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
         self.FPS = 240
         self.clock = pygame.time.Clock()
 
-        self.width = 10
-        self.height = 50
+        x1 = random.choice([-BALL_SPEED, BALL_SPEED])
+        y1 = random.choice([-BALL_SPEED, BALL_SPEED])
 
-        self.sizeB = 15
+        self.right = True if x1 < 0 else False
 
-        self.speed = 2
-        self.speedBall = 1.5
+        self.ball = Ball(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, self.screen)
+        self.ball.vel.x = x1
+        self.ball.vel.y = y1
 
-        x1 = random.choice([-self.speedBall, self.speedBall])
-        y1 = random.choice([-self.speedBall, self.speedBall])
+        x1 = PLAYER_PIXLES_FROM_SIDE
+        y1 = WINDOW_HEIGHT / 2 - PLAYER_DIMENSIONS[1] / 2
 
-        self.ballVector = (x1, y1)
+        player1 = Player(x1, y1, self.screen)
 
-        self.xB = self.wW / 2
-        self.yB = self.wH / 2
+        x2 = WINDOW_WIDTH - PLAYER_PIXLES_FROM_SIDE - PLAYER_DIMENSIONS[0]
+        player2 = Player(x2, y1, self.screen)
 
-        self.x1 = self.wW / 10
-        self.y1 = self.wH / 2 - self.height / 2
-
-        self.x2 = self.wW / 10 * 9
-        self.y2 = self.wH / 2 - self.height / 2
+        self.players = [player1, player2]
 
         self.restart = False
 
-    def drawPlayers(self):
-        pygame.draw.rect(self.screen, self.color, pygame.Rect(self.x1, self.y1, self.width, self.height))
-        pygame.draw.rect(self.screen, self.color, pygame.Rect(self.x2, self.y2, self.width, self.height))
+        self.score = [0, 0]
 
-    def movePlayer(self, y, P):
-        if P == 1:
-            if self.y1 + y > 0 and self.y1 + y + self.height< self.wH:
-                self.y1 += y
+        self.served = False
 
-        elif P == 2:
-            if self.y2 + y > 0 and self.y2 + y + self.height < self.wH:
-                self.y2 += y
+        # print(pygame.font.get_fonts())  # To see all the available fonts
 
-    def drawBall(self):
-        pygame.draw.rect(self.screen, self.color, pygame.Rect(self.xB, self.yB, self.sizeB, self.sizeB))
+        pygame.init()
 
-    def moveBall(self):
-        self.xB = self.xB + self.ballVector[0]
-        self.yB = self.yB + self.ballVector[1]
+    def reset(self):
+        self.ball.pos.x = WINDOW_WIDTH / 2
+        self.ball.pos.y = WINDOW_HEIGHT / 2
+        self.served = False
 
     def checkBall(self):
-        x1 = self.ballVector[0]
-        y1 = self.ballVector[1]
+        if self.players[0].check_ball(self.ball) and self.right:
+            self.ball.vel.x *= -1
+            self.right = not self.right
 
-        if (self.xB + x1 + self.sizeB > self.x1 and self.yB + self.sizeB > self.y1) and (self.xB + x1 < self.x1 + self.width and self.yB < self.y1 + self.height):
-            x1 = -x1
+        elif self.players[1].check_ball(self.ball) and not self.right:
+            self.ball.vel.x *= -1
+            self.right = not self.right
 
-        elif (self.xB + x1 + self.sizeB > self.x2 and self.yB + self.sizeB > self.y2) and (self.xB + x1 < self.x2 + self.width and self.yB < self.y2 + self.height):
-            x1 = -x1
+        if self.ball.pos.y < 0 or self.ball.pos.y + BALL_SIZE > WINDOW_HEIGHT:
+            self.ball.vel.y *= -1
 
-        if self.yB + y1 < 0 or self.yB + y1 + self.sizeB > self.wH:
-            y1 = -y1
+        if self.ball.pos.x < 0:
+            self.score[1] += 1
+            self.reset()
 
-        self.ballVector = (x1, y1)
+        elif self.ball.pos.x + BALL_SIZE > WINDOW_WIDTH:
+            self.score[0] += 1
+            self.reset()
 
     def loop(self):
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
-                    quit()
-
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_r:
-                        self.restart = True
-
-            self.screen.fill(self.Scolor)
-
-            pygame.draw.line(self.screen, self.color, (self.wW / 2, 0), (self.wW / 2, self.wH), 1)
-
-            pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_w]:
-                game.movePlayer(self, -self.speed, 1)
-
-            if pressed[pygame.K_s]:
-                game.movePlayer(self, self.speed, 1)
-
-            if pressed[pygame.K_UP]:
-                game.movePlayer(self, -self.speed, 2)
-
-            if pressed[pygame.K_DOWN]:
-                game.movePlayer(self, self.speed, 2)
-
-            game.drawPlayers(self)
-
-            game.checkBall(self)
-
-            game.moveBall(self)
-
-            game.drawBall(self)
-
-            pygame.display.flip()
-            self.clock.tick(self.FPS)
+            self.events()
+            self.update()
+            self.draw()
 
             if self.restart is True:
                 break
+
+    def events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+                quit()
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_r:
+                    self.restart = True
+
+                if event.key == pygame.K_SPACE:
+                    self.served = True
+
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_w]:
+            self.players[0].move(0, -PLAYER_SPEED)
+
+        if pressed[pygame.K_s]:
+            self.players[0].move(0, PLAYER_SPEED)
+
+        if pressed[pygame.K_UP]:
+            self.players[1].move(0, -PLAYER_SPEED)
+
+        if pressed[pygame.K_DOWN]:
+            self.players[1].move(0, PLAYER_SPEED)
+
+    def update(self):
+        self.checkBall()
+
+        if self.served:
+            self.ball.update()
+
+        for player in self.players:
+            player.update()
+
+        self.clock.tick(self.FPS)
+
+    def draw(self):
+        self.screen.fill(BACKGROUND_COLOR)
+        pygame.draw.line(self.screen, COLOR, (WINDOW_WIDTH / 2, 0), (WINDOW_WIDTH / 2, WINDOW_HEIGHT), 1)
+
+        self.drawPlayers()
+        self.ball.draw()
+        self.draw_text()
+
+        pygame.display.flip()
+
+    def drawPlayers(self):
+        for player in self.players:
+            player.draw()
+
+    def draw_text(self):
+        if not self.served:
+            draw_text(self.screen, "Serve the ball!", 80, SERVE_COLOR, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5)
+
+        draw_text(self.screen, str(self.score[0]), 80, COLOR, WINDOW_WIDTH / 5, WINDOW_HEIGHT / 10)
+        draw_text(self.screen, str(self.score[1]), 80, COLOR, WINDOW_WIDTH / 5*4, WINDOW_HEIGHT / 10)
 
 while True:
     h = game()

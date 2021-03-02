@@ -9,7 +9,7 @@ from weapons import *
 from Nodes import *
 import _thread, socket, site, os, sys, platform, datetime
 
-HOST = '127.0.0.1'   # Standard loopback interface address (localhost)
+HOST = ''   # Standard loopback interface address (localhost)
 PORT = 65432
 
 conns = {}
@@ -47,11 +47,13 @@ def command_conns(*args):
 
 def command_disconnect(*args):
     for id in args:
+        print(conns)
         if id in conns:
             conns[int(id)].sendall(b"dc")
+            break
 
-        else:
-            print("Invalid id")
+    else:
+        print("Invalid id")
 
 def command_ban(*args):
     for ban in args:
@@ -596,7 +598,8 @@ class Game(pyglet.window.Window):
                                 log(str(grenade.owner) + " killed " + str(player.id) + " with grenade")
 
         for spawn in self.mob_spawns:
-            spawn.update(self)
+            # spawn.update(self)
+            pass
 
         for mob in self.mobs:
             mob.update(dt)

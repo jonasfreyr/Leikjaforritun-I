@@ -7,13 +7,14 @@
 More Weapons - [O]
 
 Mobs - [O]
- Pathfinding - [O]
+ Pathfinding - [X]
+ Damage - [O]
 
 Connection UI - [O]
 
 More Server Commands - [O]
  DC Command - [X]
- Ban Command - [O]
+ Ban Command - [X]
  Shutdown - [X]
 
 Knockback - [X]

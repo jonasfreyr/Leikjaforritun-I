@@ -302,6 +302,7 @@ class Enemy(pg.sprite.Sprite):
 
         angle = math.atan2(-target_dist.x, -target_dist.y)/math.pi * 180.0
 
+
         diff = (angle - self.rot - 90) % 360
 
         if 175 < int(diff) < 183:
