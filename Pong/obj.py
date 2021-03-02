@@ -1,10 +1,10 @@
 from constants import *
 from vector import Vector
-import pygame, random
+
 
 def draw_text(screen, text, size, color, x, y):
-    font = pygame.font.SysFont(FONT, size)
-    text_surface = font.render(text, True, color)
+    # font = pygame.font.SysFont(FONT, size)
+    text_surface = FONT.render(text, True, color)
     text_rect = text_surface.get_rect()
     text_rect.center = (x, y)
 
@@ -27,9 +27,6 @@ class Player:
         if (ball.pos.x + BALL_SIZE > self.pos.x and ball.pos.y + BALL_SIZE > self.pos.y) and (
                     ball.pos.x < self.pos.x + PLAYER_DIMENSIONS[0] and ball.pos.y < self.pos.y + PLAYER_DIMENSIONS[1]):
 
-            magnintute = ball.vel.magnitude
-            ball.vel += (self.vel * 0.4)
-            ball.vel.set_length(magnintute)
             return True
 
         return False
@@ -52,16 +49,6 @@ class Ball:
 
     def update(self):
         self.pos += self.vel
-
-        # Needs work
-        # print(abs(self.vel.angle_to(Vector(1, 0))))
-        if 180 - MAX_ANGLE > abs(self.vel.angle_to(Vector(1, 0))) > MAX_ANGLE:
-            if self.vel.get_angle() < 0:
-                # print("Neg")
-                self.vel = self.vel.rotate(-MAX_ANGLE)
-            else:
-                # print("Pos")
-                self.vel = self.vel.rotate(MAX_ANGLE)
 
     def draw(self):
         pygame.draw.rect(self.screen, COLOR, pygame.Rect(self.pos.x, self.pos.y, BALL_SIZE, BALL_SIZE))
